@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<!--
+3D free body diagrams 
+G. Mason
+1/3/2023
+-->
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>FBD 3Dv6</title>
+
+	<!-- all required file are held locally to make this portable -->
+	<link rel="script" src="three.min.js">
+	<link rel="script" src="CSS2DRenderer.js">
+
+	<link rel="script" src="OrbitControls.js">
+	<!-- link rel="script" src="./examples/js/loaders/SVGLoader.js" -->
+
+	<link rel="script" src="FBDSupport.js">
+	<link rel="script" src="FBDModels.js">
+	<link rel="script" src="FBDHelpers.js">
+	<!-- link rel="script" src="./examples/js/loaders/GLTFLoader.js -->
+
+	<link rel="script" src="chart.js">
+
+	<style>
+		body {
+			margin: 0;
+		}
+
+	
+		.label {
+			color: #000;
+			font-family: sans-serif;
+			padding: 2px;
+			pointer-events: none;
+		}
+
+		.editlabel {
+			color: black;
+			font-family: sans-serif;
+			padding: 2px;
+			width: 50px;
+			border: none;
+			text-align: center;
+			background-color: transparent;
+			pointer-events: none;
+		}
+
+		.container {
+			display: flex;
+			flex-wrap: wrap;
+			align-content: stretch;
+			overflow: scroll;
+
+			overflow: hidden;
+		}
+
+		.container-webgl {
+			background-color: transparent;
+			width: 640px;
+			position: relative;
+			margin: 5px;
+			border: none;
+			flex-grow: 0;
+		}
+
+		.container-right {
+			flex-grow: 1;
+			margin: 5px;
+			position: relative;
+		}
+
+		textarea {
+			min-height: 200px;
+			border: solid;
+			border-width: 1px;
+			width: 90%;
+			margin-top: 5px;
+			margin-bottom: 20px;
+		}
+
+		#GraphView {
+			width: 600px;
+			height: 600px;
+			border: solid;
+			border-width: 1px;
+			display: inline-block;
+		}
+
+		.quickView {
+			width: 50px;
+		}
+
+		#quickAxisContainer {
+			position: absolute;
+			right: 2px;
+			bottom: 2px;
+			z-index: 1000;
+			text-align: center;
+		}
+
+		#coordsContainer {
+			position: absolute;
+			left: 2px;
+			bottom: 2px;
+			z-index: 1001;
+			background-color: transparent;
+			border:none;
+		}
+		.coordXYZ{
+			position:relative;
+			border:none;
+			width:25px;
+			background-color:transparent;
+			text-align: right;
+		}
+
+		#axisView {
+			position: absolute;
+			left: 2px;
+			top: 2px;
+			z-index: 1000;
+		}
+
+		#enableOrbit{
+			position:relative;
+			top:1px;
+			border-radius: 9px;
+			height:18px
+			
+		}
+		.quickAxisButton {
+			width: 50px;
+		}
+	</style>
+</head>
+
+<body>
+	<script src="three.min.js"></script>
+	<script src="FBDSupport.js"></script>
+	<script src="CSS2DRenderer.js"></script>
+	<script src="OrbitControls.js"></script>
+	<script src="FBDModels.js"></script>
+	<script src="FBDHelpers.js"></script>
+	<!-- script src="./examples/js/loaders/SVGLoader.js"></script -->
+
+	<script src="chart.js"></script>
+
+	<div class="container">
+		<div class="container-webgl">
+			<div id="GraphView" class="container-webgl">
+				<span id="axisView"><input id="showAxis" type="checkbox" checked>Axis visible</span>
+				
+				<span id="coordsContainer" style="display:none;">
+					<input class="coordXYZ" id="Xcoord" type="text" value="">,
+					<input class="coordXYZ" id="Ycoord" type="text" value="">,
+					<input class="coordXYZ" id="Zcoord" type="text" value="">&nbsp;
+					<button id="ENTER" >&check;</button>
+				</span>
+				
+				<span id="quickAxisContainer">Plane:
+					<button id="1" class="quickAxisButton">x-y</button>
+					<button id="2" class="quickAxisButton">y-z</button>
+					<button id="3" class="quickAxisButton">x-z</button>
+
+				</span>
+			</div>
+			<input type="range" min="0" max="157.08" value="0" class="slider" id="rotlat" orient="vertical"
+				style="height: 600px; -webkit-appearance:slider-vertical; width:15px;">
+			<div>
+				<input type="range" min="0" max="157.08" value="0" class="slider" id="rotlon" style="width: 350px;">
+				<button id="a" class="quickView">Front</button>
+				<button id="s" class="quickView">Iso</button>
+				<button id="d" class="quickView">Right</button>
+				<button id="w" class="quickView">Top</button>
+				&nbsp;<button id="enableOrbit" >&nbsp;</button>
+			</div>
+			<div class="controls">
+				Add: <button id="addV">Vector</button> <button id="addL">Line</button> <button id="addQ">Curve</button>
+				&nbsp; &nbsp; <button id="reset">Reset</button> <button id="delete">Delete</button><br />
+
+			</div>
+		</div>
+
+		<div class="container-right">
+			<div style="position:relative; width:90%;"><button id="import">Import</button>
+				&nbsp;&nbsp;Load example:
+
+				<select name="models" id="JSONModels">
+				</select>
+
+				<!-- button id="ex1"> 1 </button> <button id="ex2"> 2 </button> <button id="ex3"> 3 </button> <button id="ex4"> 4 </button> <button id="ex5"> 5 </button-->
+				<span style="position:absolute; right:0px;"><input id="deleteModel" type="checkbox" >Remove old models</span>
+			</div>
+			<textarea id="importModel"></textarea>
+
+			<span  style="display:block;"><button id="export">Export</button> <input id="UseLocCoord" type="checkbox" checked >Use local coordinates </span>
+			<textarea id="exportJSON"></textarea>
+
+			<button id="check" style="display:block;">Check solution</button>
+			<textarea id="solutionJSON" style="height:100px;">[{"name":"Fx", "type":"Vector", "x":1, "y":1, "z":0, "ux":0, "uy":1, "uz":0, "tol":0.1 }]</textarea>
+
+		</div>
+
+	</div>
+
+
+	<script>
+
+		
+
+
+		function initScene(graphWindow) {
+			// initialize a 3D scene in the HTML graphWindow element
+
+			const scene = new THREE.Scene();
+			scene.background = new THREE.Color(0xffffff);
+
+			// // setup directional light + helper
+			// const dl = new THREE.DirectionalLight(0xffffff, 1);
+			// dl.position.set(50, 50, 50);
+			// //dl.castShadow = true;
+
+
+			const pl = new THREE.PointLight(0xffffff, 1);
+			pl.position.set(50, 40, 30);
+			// pl.castShadow = true;
+			scene.add(pl)
+
+			const al = new THREE.AmbientLight(0xffffff, 0.3);
+			scene.add(al)
+
+			return scene;
+		}
+
+		function initRenderers() {
+			// renderers
+			// WebGL
+			const renderer = new THREE.WebGLRenderer();
+			renderer.setSize(graphWindow.clientWidth, graphWindow.clientHeight);
+			renderer.shadowMap.enabled = true;
+			renderer.setPixelRatio(window.devicePixelRatio);
+			graphWindow.appendChild(renderer.domElement);
+			return renderer;
+		}
+
+		function initCSSRenderer() {
+			const renderer = new THREE.CSS2DRenderer()
+			renderer.setSize(graphWindow.clientWidth, graphWindow.clientHeight);
+			renderer.domElement.style.position = 'absolute';
+			renderer.domElement.style.top = '0px';
+			graphWindow.appendChild(renderer.domElement);
+			return renderer;
+		}
+
+		function attachGUI(graphWindow, camera, dragger, axis) {
+
+
+			// allow double click on editlabel to activate
+			document.addEventListener("dblclick", event => {
+				event.preventDefault();
+				event.stopPropagation();
+				document.querySelectorAll(".editlabel").forEach(item => { item.style.pointerEvents = "auto" })
+				const element = document.elementFromPoint(event.x, event.y)
+				if (element !== null && element.className === 'editlabel') {
+
+					//element.style.pointerEvents = "auto";
+					element.focus();
+				}
+			})
+
+			// load in default JSON for importing
+			loadJSONExample(0)
+		
+			let dropdown = document.getElementById("JSONModels");
+			var i = 0;
+			FBDExampleModels.forEach(item => {
+				let option = document.createElement("option");
+				option.setAttribute('value', i++);
+				let optionText = document.createTextNode(item.desc);
+				option.appendChild(optionText);
+				dropdown.appendChild(option);
+			})
+
+
+			dropdown.addEventListener("change", event => {
+				loadJSONExample(event.target.value)
+			})
+
+			let itemTrans = new THREE.Matrix4();
+			// export vector positions in JSON
+			document.getElementById("export").addEventListener("click", event => {
+				let text = "[";
+
+				let itemTrans = new THREE.Matrix4();
+				let XYZ = new THREE.Vector3();
+				let e = null;
+
+				scene.children.forEach(item => {
+					if (item.userData.canDelete === true || item.userData.object === "Axis"){
+						if (document.getElementById("UseLocCoord").checked) {
+						text += item.exportAsText(dragger.origin) + "\n,"
+						} else {
+							text += item.exportAsText() + "\n,"
+						}
+					}
+
+
+					// if (item.userData.object === "Vector") {
+					// 	itemTrans.copy(item.matrixWorld);
+					// 	itemTrans.premultiply(dragger.originInverse)
+					// 	XYZ.setFromMatrixPosition(itemTrans);
+
+					// 	text += '\n{"type":"vector",\n'
+					// 	text += '"label":"' + item.children[0].children[0].element.value + '",\n';
+					// 	text += '"x":' + XYZ.x + ", "
+					// 		+ '"y":' + XYZ.y + ", "
+					// 		+ '"z":' + XYZ.z + ',\n'
+
+					// 	// item.updateWorldMatrix(true, false);
+					// 	// const e = item.matrixWorld.elements;
+					// 	e = itemTrans.elements;
+					// 	XYZ.set(e[4], e[5], e[6])
+					// 	//const unit = new THREE.Vector3(e[4], e[5], e[6]);
+					// 	XYZ.normalize();
+
+					// 	text += '"ux":' + XYZ.x + ", "
+					// 		+ '"uy":' + XYZ.y + ", "
+					// 		+ '"uz":' + XYZ.z + "\n"
+
+
+					// 	text += '},'
+					// } else if (item.userData.object === "Axis") {
+					// 	e = item.matrixWorld.elements;
+					// 	text += '\n{"type":"axis",\n'
+					// 	text += '"transform": [\n'
+					// 	for (let i = 0; i < 4; i++) {
+					// 		text += e[i] + ", " + e[i + 4] + ", " + e[i + 8] + ", " + e[i + 12] + "\n"
+					// 	};
+					// 	text += ']},\n'
+					// }
+				})
+				// remove last comma
+
+				text = text.substring(0, text.length - 1);
+				text += "\n]"
+				document.getElementById("exportJSON").value = text;
+
+			})
+
+			// import a model from a JSON format
+			document.getElementById("import").addEventListener("click", event => {
+				if (document.getElementById("deleteModel").checked)	deleteAllModels();
+
+				let jsontext = document.getElementById("importModel").value;
+				var jsondata;
+				try {
+					jsondata = JSON.parse(jsontext);
+				} catch {
+					window.alert("Error in model data");
+					return;
+				}
+
+				const newmod = new model();
+				const model3d = newmod.load(jsondata);
+				scene.add(model3d)
+
+				// set the local coordinates
+				if (jsondata.origin !== undefined){
+					const mat=new THREE.Matrix4();
+					mat.makeTranslation(jsondata.origin[0], jsondata.origin[1], jsondata.origin[2])
+					axis.setNominal(mat)
+					axis.reset();
+				}
+				
+				// Optional if using SVG
+				// let svgtext = document.getElementById("importSVG").value;
+				// let thickness = 0;
+				// if (document.getElementById("make3d").checked) thickness = 0.1;
+				// model3d = loader.load(svgtext, onloadSVG, thickness);
+				// // group.scale.multiplyScalar(0.45);
+				// model3d.scale.y *= -1;
+				// if (thickness === 0){
+				// 	model3d.position.z=-0.5;
+				// }
+				// scene.add(model3d)
+
+			})
+
+	
+
+
+			// reset the selected vector's rotation
+			document.getElementById("reset").addEventListener("click", event => {
+				if (dragger.selectedCtrl != null) {
+					dragger.selectedCtrl.parent.reset();
+
+					if (dragger.selectedCtrl.parent.userData.object === "Axis"){
+						// also reset the camera pan
+						camera.xoffset=0;
+						camera.yoffset=0;
+						controls.target.set(0,0,0);
+						camera.update();
+					}
+				}
+			})
+
+			// delete the currently select vector
+			document.getElementById("delete").addEventListener("click", event => {
+				if (dragger.selectedCtrl != null) {
+					if (dragger.selectedCtrl.parent.userData.canDelete === true) {
+						scene.remove(dragger.selectedCtrl.parent)
+						dragger.selectedCtrl.parent.dispose();
+						// not sure the class dispose function releases everything.
+					}
+				}
+				dragger.showplane(false);
+				dragger.selectedCtrl = null;
+			})
+
+			// add a new vector
+			document.getElementById("addV").addEventListener("click", event => {
+				const force = new draggableVector(dragger, 0xFF0000);
+				force.position.set(1, 1, 0);
+				scene.add(force)
+			})
+
+			// add a new line
+			document.getElementById("addL").addEventListener("click", event => {
+				const force = new draggableLine(dragger, 0xFF0000);
+				force.position.set(2, 2, 0);
+				scene.add(force)
+			})
+
+			// add a new quadratic curve
+			document.getElementById("addQ").addEventListener("click", event => {
+				const force = new draggableQuadratic(dragger, 0xFF0000);
+				force.position.set(2, 3, 0);
+				scene.add(force)
+			})
+
+
+			document.getElementById("showAxis").addEventListener("click", event => {
+				axis.makevisible(document.getElementById("showAxis").checked);
+			})
+
+			document.getElementById("enableOrbit").addEventListener("click", event => {
+				if (controls.enabled){
+					document.getElementById("enableOrbit").style.backgroundColor = "#FFFFFFFF";
+					controls.enabled = false;
+					// keep the pan value, but others values reset
+					camera.xoffset=controls.target.x;
+					camera.yoffset=controls.target.y;
+					disableDefaultCameraControls(false);
+
+				} else {
+					document.getElementById("enableOrbit").style.backgroundColor = "#99999999";
+					controls.enabled = true;
+					disableDefaultCameraControls(true)
+					
+				}
+				
+			})
+		
+
+
+			document.getElementById("check").addEventListener("click", event => {
+				let key;
+				let ans;
+				try {
+				 key = JSON.parse(document.getElementById("solutionJSON").value);
+				 ans = JSON.parse(document.getElementById("exportJSON").value);
+				} catch {
+					window.alert("Invalid export or solution")
+					return;
+				}
+				let text = checkSolution(ans,key);
+				window.alert(text)
+
+			})
+
+
+			// change the camera's view
+			document.getElementById("a").addEventListener("click", event => {
+				setCameraView("a");
+			})
+
+			document.getElementById("s").addEventListener("click", event => {
+				setCameraView("s");
+			})
+
+			document.getElementById("d").addEventListener("click", event => {
+				setCameraView("d");
+			})
+
+			document.getElementById("w").addEventListener("click", event => {
+				setCameraView("w");
+			})
+
+			// change the plane used in moving vectors
+			document.getElementById("1").addEventListener("click", event => {
+				setCameraView("1");
+			})
+			document.getElementById("2").addEventListener("click", event => {
+				setCameraView("2");
+			})
+			document.getElementById("3").addEventListener("click", event => {
+				setCameraView("3");
+
+			})
+
+			// rotation scroll bars
+			document.getElementById("rotlon").addEventListener("input", event => {
+				camera.longitude = event.target.value / 100;
+				// camera.update();   handled in setter
+			});
+			document.getElementById("rotlat").addEventListener("input", event => {
+				camera.latitude = event.target.value / 100;
+				// camera.update(); handled in steeter
+			});
+
+			// enable to enable key shortcuts
+			// this needs to be fixed to avoid overlap with edit boxes
+			// document.addEventListener('keyup', function (event) {
+			// 	// const key = event.key; // "ArrowRight", "ArrowLeft", "ArrowUp", or "ArrowDown"
+
+			// 	// returns true if processed
+			// 	setCameraView(event.key);
+
+			// })
+		}
+
+		function disableDefaultCameraControls(state){
+			for (let item of document.getElementsByClassName("quickView")) {
+						item.disabled=state;
+					}
+					for (let item of document.getElementsByClassName("slider")) {
+						item.disabled=state;
+					}		
+		}
+
+		function deleteAllModels(){
+			let items = scene.children;
+				let n = items.length - 1;
+				let i;
+				for (i = n; i > 0; i--) {
+					if (items[i].userData.object === "model") {
+						items[i].dispose()
+						scene.remove(items[i])
+					}
+				}
+		}
+		function setCameraView(viewCode) {
+			// returns true if the code was processed
+			let rtn = true;
+
+			switch (viewCode) {
+
+				case "1":
+					dragger.setPlaneOrientation(1); // xy
+					break;
+
+				case "2":
+					dragger.setPlaneOrientation(2); // yz
+					break;
+
+				case "3":
+					dragger.setPlaneOrientation(3); // xz
+					break;
+
+
+				case "a": // front
+					camera.lat = 0;
+					document.getElementById("rotlat").value = camera.lat * 100;
+					camera.lon = 0;
+					document.getElementById("rotlon").value = camera.lon * 100;
+					camera.update();
+
+					controls.target.z=0; // force the z plane back to zero
+					break;
+
+				case "s":  // isometric view
+					camera.lat = Math.PI / 4;
+					document.getElementById("rotlat").value = camera.lat * 100;
+					camera.lon = Math.PI / 4;
+					document.getElementById("rotlon").value = camera.lon * 100;
+					camera.update();
+					controls.target.z=0; // force the orbit controls z plane back to zero
+					break;
+
+				case "d":  //side
+					camera.lat = 0;
+					document.getElementById("rotlat").value = camera.lat * 100;
+					camera.lon = Math.PI / 2;
+					document.getElementById("rotlon").value = camera.lon * 100;
+					camera.update();
+					controls.target.z=0; // force the z plane back to zero
+					break;
+
+				case "w": // top
+					camera.lat = Math.PI / 2;
+					document.getElementById("rotlat").value = camera.lat * 100;
+					camera.lon = 0;
+					document.getElementById("rotlon").value = camera.lon * 100;
+					camera.update();
+					controls.target.z=0; // force the z plane back to zero
+					break;
+				default:
+					rtn = false;
+					break;
+			}
+		}
+
+		function loadJSONExample(idx) {
+			// load the JSON example
+			document.getElementById("importModel").value = JSON.stringify(FBDExampleModels[idx], null, 2);
+		}
+
+		function animate() {
+			requestAnimationFrame(animate);
+			if (controls.enabled) controls.update();
+			renderer.render(scene, camera);
+			cssrenderer.render(scene, camera);
+		};
+
+
+
+		const graphWindow = document.getElementById("GraphView")
+		const renderer = initRenderers();
+		const cssrenderer = initCSSRenderer();
+		const scene = initScene(graphWindow);
+		// load SVG resource
+		// not used
+		// const loader = new THREE.SVGLoader();  // forked version for loading SVG text files directly
+
+
+		// camera
+		const camera = new orthoCamera(graphWindow.clientWidth / graphWindow.clientHeight, 100);
+		camera.zoom = 8;
+		camera.update();
+
+		// const camera = new perspectCamera(graphWindow.clientWidth / graphWindow.clientHeight, 100);
+		// camera.update();
+
+		
+
+
+		const dragger = new dragControls(cssrenderer.domElement, camera, scene,
+			[document.getElementById("quickAxisContainer"), document.getElementById("coordsContainer")]);
+
+		
+		// orbit controls
+		const controls = new THREE.OrbitControls(camera, graphWindow)//labelRenderer.domElement);	
+		controls.enabled = false;
+		camera.update(); // resets the camera
+
+		const axis = new draggableAxis(dragger);
+		scene.add(axis);
+
+		attachGUI(graphWindow, camera, dragger, axis);
+		
+// 		const geom = new THREE.BoxGeometry(10,10,10)
+//          const       matl = new THREE.MeshStandardMaterial({ color: 0xFF0000});
+//          const       mesh = new THREE.Mesh(geom, matl);
+// 		 mesh.position.set(10,10,1)
+// scene.add(mesh)
+
+
+		
+
+		var model3d = null;  // the loaded 3d model
+
+		// const force = new draggableVector(dragger, 0xff0000);
+		// force.position.set(1, 1, 0);
+		// scene.add(force)
+
+
+
+		animate()
+
+		
+
+
+
+
+
+	</script>
+</body>
+
+</html>
