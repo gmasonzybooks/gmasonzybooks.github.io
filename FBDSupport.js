@@ -258,7 +258,9 @@ class draggableVector extends draggableObject {
 
         const textLabel = new THREE.CSS2DObject(textDiv);
         //textLabel.position.set(1.3, -1.5, .5);
-        textLabel.position.set(0, -this.length - 0.3, 0);
+        //        textLabel.position.set(0, -this.length - 0.3, 0);
+        textLabel.position.set(0, -this.length - 1, 0);
+
         this.arrow.add(textLabel);
 
         this.add(this.arrow); // add the arrow geometry
@@ -266,7 +268,8 @@ class draggableVector extends draggableObject {
 
         this.dragger = dragger
         this.addDragCtrlPt(0, 0, 0);
-        this.addRotateCtrlPt(0, -this.length - 1, 0);
+        //        this.addRotateCtrlPt(0, -this.length - 1, 0);
+        this.addRotateCtrlPt(0, -this.length, 0);
         this.dragger.addObject(this);
         this.userData.object = "Vector"
 
@@ -302,12 +305,15 @@ class draggableVector extends draggableObject {
             // this.localToWorld(ctrlW);
 
             // get the new length
-            this.length = point.distanceTo(this.position) - 1
+            this.length = point.distanceTo(this.position) // - 1
             if (this.length < 2) this.length = 2;
 
             this.updateGeometry(this.length);
-            this.arrow.children[0].position.set(0, -this.length - 0.3, 0)
-            ctrl.position.set(0, -this.length - 1, 0);
+            //            this.arrow.children[0].position.set(0, -this.length - 0.3, 0)
+            this.arrow.children[0].position.set(0, -this.length - 1, 0)
+
+            //            ctrl.position.set(0, -this.length - 1, 0);
+            ctrl.position.set(0, -this.length, 0);
 
             // rotate so that the new vector's end control is still in the rotations plane
 
@@ -358,7 +364,7 @@ class draggableVector extends draggableObject {
 
         if (origin !== undefined) {
             origininv = origin.clone()
-            origininv.setPosition(0,0,0); // only want the rotations part.
+            origininv.setPosition(0, 0, 0); // only want the rotations part.
             origininv.invert();
             XYZ.applyMatrix4(origininv);
         }
@@ -776,7 +782,7 @@ class draggableAxis extends draggableObject {
         this.nominalAxis = new THREE.Matrix4();
     }
 
-    setNominal(mat){
+    setNominal(mat) {
         //  the nominal axis position
         // this is not the local position for the setup.
         this.nominalAxis.copy(mat);
@@ -811,10 +817,10 @@ class draggableAxis extends draggableObject {
         // also reset the dragger plan
         // this.applyMatrix4(new THREE.Matrix4())
         // cleary I don't understand the correct way to update the transform matrix, but this works.
-      //  this.position.set(this.nominalAxis.x, this.nominalAxis.y, this.nominalAxis.z)
-      //  this.setRotationFromMatrix(this.nominalAxis)
+        //  this.position.set(this.nominalAxis.x, this.nominalAxis.y, this.nominalAxis.z)
+        //  this.setRotationFromMatrix(this.nominalAxis)
         const v = new THREE.Vector3().setFromMatrixPosition(this.nominalAxis)
-       
+
 
         this.position.set(v.x, v.y, v.z)
         this.setRotationFromMatrix(this.nominalAxis)
@@ -844,7 +850,7 @@ class draggableAxis extends draggableObject {
 
 // handles draggable objects
 class dragControls {
-    constructor(graphWindow, camera, scene, controls) {
+    constructor(graphWindow, camera, scene, controls,handler) {
         this.width = graphWindow.clientWidth;
         this.height = graphWindow.clientHeight;
 
@@ -854,6 +860,10 @@ class dragControls {
         this.hilitedCtrl = null;
         this.selectedCtrl = null;
         this.mousedown = false;
+        this.iconHandlers = handler; // refernce to the states (this is getting messy)
+
+        /////
+        this.scene = scene;
 
         this.controls = controls;
         controls[0].style.display = 'none';
@@ -908,6 +918,7 @@ class dragControls {
         this.originInverse = this.origin.clone();
         this.originInverse.invert(); // still identity, done here for clarity.
 
+        this.snap=true;
 
         graphWindow.addEventListener('mousemove', event => {
 
@@ -915,7 +926,7 @@ class dragControls {
             mouse.x = (event.offsetX / this.width) * 2 - 1;
             mouse.y = -(event.offsetY / this.height) * 2 + 1;
 
-            // hack
+            // hack to ignore points too close to the edge
             if (Math.abs(mouse.x) > 0.95 || (Math.abs(mouse.y) > 0.95)) return;
 
             this.raycaster.setFromCamera(mouse, this.camera);
@@ -941,14 +952,21 @@ class dragControls {
                 }
             } else {
 
-                // drag a selected item
-                const intersects = this.raycaster.intersectObjects([this.plane]);
-                if (intersects.length > 0) {
+                if (this.selectedCtrl != null) {
+                    // drag a selected item
+                    ////const intersects = this.raycaster.intersectObjects([this.plane]);
+                    let intersects=[];
 
-                    // updated the parent item base on position of the control 
-                    if (this.selectedCtrl != null) {
+                    if (this.snap){
+                     intersects = this.raycaster.intersectObjects(themodel);
+                }
 
-                        // should always be true, unless there is a mouse lag
+                    if (intersects.length === 0) {
+                        // not intersection with the model so intersect withthe plane
+                        intersects = this.raycaster.intersectObjects([this.plane]);
+                    }
+
+                    if (intersects.length > 0) {
                         this.selectedCtrl.parent.dragUpdate(this.selectedCtrl, intersects[0].point, this.planenorm)
 
 
@@ -956,39 +974,75 @@ class dragControls {
                         //this.updateXYZ(intersects[0].point)
                         this.updateXYZ(this.selectedCtrl);
 
+                        /////
+                        this.setPlaneOrigin(intersects[0].point)
+
                     }
                 }
             }
-
         })
 
         graphWindow.addEventListener('mousedown', event => {
 
+            // this logic needs to be reorganize, it checks the same thing too many times.
+            if (this.iconHandlers.states.addVector|this.iconHandlers.states.addLine|this.iconHandlers.states.addQuad){
+                let force;
+                if (this.iconHandlers.states.addVector){
+                 force = new draggableVector(this, 0xFF0000);
+                } else if (this.iconHandlers.states.addLine){
+                    force = new draggableLine(this, 0xFF0000);
+                } else if (this.iconHandlers.states.addQuad){
+                    force = new draggableQuadratic(this, 0xFF0000);
+                }
+
+                this.iconHandlers.resetSelectorState()
+
+				this.scene.add(force);
+          
+
+               
+                this.hilitedCtrl=force.children[1];
+                this.selectedCtrl=this.hilitedCtrl;
+
+                let mouse = { x: 0, y: 0 };
+                mouse.x = (event.offsetX / this.width) * 2 - 1;
+                mouse.y = -(event.offsetY / this.height) * 2 + 1;
+    
+                // hack to ignore points too close to the edge
+                if (Math.abs(mouse.x) > 0.95 || (Math.abs(mouse.y) > 0.95)) return;
+    
+                this.raycaster.setFromCamera(mouse, this.camera);
+                let intersects = this.raycaster.intersectObjects([this.plane]);
+                if (intersects.length > 0) {
+                    this.selectedCtrl.parent.dragUpdate(this.selectedCtrl, intersects[0].point, this.planenorm)
+
+
+                    // update the x,y,z position
+                    //this.updateXYZ(intersects[0].point)
+                    this.updateXYZ(this.selectedCtrl);
+
+                    /////
+                    this.setPlaneOrigin(intersects[0].point)
+
+                }
+
+            } 
 
             if (this.selectedCtrl != this.hilitedCtrl) {
-
+                this.clearSelection();
                 // mouse is down over an item that is not the currently selected item
                 // this could be a null space
                 // deselect old control and select the new control
-                if (this.selectedCtrl !== null) {
+                // if (this.selectedCtrl !== null) {
+                //     if (this.selectedCtrl.parent.userData.object === "Axis") {
+                //         let mat = this.selectedCtrl.parent.matrixWorld.clone();
+                //         this.changeOrigin(mat);
 
-
-                    if (this.selectedCtrl.parent.userData.object === "Axis") {
-                        let mat = this.selectedCtrl.parent.matrixWorld.clone();
-                        this.changeOrigin(mat);
-
-                    }
-
-
-                    this.selectedCtrl.material.opacity = 0.1
-                    this.selectedCtrl = null;
-                    // this.planegrp.visible = false;
-                    // this.controls[0].style.display = 'none';
-                    // this.controls[1].style.display = 'none';
-                    this.showplane(false);
-
-
-                }
+                //     }
+                //     this.selectedCtrl.material.opacity = 0.1
+                //     this.selectedCtrl = null;
+                //     this.showplane(false);
+                // }
             }
 
             // select the new control if the mouse is over a control
@@ -1000,9 +1054,10 @@ class dragControls {
 
                 // show the working plane at the selected item
 
+               // this.setPlaneOrigin(this.selectedCtrl.parent.position);
+                this.setPlaneOrigin(this.selectedCtrl.getWorldPosition(new THREE.Vector3()));
+                //// this.setPlaneOrigin(this.selectedCtrl);
 
-                // this.setPlaneOrigin(this.selectedCtrl.parent.position);
-                this.setPlaneOrigin(this.selectedCtrl);
 
                 this.adjustPlaneView();
                 // this.planegrp.visible = true;
@@ -1014,7 +1069,7 @@ class dragControls {
                 //this.selectedCtrl.getWorldPosition(pos);
                 this.updateXYZ(this.selectedCtrl)
             }
-
+        
             this.mousedown = true;
             return;
 
@@ -1045,6 +1100,28 @@ class dragControls {
         })
 
 
+    }
+
+    clearSelection(){
+        if (this.selectedCtrl !== null) {
+
+
+            if (this.selectedCtrl.parent.userData.object === "Axis") {
+                let mat = this.selectedCtrl.parent.matrixWorld.clone();
+                this.changeOrigin(mat);
+
+            }
+
+
+            this.selectedCtrl.material.opacity = 0.1
+            this.selectedCtrl = null;
+            // this.planegrp.visible = false;
+            // this.controls[0].style.display = 'none';
+            // this.controls[1].style.display = 'none';
+            this.showplane(false);
+
+
+        }
     }
 
     showplane(state) {
@@ -1135,25 +1212,26 @@ class dragControls {
             // this.setPlaneOrigin(this.selectedCtrl.parent.position);
             // const point= new THREE.Vector3();
             // this.selectedCtrl.getWorldPosition(point);
-            this.setPlaneOrigin(this.selectedCtrl);
+            this.setPlaneOrigin(this.selectedCtrl.getWorldPosition(new THREE.Vector3()));
+            //this.setPlaneOrigin(this.selectedCtrl.parent.position)
         }
 
     }
 
 
 
-    setPlaneOrigin() {
+    setPlaneOrigin(point) {
         // shift the plane along it's normal direction so that point is on the plane
         // this.planegrp.position.copy(point);
 
-        const point = new THREE.Vector3();
-        this.selectedCtrl.getWorldPosition(point);
+        ////   const point = new THREE.Vector3();
+        ////   this.selectedCtrl.getWorldPosition(point);
 
         //    this.planegrp.position.set(0,0,0);
 
         this.planegrp.position.set(this.origin.elements[12], this.origin.elements[13], this.origin.elements[14])
-        this.planegrp.updateMatrix();
-        this.planegrp.updateWorldMatrix();
+        //   this.planegrp.updateMatrix();
+        //   this.planegrp.updateWorldMatrix();
 
         // let norm = this.planenorm.clone();
 
@@ -1310,12 +1388,12 @@ class model extends THREE.Group {
             } else if (object.type === "chartjs") {
                 const canv = document.createElement("canvas");
                 const ctx = canv.getContext("2d");
-                canv.style.maxHeight=(600*object.size[1]/object.size[0]).toFixed(0)+"px";
-                canv.style.maxWidth="600px"
+                canv.style.maxHeight = (600 * object.size[1] / object.size[0]).toFixed(0) + "px";
+                canv.style.maxWidth = "600px"
                 canv.style.display = "none";
                 document.body.append(canv);
-        
-                let thechart = new Chart(canv,object.param)
+
+                let thechart = new Chart(canv, object.param)
 
                 const texture = new THREE.CanvasTexture(canv);
                 texture.needsUpdate = true;
@@ -1332,7 +1410,7 @@ class model extends THREE.Group {
                 return null;
             }
 
-            
+
             mesh.userData.name = object.objectname;
             mesh.userData.type = object.type;
             mesh.castShadow = true;
@@ -1340,7 +1418,7 @@ class model extends THREE.Group {
             mesh.rotateX(object.rx);
             mesh.rotateY(object.ry);
             mesh.rotateZ(object.rz);
-            
+
             this.add(mesh)
         })
         this.position.set(jsondata.x, jsondata.y, jsondata.z)
@@ -1357,14 +1435,14 @@ class model extends THREE.Group {
                 item.children.forEach(subitem => {
                     subitem.geometry.dispose();
                     subitem.material.dispose();
-                    if (subitem.userData.type==="chartjs"){
+                    if (subitem.userData.type === "chartjs") {
                         subitem.userData.element.remove();
                     }
                 })
             } else {
                 item.geometry.dispose();
                 item.material.dispose();
-                if (item.userData.type==="chartjs"){
+                if (item.userData.type === "chartjs") {
                     item.userData.element.remove();
                 }
             }
@@ -1378,8 +1456,8 @@ class model extends THREE.Group {
 function canvasGraph(xmin, xmax, ymin, ymax, dx, dy, color, alpha) {
     const canv = document.createElement("canvas");
     const ctx = canv.getContext("2d");
-    canv.style.maxHeight="600px";
-    canv.style.maxWidth="600px"
+    canv.style.maxHeight = "600px";
+    canv.style.maxWidth = "600px"
     canv.style.display = "none";
     document.body.append(canv);
 

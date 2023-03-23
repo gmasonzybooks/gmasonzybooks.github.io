@@ -9,6 +9,7 @@ FBDExampleModels.push({
     desc: "Simply supported beam",
     x: 0, y: -1, z: 0,
     opacity: 0.6,
+    origin:[0,0,0],
     objects: [
         {
             objectname: "beam",
@@ -201,6 +202,7 @@ FBDExampleModels.push({
   desc: "FCC small",
   x: 0, y: 0, z: 0,
   opacity: 1,
+  origin:[0,0,0],
   objects: [
       {
           objectname: "S1",

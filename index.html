@@ -29,7 +29,7 @@ G. Mason
 			margin: 0;
 		}
 
-	
+
 		.label {
 			color: #000;
 			font-family: sans-serif;
@@ -57,9 +57,17 @@ G. Mason
 			overflow: hidden;
 		}
 
+		.container-tools {
+			flex-grow: 0;
+			margin: 5px;
+			position: relative;
+			width: 20px;
+			border: solid;
+		}
+
 		.container-webgl {
 			background-color: transparent;
-			width: 640px;
+			width: 670px;
 			position: relative;
 			margin: 5px;
 			border: none;
@@ -87,6 +95,7 @@ G. Mason
 			border: solid;
 			border-width: 1px;
 			display: inline-block;
+			position: relative;
 		}
 
 		.quickView {
@@ -107,13 +116,14 @@ G. Mason
 			bottom: 2px;
 			z-index: 1001;
 			background-color: transparent;
-			border:none;
+			border: none;
 		}
-		.coordXYZ{
-			position:relative;
-			border:none;
-			width:25px;
-			background-color:transparent;
+
+		.coordXYZ {
+			position: relative;
+			border: none;
+			width: 25px;
+			background-color: transparent;
 			text-align: right;
 		}
 
@@ -124,16 +134,29 @@ G. Mason
 			z-index: 1000;
 		}
 
-		#enableOrbit{
-			position:relative;
-			top:1px;
+		#enableOrbit {
+			position: relative;
+			top: 1px;
 			border-radius: 9px;
-			height:18px
-			
+			height: 18px
 		}
+
 		.quickAxisButton {
 			width: 50px;
 		}
+
+		.icon_button{
+			border:solid; 
+			border-width:1px;
+			border-color:white;
+
+		}
+		/*
+		.icon_button:hover {
+			border-color:lightgray!important;
+			background-color:red;
+		}
+		*/
 	</style>
 </head>
 
@@ -150,37 +173,57 @@ G. Mason
 
 	<div class="container">
 		<div class="container-webgl">
-			<div id="GraphView" class="container-webgl">
-				<span id="axisView"><input id="showAxis" type="checkbox" checked>Axis visible</span>
-				
-				<span id="coordsContainer" style="display:none;">
-					<input class="coordXYZ" id="Xcoord" type="text" value="">,
-					<input class="coordXYZ" id="Ycoord" type="text" value="">,
-					<input class="coordXYZ" id="Zcoord" type="text" value="">&nbsp;
-					<button id="ENTER" >&check;</button>
-				</span>
-				
-				<span id="quickAxisContainer">Plane:
-					<button id="1" class="quickAxisButton">x-y</button>
-					<button id="2" class="quickAxisButton">y-z</button>
-					<button id="3" class="quickAxisButton">x-z</button>
-
+			<div style="position:absolute; top:0px; display:inline-block; width:35px;">
+				<span style="position:absolute; top:0px;">
+			<img id="showAxis" class="icon_button" src="IconAxis.png" width="32"  title="Hide/Show axis" /><br/>
+			<img id="snapToObjects" class="icon_button" src="IconSnap.png" width="32"  title="Snap to model"/><br/>
+			<hr>
+			<img id="addVector" class="icon_button" src="IconVector.png" width="32"  title="Add vector"/><br/>
+			<img id="addLine" class="icon_button" src="IconLine.png" width="32"  title="Add line"/><br/>
+			<img id="addQuad" class="icon_button" src="IconQuad.png" width="32"  title="Add curve"/><br/>
+			<hr>
+			<img id="reset" class="icon_button" src="IconReset.png" width="32"  title="Reset object"/><br/>
+			<img id="delete" class="icon_button" src="IconDelete.png" width="32"  title="Delete object"/><br/>
 				</span>
 			</div>
-			<input type="range" min="0" max="157.08" value="0" class="slider" id="rotlat" orient="vertical"
-				style="height: 600px; -webkit-appearance:slider-vertical; width:15px;">
-			<div>
-				<input type="range" min="0" max="157.08" value="0" class="slider" id="rotlon" style="width: 350px;">
-				<button id="a" class="quickView">Front</button>
-				<button id="s" class="quickView">Iso</button>
-				<button id="d" class="quickView">Right</button>
-				<button id="w" class="quickView">Top</button>
-				&nbsp;<button id="enableOrbit" >&nbsp;</button>
-			</div>
-			<div class="controls">
-				Add: <button id="addV">Vector</button> <button id="addL">Line</button> <button id="addQ">Curve</button>
-				&nbsp; &nbsp; <button id="reset">Reset</button> <button id="delete">Delete</button><br />
+			<div style="display:inline-block; position:relative; left:40px; min-width: 640px;">
+				<div id="GraphView"> <!--</div>"="xxxcontainer-webgl"-->
+				<!--
+					<span id="axisView">
+						<input id="showAxis" type="checkbox" checked>Axis visible
+						&nbsp;&nbsp;<input id="snap" type="checkbox" checked>Snap to model
+					</span>
+				-->
+					<span id="coordsContainer" style="display:none;">
+						<input class="coordXYZ" id="Xcoord" type="text" value="">,
+						<input class="coordXYZ" id="Ycoord" type="text" value="">,
+						<input class="coordXYZ" id="Zcoord" type="text" value="">&nbsp;
+						<button id="ENTER">&check;</button>
+					</span>
 
+					<span id="quickAxisContainer">Plane:
+						<button id="1" class="quickAxisButton">x-y</button>
+						<button id="2" class="quickAxisButton">y-z</button>
+						<button id="3" class="quickAxisButton">x-z</button>
+
+					</span>
+				</div>
+				<input type="range" min="0" max="157.08" value="0" class="slider" id="rotlat" orient="vertical"
+					style="height: 600px; -webkit-appearance:slider-vertical; width:15px;">
+				<div>
+					<input type="range" min="0" max="157.08" value="0" class="slider" id="rotlon" style="width: 350px;">
+					<button id="a" class="quickView">Front</button>
+					<button id="s" class="quickView">Iso</button>
+					<button id="d" class="quickView">Right</button>
+					<button id="w" class="quickView">Top</button>
+					&nbsp;<button id="enableOrbit">&nbsp;</button>
+				</div>
+				<!-- div class="controls">
+					Add: <button id="addV">Vector</button> <button id="addL">Line</button> <button
+						id="addQ">Curve</button>
+					&nbsp; &nbsp; <button id="reset">Reset</button> <button id="delete">Delete</button><br />
+
+				</div -->
 			</div>
 		</div>
 
@@ -192,15 +235,18 @@ G. Mason
 				</select>
 
 				<!-- button id="ex1"> 1 </button> <button id="ex2"> 2 </button> <button id="ex3"> 3 </button> <button id="ex4"> 4 </button> <button id="ex5"> 5 </button-->
-				<span style="position:absolute; right:0px;"><input id="deleteModel" type="checkbox" >Remove old models</span>
+				<span style="position:absolute; right:0px;"><input id="deleteModel" type="checkbox">Remove old
+					models</span>
 			</div>
 			<textarea id="importModel"></textarea>
 
-			<span  style="display:block;"><button id="export">Export</button> <input id="UseLocCoord" type="checkbox" checked >Use local coordinates </span>
+			<span style="display:block;"><button id="export">Export</button> <input id="UseLocCoord" type="checkbox"
+					checked>Use local coordinates </span>
 			<textarea id="exportJSON"></textarea>
 
 			<button id="check" style="display:block;">Check solution</button>
-			<textarea id="solutionJSON" style="height:100px;">[{"name":"Fx", "type":"Vector", "x":1, "y":1, "z":0, "ux":0, "uy":1, "uz":0, "tol":0.1 }]</textarea>
+			<textarea id="solutionJSON"
+				style="height:100px;">[{"name":"Fx", "type":"Vector", "x":1, "y":1, "z":0, "ux":0, "uy":1, "uz":0, "tol":0.1 }]</textarea>
 
 		</div>
 
@@ -209,7 +255,7 @@ G. Mason
 
 	<script>
 
-		
+
 
 
 		function initScene(graphWindow) {
@@ -255,8 +301,90 @@ G. Mason
 			return renderer;
 		}
 
+		// experimenting with a different pattern for handlers.
+		// This is a poor pattern because it requires reference to the variable name inside
+		let iconHandlers = {
+			states: {showAxis:true, snap:true, addVector:false, addLine:false, addQuad:false},
+			initialize: function(){
+				document.getElementById("showAxis").style.borderColor="black";
+				document.getElementById("snapToObjects").style.borderColor="black";
+			},
+			select: function(obj){
+				iconHandlers.states[obj] = true;
+					document.getElementById(obj).style.borderColor = "black";
+					dragger.clearSelection();
+					dragger.setPlaneOrigin(new THREE.Vector3());
+					dragger.showplane(true);
+					graphWindow.style.cursor = "crosshair";
+			},
+			showAxis: function(event){
+				iconHandlers.states.showAxis = !iconHandlers.states.showAxis;
+				axis.makevisible(iconHandlers.states.showAxis);
+				event.srcElement.style.borderColor= (iconHandlers.states.showAxis?"black":"white");
+			},
+			snapToObjects: function(event){
+				iconHandlers.states.snap = !iconHandlers.states.snap;
+				dragger.snap=iconHandlers.states.snap;
+				event.srcElement.style.borderColor= (iconHandlers.states.snap?"black":"white");
+			},
+			addVector: function(event){
+				if (iconHandlers.states.addVector){
+					iconHandlers.resetSelectorState()
+				} else {
+					iconHandlers.resetSelectorState()
+					iconHandlers.select("addVector");
+				}
+			},
+			addLine: function(event){
+				if (iconHandlers.states.addLine){
+					iconHandlers.resetSelectorState()
+				} else {
+					iconHandlers.resetSelectorState()
+					iconHandlers.select("addLine");
+				}
+			},
+			addQuad: function(event){
+				if (iconHandlers.states.addLine){
+					iconHandlers.resetSelectorState()
+				} else {
+					iconHandlers.resetSelectorState()
+					iconHandlers.select("addQuad");
+				}
+			},
+
+			resetSelectorState: function(){
+				iconHandlers.states.addVector = false;
+				iconHandlers.states.addLine = false;
+				iconHandlers.states.addQuad = false;
+				document.getElementById("addVector").style.borderColor = "white";
+				document.getElementById("addLine").style.borderColor = "white";
+				document.getElementById("addQuad").style.borderColor = "white";
+				graphWindow.style.cursor = "default";
+			},
+			
+
+			delete: function(state){
+				if (dragger.selectedCtrl != null) {
+					if (dragger.selectedCtrl.parent.userData.canDelete === true) {
+						scene.remove(dragger.selectedCtrl.parent)
+						dragger.selectedCtrl.parent.dispose();
+						// not sure the class dispose function releases everything.
+					}
+				}
+				dragger.showplane(false);
+				dragger.selectedCtrl = null;
+			}
+
+		}
+	
 		function attachGUI(graphWindow, camera, dragger, axis) {
 
+			// the icon buttons
+			document.querySelectorAll(".icon_button").forEach(item=>{
+				item.addEventListener("click",iconHandlers[item.getAttribute("id")]);
+			})
+
+			iconHandlers.initialize();
 
 			// allow double click on editlabel to activate
 			document.addEventListener("dblclick", event => {
@@ -273,7 +401,7 @@ G. Mason
 
 			// load in default JSON for importing
 			loadJSONExample(0)
-		
+
 			let dropdown = document.getElementById("JSONModels");
 			var i = 0;
 			FBDExampleModels.forEach(item => {
@@ -284,12 +412,15 @@ G. Mason
 				dropdown.appendChild(option);
 			})
 
+			// document.getElementById("snap").addEventListener("change", event => {
+			// 	dragger.snap = event.target.checked;
+			// })
 
 			dropdown.addEventListener("change", event => {
 				loadJSONExample(event.target.value)
 			})
 
-			let itemTrans = new THREE.Matrix4();
+			// let itemTrans = new THREE.Matrix4();
 			// export vector positions in JSON
 			document.getElementById("export").addEventListener("click", event => {
 				let text = "[";
@@ -299,9 +430,9 @@ G. Mason
 				let e = null;
 
 				scene.children.forEach(item => {
-					if (item.userData.canDelete === true || item.userData.object === "Axis"){
+					if (item.userData.canDelete === true || item.userData.object === "Axis") {
 						if (document.getElementById("UseLocCoord").checked) {
-						text += item.exportAsText(dragger.origin) + "\n,"
+							text += item.exportAsText(dragger.origin) + "\n,"
 						} else {
 							text += item.exportAsText() + "\n,"
 						}
@@ -352,7 +483,7 @@ G. Mason
 
 			// import a model from a JSON format
 			document.getElementById("import").addEventListener("click", event => {
-				if (document.getElementById("deleteModel").checked)	deleteAllModels();
+				if (document.getElementById("deleteModel").checked) deleteAllModels();
 
 				let jsontext = document.getElementById("importModel").value;
 				var jsondata;
@@ -365,16 +496,26 @@ G. Mason
 
 				const newmod = new model();
 				const model3d = newmod.load(jsondata);
+
+				// 				const Pgeometry = new THREE.PlaneGeometry( 40, 40 );
+				// const Pmaterial = new THREE.MeshBasicMaterial( {color: 0x0000ff, transparent: true, opacity: 0.01, side: THREE.DoubleSide} );
+				// const Pplane = new THREE.Mesh( Pgeometry, Pmaterial );
+				// Pplane.renderOrder=101;
+				// Pplane.userData.object="TrackingPlane"
+				// model3d.add( Pplane );
+
 				scene.add(model3d)
 
+				themodel = model3d.children;
+
 				// set the local coordinates
-				if (jsondata.origin !== undefined){
-					const mat=new THREE.Matrix4();
+				if (jsondata.origin !== undefined) {
+					const mat = new THREE.Matrix4();
 					mat.makeTranslation(jsondata.origin[0], jsondata.origin[1], jsondata.origin[2])
 					axis.setNominal(mat)
 					axis.reset();
 				}
-				
+
 				// Optional if using SVG
 				// let svgtext = document.getElementById("importSVG").value;
 				// let thickness = 0;
@@ -389,7 +530,7 @@ G. Mason
 
 			})
 
-	
+
 
 
 			// reset the selected vector's rotation
@@ -397,86 +538,86 @@ G. Mason
 				if (dragger.selectedCtrl != null) {
 					dragger.selectedCtrl.parent.reset();
 
-					if (dragger.selectedCtrl.parent.userData.object === "Axis"){
+					if (dragger.selectedCtrl.parent.userData.object === "Axis") {
 						// also reset the camera pan
-						camera.xoffset=0;
-						camera.yoffset=0;
-						controls.target.set(0,0,0);
+						camera.xoffset = 0;
+						camera.yoffset = 0;
+						controls.target.set(0, 0, 0);
 						camera.update();
 					}
 				}
 			})
 
 			// delete the currently select vector
-			document.getElementById("delete").addEventListener("click", event => {
-				if (dragger.selectedCtrl != null) {
-					if (dragger.selectedCtrl.parent.userData.canDelete === true) {
-						scene.remove(dragger.selectedCtrl.parent)
-						dragger.selectedCtrl.parent.dispose();
-						// not sure the class dispose function releases everything.
-					}
-				}
-				dragger.showplane(false);
-				dragger.selectedCtrl = null;
-			})
+			// document.getElementById("delete").addEventListener("click", event => {
+			// 	if (dragger.selectedCtrl != null) {
+			// 		if (dragger.selectedCtrl.parent.userData.canDelete === true) {
+			// 			scene.remove(dragger.selectedCtrl.parent)
+			// 			dragger.selectedCtrl.parent.dispose();
+			// 			// not sure the class dispose function releases everything.
+			// 		}
+			// 	}
+			// 	dragger.showplane(false);
+			// 	dragger.selectedCtrl = null;
+			// })
 
 			// add a new vector
-			document.getElementById("addV").addEventListener("click", event => {
-				const force = new draggableVector(dragger, 0xFF0000);
-				force.position.set(1, 1, 0);
-				scene.add(force)
-			})
+			// document.getElementById("addV").addEventListener("click", event => {
+			// 	const force = new draggableVector(dragger, 0xFF0000);
+			// 	force.position.set(1, 1, 0);
+			// 	scene.add(force)
+			// })
 
 			// add a new line
-			document.getElementById("addL").addEventListener("click", event => {
-				const force = new draggableLine(dragger, 0xFF0000);
-				force.position.set(2, 2, 0);
-				scene.add(force)
-			})
+			// document.getElementById("addL").addEventListener("click", event => {
+			// 	const force = new draggableLine(dragger, 0xFF0000);
+			// 	force.position.set(2, 2, 0);
+			// 	scene.add(force)
+			// })
 
 			// add a new quadratic curve
-			document.getElementById("addQ").addEventListener("click", event => {
-				const force = new draggableQuadratic(dragger, 0xFF0000);
-				force.position.set(2, 3, 0);
-				scene.add(force)
-			})
+			// document.getElementById("addQ").addEventListener("click", event => {
+			// 	const force = new draggableQuadratic(dragger, 0xFF0000);
+			// 	force.position.set(2, 3, 0);
+			// 	scene.add(force)
+			// })
 
 
-			document.getElementById("showAxis").addEventListener("click", event => {
-				axis.makevisible(document.getElementById("showAxis").checked);
-			})
+	//		document.getElementById("showAxis").addEventListener("click", event => {
+	//			axis.makevisible(document.getElementById("showAxis").checked);
+	//		})
 
 			document.getElementById("enableOrbit").addEventListener("click", event => {
-				if (controls.enabled){
+				if (controls.enabled) {
 					document.getElementById("enableOrbit").style.backgroundColor = "#FFFFFFFF";
 					controls.enabled = false;
 					// keep the pan value, but others values reset
-					camera.xoffset=controls.target.x;
-					camera.yoffset=controls.target.y;
+					camera.xoffset = controls.target.x;
+					camera.yoffset = controls.target.y;
 					disableDefaultCameraControls(false);
 
 				} else {
 					document.getElementById("enableOrbit").style.backgroundColor = "#99999999";
 					controls.enabled = true;
 					disableDefaultCameraControls(true)
-					
+
 				}
-				
+
 			})
-		
+
 
 
 			document.getElementById("check").addEventListener("click", event => {
 				let key;
 				let ans;
 				try {
-				 key = JSON.parse(document.getElementById("solutionJSON").value);
-				 ans = JSON.parse(document.getElementById("exportJSON").value);
+					key = JSON.parse(document.getElementById("solutionJSON").value);
+					ans = JSON.parse(document.getElementById("exportJSON").value);
 				} catch {
 					window.alert("Invalid export or solution")
 					return;
 				}
-				let text = checkSolution(ans,key);
+				let text = checkSolution(ans, key);
 				window.alert(text)
 
 			})
@@ -521,6 +662,16 @@ G. Mason
 				// camera.update(); handled in steeter
 			});
 
+
+			document.addEventListener('keydown', event => {
+				if (event.shiftKey) {
+					text = "The SHIFT key was pressed!";
+				} else {
+					text = "The SHIFT key was NOT pressed!";
+				}
+			})
+
+
 			// enable to enable key shortcuts
 			// this needs to be fixed to avoid overlap with edit boxes
 			// document.addEventListener('keyup', function (event) {
@@ -532,25 +683,25 @@ G. Mason
 			// })
 		}
 
-		function disableDefaultCameraControls(state){
+		function disableDefaultCameraControls(state) {
 			for (let item of document.getElementsByClassName("quickView")) {
-						item.disabled=state;
-					}
-					for (let item of document.getElementsByClassName("slider")) {
-						item.disabled=state;
-					}		
+				item.disabled = state;
+			}
+			for (let item of document.getElementsByClassName("slider")) {
+				item.disabled = state;
+			}
 		}
 
-		function deleteAllModels(){
+		function deleteAllModels() {
 			let items = scene.children;
-				let n = items.length - 1;
-				let i;
-				for (i = n; i > 0; i--) {
-					if (items[i].userData.object === "model") {
-						items[i].dispose()
-						scene.remove(items[i])
-					}
+			let n = items.length - 1;
+			let i;
+			for (i = n; i > 0; i--) {
+				if (items[i].userData.object === "model") {
+					items[i].dispose()
+					scene.remove(items[i])
 				}
+			}
 		}
 		function setCameraView(viewCode) {
 			// returns true if the code was processed
@@ -578,7 +729,7 @@ G. Mason
 					document.getElementById("rotlon").value = camera.lon * 100;
 					camera.update();
 
-					controls.target.z=0; // force the z plane back to zero
+					controls.target.z = 0; // force the z plane back to zero
 					break;
 
 				case "s":  // isometric view
@@ -587,7 +738,7 @@ G. Mason
 					camera.lon = Math.PI / 4;
 					document.getElementById("rotlon").value = camera.lon * 100;
 					camera.update();
-					controls.target.z=0; // force the orbit controls z plane back to zero
+					controls.target.z = 0; // force the orbit controls z plane back to zero
 					break;
 
 				case "d":  //side
@@ -596,7 +747,7 @@ G. Mason
 					camera.lon = Math.PI / 2;
 					document.getElementById("rotlon").value = camera.lon * 100;
 					camera.update();
-					controls.target.z=0; // force the z plane back to zero
+					controls.target.z = 0; // force the z plane back to zero
 					break;
 
 				case "w": // top
@@ -605,7 +756,7 @@ G. Mason
 					camera.lon = 0;
 					document.getElementById("rotlon").value = camera.lon * 100;
 					camera.update();
-					controls.target.z=0; // force the z plane back to zero
+					controls.target.z = 0; // force the z plane back to zero
 					break;
 				default:
 					rtn = false;
@@ -625,7 +776,24 @@ G. Mason
 			cssrenderer.render(scene, camera);
 		};
 
+		const State = {
+			ItemSelected: Symbol(),
+			None: Symbol(),
+			Dragging: Symbol(),
+			ArrowPending: Symbol(),
+			LinePending: Symbol(),
+			QuadPending: Symbol()
+		};
 
+		const Action = {
+			MouseDown: Symbol()
+		}
+		function updatestate(action) {
+
+
+		}
+
+		let themodel = [];
 
 		const graphWindow = document.getElementById("GraphView")
 		const renderer = initRenderers();
@@ -644,13 +812,13 @@ G. Mason
 		// const camera = new perspectCamera(graphWindow.clientWidth / graphWindow.clientHeight, 100);
 		// camera.update();
 
-		
+
 
 
 		const dragger = new dragControls(cssrenderer.domElement, camera, scene,
-			[document.getElementById("quickAxisContainer"), document.getElementById("coordsContainer")]);
+			[document.getElementById("quickAxisContainer"), document.getElementById("coordsContainer")],iconHandlers);
 
-		
+
 		// orbit controls
 		const controls = new THREE.OrbitControls(camera, graphWindow)//labelRenderer.domElement);	
 		controls.enabled = false;
@@ -660,15 +828,15 @@ G. Mason
 		scene.add(axis);
 
 		attachGUI(graphWindow, camera, dragger, axis);
-		
-// 		const geom = new THREE.BoxGeometry(10,10,10)
-//          const       matl = new THREE.MeshStandardMaterial({ color: 0xFF0000});
-//          const       mesh = new THREE.Mesh(geom, matl);
-// 		 mesh.position.set(10,10,1)
-// scene.add(mesh)
+
+		// 		const geom = new THREE.BoxGeometry(10,10,10)
+		//          const       matl = new THREE.MeshStandardMaterial({ color: 0xFF0000});
+		//          const       mesh = new THREE.Mesh(geom, matl);
+		// 		 mesh.position.set(10,10,1)
+		// scene.add(mesh)
 
 
-		
+
 
 		var model3d = null;  // the loaded 3d model
 
@@ -680,7 +848,7 @@ G. Mason
 
 		animate()
 
-		
+
 
 
 
