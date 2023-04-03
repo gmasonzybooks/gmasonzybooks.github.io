@@ -985,24 +985,25 @@ class dragControls {
         graphWindow.addEventListener('mousedown', event => {
 
             // this logic needs to be reorganize, it checks the same thing too many times.
-            if (this.iconHandlers.states.addVector|this.iconHandlers.states.addLine|this.iconHandlers.states.addQuad){
-                let force;
-                if (this.iconHandlers.states.addVector){
-                 force = new draggableVector(this, 0xFF0000);
-                } else if (this.iconHandlers.states.addLine){
-                    force = new draggableLine(this, 0xFF0000);
-                } else if (this.iconHandlers.states.addQuad){
-                    force = new draggableQuadratic(this, 0xFF0000);
-                }
+            if (this.iconHandlers.stateStates()){ //this.iconHandlers.states.addVector|this.iconHandlers.states.addLine|this.iconHandlers.states.addQuad){
+               this.addNewItem();
+                // let force;
+                // if (this.iconHandlers.states.addVector){
+                //  force = new draggableVector(this, 0xFF0000);
+                // } else if (this.iconHandlers.states.addLine){
+                //     force = new draggableLine(this, 0xFF0000);
+                // } else if (this.iconHandlers.states.addQuad){
+                //     force = new draggableQuadratic(this, 0xFF0000);
+                // }
 
-                this.iconHandlers.resetSelectorState()
+                // this.iconHandlers.resetSelectorState()
 
-				this.scene.add(force);
+				// this.scene.add(force);
           
 
                
-                this.hilitedCtrl=force.children[1];
-                this.selectedCtrl=this.hilitedCtrl;
+                // this.hilitedCtrl=force.children[1];
+                // this.selectedCtrl=this.hilitedCtrl;
 
                 let mouse = { x: 0, y: 0 };
                 mouse.x = (event.offsetX / this.width) * 2 - 1;
@@ -1090,6 +1091,15 @@ class dragControls {
 
             point.applyMatrix4(this.origin);
 
+
+///
+if (this.iconHandlers.stateStates()){
+    this.addNewItem();
+}
+
+////
+
+
             this.selectedCtrl.parent.dragUpdate(this.selectedCtrl, point, this.planenorm)
 
 
@@ -1099,6 +1109,28 @@ class dragControls {
 
         })
 
+
+    }
+
+    addNewItem(){
+
+let force;
+if (this.iconHandlers.states.addVector){
+ force = new draggableVector(this, 0xFF0000);
+} else if (this.iconHandlers.states.addLine){
+    force = new draggableLine(this, 0xFF0000);
+} else if (this.iconHandlers.states.addQuad){
+    force = new draggableQuadratic(this, 0xFF0000);
+}
+
+this.iconHandlers.resetSelectorState()
+
+this.scene.add(force);
+
+
+
+this.hilitedCtrl=force.children[1];
+this.selectedCtrl=this.hilitedCtrl;
 
     }
 
