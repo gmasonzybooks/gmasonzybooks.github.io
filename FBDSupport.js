@@ -850,7 +850,7 @@ class draggableAxis extends draggableObject {
 
 // handles draggable objects
 class dragControls {
-    constructor(graphWindow, camera, scene, controls,handler) {
+    constructor(graphWindow, camera, scene, controls, handler) {
         this.width = graphWindow.clientWidth;
         this.height = graphWindow.clientHeight;
 
@@ -918,19 +918,22 @@ class dragControls {
         this.originInverse = this.origin.clone();
         this.originInverse.invert(); // still identity, done here for clarity.
 
-        this.snap=true;
+        this.snap = true;
 
         graphWindow.addEventListener('mousemove', event => {
 
-            let mouse = { x: 0, y: 0 };
-            mouse.x = (event.offsetX / this.width) * 2 - 1;
-            mouse.y = -(event.offsetY / this.height) * 2 + 1;
+            // let mouse = { x: 0, y: 0 };
+            // mouse.x = (event.offsetX / this.width) * 2 - 1;
+            // mouse.y = -(event.offsetY / this.height) * 2 + 1;
 
-            // hack to ignore points too close to the edge
-            if (Math.abs(mouse.x) > 0.95 || (Math.abs(mouse.y) > 0.95)) return;
+            // // hack to ignore points too close to the edge
+            // if (Math.abs(mouse.x) > 0.95 || (Math.abs(mouse.y) > 0.95)) return;
 
-            this.raycaster.setFromCamera(mouse, this.camera);
-            if (this.mousedown == false) {
+            // this.raycaster.setFromCamera(mouse, this.camera);
+
+            this.setupRaycaster(event);
+
+            if (this.mousedown === false) {
                 // hovering over an object
 
 
@@ -944,22 +947,20 @@ class dragControls {
 
 
                 } else {
-                    if ((this.hilitedCtrl != null) && (this.hilitedCtrl != this.selectedCtrl)) {
-                        this.hilitedCtrl.material.opacity = 0.1;
-                    }
+                   if ((this.hilitedCtrl !== null) && (this.hilitedCtrl !== this.selectedCtrl)) this.hilitedCtrl.material.opacity = 0.1;
                     this.hilitedCtrl = null;
 
                 }
             } else {
 
-                if (this.selectedCtrl != null) {
+                if (this.selectedCtrl !== null) {
                     // drag a selected item
                     ////const intersects = this.raycaster.intersectObjects([this.plane]);
-                    let intersects=[];
+                    let intersects = [];
 
-                    if (this.snap){
-                     intersects = this.raycaster.intersectObjects(themodel);
-                }
+                    if (this.snap) {
+                        intersects = this.raycaster.intersectObjects(themodel);
+                    }
 
                     if (intersects.length === 0) {
                         // not intersection with the model so intersect withthe plane
@@ -984,37 +985,18 @@ class dragControls {
 
         graphWindow.addEventListener('mousedown', event => {
 
+            this.setupRaycaster(event); // raycast base on the current mouse event
+
             // this logic needs to be reorganize, it checks the same thing too many times.
-            if (this.iconHandlers.stateStates()){ //this.iconHandlers.states.addVector|this.iconHandlers.states.addLine|this.iconHandlers.states.addQuad){
-               this.addNewItem();
-                // let force;
-                // if (this.iconHandlers.states.addVector){
-                //  force = new draggableVector(this, 0xFF0000);
-                // } else if (this.iconHandlers.states.addLine){
-                //     force = new draggableLine(this, 0xFF0000);
-                // } else if (this.iconHandlers.states.addQuad){
-                //     force = new draggableQuadratic(this, 0xFF0000);
-                // }
+            if (this.iconHandlers.anySelected()) { //this.iconHandlers.states.addVector|this.iconHandlers.states.addLine|this.iconHandlers.states.addQuad){
 
-                // this.iconHandlers.resetSelectorState()
+                this.selectedCtrl = this.addNewItem();
+                this.hilitedCtrl = this.selectedCtrl;
+                this.hilitedCtrl.material.opacity = 1;
 
-				// this.scene.add(force);
-          
-
-               
-                // this.hilitedCtrl=force.children[1];
-                // this.selectedCtrl=this.hilitedCtrl;
-
-                let mouse = { x: 0, y: 0 };
-                mouse.x = (event.offsetX / this.width) * 2 - 1;
-                mouse.y = -(event.offsetY / this.height) * 2 + 1;
-    
-                // hack to ignore points too close to the edge
-                if (Math.abs(mouse.x) > 0.95 || (Math.abs(mouse.y) > 0.95)) return;
-    
-                this.raycaster.setFromCamera(mouse, this.camera);
                 let intersects = this.raycaster.intersectObjects([this.plane]);
                 if (intersects.length > 0) {
+
                     this.selectedCtrl.parent.dragUpdate(this.selectedCtrl, intersects[0].point, this.planenorm)
 
 
@@ -1027,50 +1009,112 @@ class dragControls {
 
                 }
 
-            } 
+            } else {
 
-            if (this.selectedCtrl != this.hilitedCtrl) {
-                this.clearSelection();
-                // mouse is down over an item that is not the currently selected item
-                // this could be a null space
-                // deselect old control and select the new control
-                // if (this.selectedCtrl !== null) {
-                //     if (this.selectedCtrl.parent.userData.object === "Axis") {
-                //         let mat = this.selectedCtrl.parent.matrixWorld.clone();
-                //         this.changeOrigin(mat);
+                // 
+                // else {
+                //     const intersects = this.raycaster.intersectObjects(this.dragList);
+                //     // set/reset the opacities
+                //     if (intersects.length > 0) {
 
-                //     }
-                //     this.selectedCtrl.material.opacity = 0.1
-                //     this.selectedCtrl = null;
-                //     this.showplane(false);
+                //         if (this.hilitedCtrl !== null) this.hilitedCtrl.material.opacity = 0.1;
+                //         this.hilitedCtrl = intersects[0].object;
+                //         this.hilitedCtrl.material.opacity = 1;
+
+
+
+
+
                 // }
+                // //
+
+                // if (this.selectedCtrl != this.hilitedCtrl) {
+                //     this.clearSelection();
+                //     // mouse is down over an item that is not the currently selected item
+                //     // this could be a null space
+                //     // deselect old control and select the new control
+                //     // if (this.selectedCtrl !== null) {
+                //     //     if (this.selectedCtrl.parent.userData.object === "Axis") {
+                //     //         let mat = this.selectedCtrl.parent.matrixWorld.clone();
+                //     //         this.changeOrigin(mat);
+
+                //     //     }
+                //     //     this.selectedCtrl.material.opacity = 0.1
+                //     //     this.selectedCtrl = null;
+                //     //     this.showplane(false);
+                //     // }
+                // }
+
+                // // select the new control if the mouse is over a control
+                // // if clicking on selected item, this just reselects it
+                // if (this.hilitedCtrl != null) {
+                //     this.selectedCtrl = this.hilitedCtrl;
+                //     this.selectedCtrl.material.opacity = 1;
+
+
+                //     // show the working plane at the selected item
+                //     this.setPlaneOrigin(this.selectedCtrl.getWorldPosition(new THREE.Vector3()));
+                //     //// this.setPlaneOrigin(this.selectedCtrl);
+
+
+                //     this.adjustPlaneView();
+                //     // this.planegrp.visible = true;
+                //     // this.controls[0].style.display = 'inline';
+                //     // this.controls[1].style.display = 'inline';
+                //     this.showplane(true);
+                //     //this.controls[1].innerHTML = ""
+                //     //let pos = new THREE.Vector3();
+                //     //this.selectedCtrl.getWorldPosition(pos);
+                //     this.updateXYZ(this.selectedCtrl)
+                // }
+
+
+
+                let intersects = this.raycaster.intersectObjects(this.dragList);
+                if (intersects.length > 0) {
+                    // clicked on a viable object so update the selected control and hiliting
+
+                    // reset selection if needed
+                    if ((this.selectedCtrl !== null) && (this.selectedCtrl !== intersects[0].object)) this.selectedCtrl.material.opacity=0.1
+
+                    // reset hiliting
+                    if (this.hilitedCtrl !== null) this.hilitedCtrl.material.opacity = 0.1;
+
+                    // new selection
+                    this.hilitedCtrl = intersects[0].object;
+                    this.hilitedCtrl.material.opacity = 1;
+                    this.selectedCtrl = this.hilitedCtrl;
+
+                    // show the working plane at the selected item
+                    this.setPlaneOrigin(this.selectedCtrl.getWorldPosition(new THREE.Vector3()));
+                    //// this.setPlaneOrigin(this.selectedCtrl);
+
+
+                    this.adjustPlaneView();
+                    // this.planegrp.visible = true;
+                    // this.controls[0].style.display = 'inline';
+                    // this.controls[1].style.display = 'inline';
+                    this.showplane(true);
+                    //this.controls[1].innerHTML = ""
+                    //let pos = new THREE.Vector3();
+                    //this.selectedCtrl.getWorldPosition(pos);
+                    this.updateXYZ(this.selectedCtrl)
+
+                } else {
+                    if (this.hilitedCtrl !== null) {
+                        this.hilitedCtrl.material.opacity = 0.1;
+                        this.hilitedCtrl = null;
+                    }
+                    this.clearSelection();
+
+
+                }
+
+
+
             }
 
-            // select the new control if the mouse is over a control
-            // if clicking on selected item, this just reselects it
-            if (this.hilitedCtrl != null) {
-                this.selectedCtrl = this.hilitedCtrl;
-                this.selectedCtrl.material.opacity = 1;
-                //this.hilitedCtrl = null;
 
-                // show the working plane at the selected item
-
-               // this.setPlaneOrigin(this.selectedCtrl.parent.position);
-                this.setPlaneOrigin(this.selectedCtrl.getWorldPosition(new THREE.Vector3()));
-                //// this.setPlaneOrigin(this.selectedCtrl);
-
-
-                this.adjustPlaneView();
-                // this.planegrp.visible = true;
-                // this.controls[0].style.display = 'inline';
-                // this.controls[1].style.display = 'inline';
-                this.showplane(true);
-                //this.controls[1].innerHTML = ""
-                //let pos = new THREE.Vector3();
-                //this.selectedCtrl.getWorldPosition(pos);
-                this.updateXYZ(this.selectedCtrl)
-            }
-        
             this.mousedown = true;
             return;
 
@@ -1092,12 +1136,13 @@ class dragControls {
             point.applyMatrix4(this.origin);
 
 
-///
-if (this.iconHandlers.stateStates()){
-    this.addNewItem();
-}
+            ///
+            if (this.iconHandlers.anySelected()) {
+                this.selectedCtrl = this.addNewItem();
+                this.hilitedCtrl = this.selectedCtrl;
+            }
 
-////
+            ////
 
 
             this.selectedCtrl.parent.dragUpdate(this.selectedCtrl, point, this.planenorm)
@@ -1112,29 +1157,43 @@ if (this.iconHandlers.stateStates()){
 
     }
 
-    addNewItem(){
+    addNewItem() {
+        // add new item and return the object
 
-let force;
-if (this.iconHandlers.states.addVector){
- force = new draggableVector(this, 0xFF0000);
-} else if (this.iconHandlers.states.addLine){
-    force = new draggableLine(this, 0xFF0000);
-} else if (this.iconHandlers.states.addQuad){
-    force = new draggableQuadratic(this, 0xFF0000);
-}
+        let force;
+        if (this.iconHandlers.states.addVector) {
+            force = new draggableVector(this, 0xFF0000);
+        } else if (this.iconHandlers.states.addLine) {
+            force = new draggableLine(this, 0xFF0000);
+        } else if (this.iconHandlers.states.addQuad) {
+            force = new draggableQuadratic(this, 0xFF0000);
+        }
 
-this.iconHandlers.resetSelectorState()
+        this.iconHandlers.resetSelectorState()
 
-this.scene.add(force);
+        this.scene.add(force);
 
 
+        return force.children[1];
 
-this.hilitedCtrl=force.children[1];
-this.selectedCtrl=this.hilitedCtrl;
+        //this.hilitedCtrl=force.children[1];
+        //this.selectedCtrl=this.hilitedCtrl;
 
     }
 
-    clearSelection(){
+    setupRaycaster(mouseEvent) {
+        let mouse = { x: 0, y: 0 };
+        mouse.x = (mouseEvent.offsetX / this.width) * 2 - 1;
+        mouse.y = -(mouseEvent.offsetY / this.height) * 2 + 1;
+
+        // hack to ignore points too close to the edge
+        if (Math.abs(mouse.x) > 0.95 || (Math.abs(mouse.y) > 0.95)) return;
+
+        this.raycaster.setFromCamera(mouse, this.camera);
+
+    }
+
+    clearSelection() {
         if (this.selectedCtrl !== null) {
 
 

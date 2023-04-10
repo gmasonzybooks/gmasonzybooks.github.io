@@ -8,7 +8,7 @@ G. Mason
 
 <head>
 	<meta charset="utf-8">
-	<title>FBD 3Dv8</title>
+	<title>FBD 3Dv6</title>
 
 	<!-- all required file are held locally to make this portable -->
 	<link rel="script" src="three.min.js">
@@ -305,7 +305,7 @@ G. Mason
 		// This is a poor pattern because it requires reference to the variable name inside
 		let iconHandlers = {
 			states: {showAxis:true, snap:true, addVector:false, addLine:false, addQuad:false},
-			stateStates: function(){ return iconHandlers.states.addVector
+			anySelected: function(){ return iconHandlers.states.addVector
 										|iconHandlers.states.addLine
 										|iconHandlers.states.addQuad},
 			initialize: function(){
