@@ -3,12 +3,17 @@
 3D free body diagrams 
 G. Mason
 1/3/2023
+
+Notes:
+This implementation draw in a global space and then transforms the coords base on the "axis" transform.
+A better way would be to use a single object and have all other objects as children.  This would simplify
+The coordinate transformation.
 -->
 <html>
 
 <head>
 	<meta charset="utf-8">
-	<title>FBD 3Dv9</title>
+	<title>FBD 3Db11</title>
 
 	<!-- all required file are held locally to make this portable -->
 	<link rel="script" src="three.min.js">
@@ -81,7 +86,7 @@ G. Mason
 		}
 
 		textarea {
-			min-height: 200px;
+			min-height: 150px;
 			border: solid;
 			border-width: 1px;
 			width: 90%;
@@ -122,9 +127,9 @@ G. Mason
 		.coordXYZ {
 			position: relative;
 			border: none;
-			width: 25px;
+			width: 45px;
 			background-color: transparent;
-			text-align: right;
+			text-align: left;
 		}
 
 		#axisView {
@@ -145,12 +150,13 @@ G. Mason
 			width: 50px;
 		}
 
-		.icon_button{
-			border:solid; 
-			border-width:1px;
-			border-color:white;
+		.icon_button {
+			border: solid;
+			border-width: 1px;
+			border-color: white;
 
 		}
+
 		/*
 		.icon_button:hover {
 			border-color:lightgray!important;
@@ -175,30 +181,70 @@ G. Mason
 		<div class="container-webgl">
 			<div style="position:absolute; top:0px; display:inline-block; width:35px;">
 				<span style="position:absolute; top:0px;">
-			<img id="showAxis" class="icon_button" src="IconAxis.png" width="32"  title="Hide/Show axis" /><br/>
-			<img id="snapToObjects" class="icon_button" src="IconSnap.png" width="32"  title="Snap to model"/><br/>
-			<hr>
-			<img id="addVector" class="icon_button" src="IconVector.png" width="32"  title="Add vector"/><br/>
-			<img id="addLine" class="icon_button" src="IconLine.png" width="32"  title="Add line"/><br/>
-			<img id="addQuad" class="icon_button" src="IconQuad.png" width="32"  title="Add curve"/><br/>
-			<hr>
-			<img id="reset" class="icon_button" src="IconReset.png" width="32"  title="Reset object"/><br/>
-			<img id="delete" class="icon_button" src="IconDelete.png" width="32"  title="Delete object"/><br/>
+					<img id="showAxis" class="icon_button" src="IconAxis.png" width="32" title="Hide/Show axis" /><br />
+					<img id="snapToObjects" class="icon_button" src="IconSnap.png" width="32"
+						title="Snap to model" /><br />
+					<hr>
+					<img id="addVector" class="icon_button" src="IconVector.png" width="32" title="Add vector" /><br />
+					<img id="addQuad" class="icon_button" src="IconQuad.png" width="32" title="Add curve" /><br />
+					<img id="addLine" class="icon_button" src="IconLine.png" width="32" title="Add line" /><br />
+					<img id="addBox" class="icon_button" src="IconBox.png" width="32" title="Add box" /><br />
+					<hr>
+					<img id="reset" class="icon_button" src="IconReset.png" width="32" title="Reset object" /><br />
+					<img id="delete" class="icon_button" src="IconDelete.png" width="32" title="Delete object" /><br />
 				</span>
 			</div>
 			<div style="display:inline-block; position:relative; left:40px; min-width: 640px;">
 				<div id="GraphView"> <!--</div>"="xxxcontainer-webgl"-->
-				<!--
+					<!--
 					<span id="axisView">
 						<input id="showAxis" type="checkbox" checked>Axis visible
 						&nbsp;&nbsp;<input id="snap" type="checkbox" checked>Snap to model
 					</span>
 				-->
 					<span id="coordsContainer" style="display:none;">
-						<input class="coordXYZ" id="Xcoord" type="text" value="0">,
-						<input class="coordXYZ" id="Ycoord" type="text" value="0">,
-						<input class="coordXYZ" id="Zcoord" type="text" value="0">&nbsp;
-						<button id="ENTER">&check;</button>
+						<button id="selectXYZ" style="padding:0px; margin:0px; opacity:100%"><img src="IconXYZ.png"
+								width="12" title="Use coordinate position" /></button>
+						<button id="selectDxyz" style="padding:0px; margin:0px; opacity:40%"><img src="IconDxyz.png"
+									width="12" title="Use direction" /></button>
+						<button id="selectUVWL" style="padding:0px; margin:0px; opacity:40%"><img src="IconUVWL.png"
+								width="12" title="Use direction and scale" /></button>
+						<!--	<img id="xyz" class="icon_button" src="IconXYZ.png" width="16"  title="Use XYZ"/>
+						<img id="uvwl" class="icon_button" src="IconUVWL.png" width="16"  title="Use UVWL"/>
+					-->
+					<span id="showXYZ" style="display:inline;">
+						x:<input class="coordXYZ" id="Xcoord" type="text" value="0">,
+						y:<input class="coordXYZ" id="Ycoord" type="text" value="0">,
+						z:<input class="coordXYZ" id="Zcoord" type="text" value="0">
+
+					</span>
+					<span id="showDxyz" style="display:none;">
+						dx:<input class="coordXYZ" id="dX" type="text" value="0">,
+						dy:<input class="coordXYZ" id="dY" type="text" value="0">,
+						dz:<input class="coordXYZ" id="dZ" type="text" value="0">
+					
+					</span>
+						<span id="showUVWL" style="display:none;">
+							u:<input class="coordXYZ" id="uX" type="text" value="1">,
+							v:<input class="coordXYZ" id="uY" type="text" value="0">,
+							w:<input class="coordXYZ" id="uZ" type="text" value="0">,
+							s:<input class="coordXYZ" id="uL" type="text" value="0">
+						</span>
+					
+						
+						<!--
+							Key entry options
+							Vector:
+							1) direction + length = ux, uy ,uz L
+								for tail, head is fixed, tail = head - (ux,uy,uz) * L
+								for head, tail is fixed  head = tail - (ux,uy,uz) * L
+								ux, uy, uz can be any values, and direction is calculated
+
+							2) location = x,y,z
+
+
+						-->
+						&nbsp;<button id="ENTER">&check;</button>
 					</span>
 
 					<span id="quickAxisContainer">Plane:
@@ -228,25 +274,32 @@ G. Mason
 		</div>
 
 		<div class="container-right">
-			<div style="position:relative; width:90%;"><button id="import">Import</button>
-				&nbsp;&nbsp;Load example:
-
+			<div style="position:relative; width:90%; margin-bottom:20px;">Load example:
 				<select name="models" id="JSONModels">
 				</select>
-
 				<!-- button id="ex1"> 1 </button> <button id="ex2"> 2 </button> <button id="ex3"> 3 </button> <button id="ex4"> 4 </button> <button id="ex5"> 5 </button-->
+			</div>
+			<div style="position:relative; width:90%;">Model:
 				<span style="position:absolute; right:0px;"><input id="deleteModel" type="checkbox">Remove old
-					models</span>
+					models &nbsp; &nbsp;<button id="import">Load</button></span>
 			</div>
 			<textarea id="importModel"></textarea>
 
-			<span style="display:block;"><button id="export">Export</button> <input id="UseLocCoord" type="checkbox"
-					checked>Use local coordinates </span>
+			<div style="position:relative; width:90%;">Model solution:
+				<button id="check" style="position:absolute; right:0px;">Check</button>
+			</div>
+			<textarea id="solutionJSON" style="height:100px;">[{"name":"Fx", "type":"Vector", "x":1, "y":1, "z":0, "ux":0, "uy":1, "uz":0, "tol":0.1 }]
+			</textarea>
+
+
+			<div style="position:relative; width:90%;">User elements:
+				<span style="position:absolute; right:0px;"><input id="UseLocCoord" type="checkbox" checked>Use local
+					coordinates &nbsp; &nbsp;<button id="export">Update</button>
+				</span>
+			</div>
 			<textarea id="exportJSON"></textarea>
 
-			<button id="check" style="display:block;">Check solution</button>
-			<textarea id="solutionJSON"
-				style="height:100px;">[{"name":"Fx", "type":"Vector", "x":1, "y":1, "z":0, "ux":0, "uy":1, "uz":0, "tol":0.1 }]</textarea>
+
 
 		</div>
 
@@ -302,71 +355,87 @@ G. Mason
 		}
 
 		// experimenting with a different pattern for handlers.
-		// This is a poor pattern because it requires reference to the variable name inside
+		// This is a poor pattern because it requires reference to the variable name inside the structure
+		// when using functions as event handlers  (vs using this) 
+		// as if you needed proof I'm not a software developer.
 		let iconHandlers = {
-			states: {showAxis:true, snap:true, addVector:false, addLine:false, addQuad:false},
-			anySelected: function(){ return iconHandlers.states.addVector
-										|iconHandlers.states.addLine
-										|iconHandlers.states.addQuad},
-			initialize: function(){
-				document.getElementById("showAxis").style.borderColor="black";
-				document.getElementById("snapToObjects").style.borderColor="black";
+			states: { showAxis: true, snap: false, addVector: false, addLine: false, addQuad: false },
+			anySelected: function () {
+				return iconHandlers.states.addVector
+					| iconHandlers.states.addLine
+					| iconHandlers.states.addQuad
+					| iconHandlers.states.addBox
 			},
-			select: function(obj){
+			initialize: function () {
+				document.getElementById("showAxis").style.borderColor = "black";
+				document.getElementById("snapToObjects").style.borderColor = "white";
+				dragger.snap = false;
+			},
+			select: function (obj) {
 				iconHandlers.states[obj] = true;
-					document.getElementById(obj).style.borderColor = "black";
-					dragger.clearSelection();
-					dragger.setPlaneOrigin(new THREE.Vector3());
-					dragger.showplane(true);
-					graphWindow.style.cursor = "crosshair";
+				document.getElementById(obj).style.borderColor = "black";
+				dragger.clearSelection();
+				dragger.setPlaneOrigin(new THREE.Vector3());
+				dragger.showplane(true, (obj === "addVector" ? true : false));
+				graphWindow.style.cursor = "crosshair";
 			},
-			showAxis: function(event){
+			showAxis: function (event) {
 				iconHandlers.states.showAxis = !iconHandlers.states.showAxis;
 				axis.makevisible(iconHandlers.states.showAxis);
-				event.srcElement.style.borderColor= (iconHandlers.states.showAxis?"black":"white");
+				event.srcElement.style.borderColor = (iconHandlers.states.showAxis ? "black" : "white");
 			},
-			snapToObjects: function(event){
+			snapToObjects: function (event) {
 				iconHandlers.states.snap = !iconHandlers.states.snap;
-				dragger.snap=iconHandlers.states.snap;
-				event.srcElement.style.borderColor= (iconHandlers.states.snap?"black":"white");
+				dragger.snap = iconHandlers.states.snap;
+				event.srcElement.style.borderColor = (iconHandlers.states.snap ? "black" : "white");
 			},
-			addVector: function(event){
-				if (iconHandlers.states.addVector){
+			addVector: function (event) {
+				if (iconHandlers.states.addVector) {
 					iconHandlers.resetSelectorState()
 				} else {
 					iconHandlers.resetSelectorState()
 					iconHandlers.select("addVector");
 				}
 			},
-			addLine: function(event){
-				if (iconHandlers.states.addLine){
+			addLine: function (event) {
+				if (iconHandlers.states.addLine) {
 					iconHandlers.resetSelectorState()
 				} else {
 					iconHandlers.resetSelectorState()
 					iconHandlers.select("addLine");
 				}
 			},
-			addQuad: function(event){
-				if (iconHandlers.states.addLine){
+			addQuad: function (event) {
+				if (iconHandlers.states.addQuad) {
 					iconHandlers.resetSelectorState()
 				} else {
 					iconHandlers.resetSelectorState()
 					iconHandlers.select("addQuad");
 				}
 			},
+			addBox: function (event) {
+				if (iconHandlers.states.addBox) {
+					iconHandlers.resetSelectorState()
+				} else {
+					iconHandlers.resetSelectorState()
+					iconHandlers.select("addBox");
+				}
+			},
 
-			resetSelectorState: function(){
+			resetSelectorState: function () {
 				iconHandlers.states.addVector = false;
 				iconHandlers.states.addLine = false;
 				iconHandlers.states.addQuad = false;
+				iconHandlers.states.addBox = false;
 				document.getElementById("addVector").style.borderColor = "white";
 				document.getElementById("addLine").style.borderColor = "white";
 				document.getElementById("addQuad").style.borderColor = "white";
+				document.getElementById("addBox").style.borderColor = "white";
 				graphWindow.style.cursor = "default";
 			},
-			
 
-			delete: function(state){
+
+			delete: function (state) {
 				if (dragger.selectedCtrl != null) {
 					if (dragger.selectedCtrl.parent.userData.canDelete === true) {
 						scene.remove(dragger.selectedCtrl.parent)
@@ -379,12 +448,14 @@ G. Mason
 			}
 
 		}
+
 	
+
 		function attachGUI(graphWindow, camera, dragger, axis) {
 
-			// the icon buttons
-			document.querySelectorAll(".icon_button").forEach(item=>{
-				item.addEventListener("click",iconHandlers[item.getAttribute("id")]);
+			// the icon buttons event handler
+			document.querySelectorAll(".icon_button").forEach(item => {
+				item.addEventListener("click", iconHandlers[item.getAttribute("id")]);
 			})
 
 			iconHandlers.initialize();
@@ -426,61 +497,27 @@ G. Mason
 			// let itemTrans = new THREE.Matrix4();
 			// export vector positions in JSON
 			document.getElementById("export").addEventListener("click", event => {
-				let text = "[";
+				exportUserElements();
+				// let text = "[";
 
-				let itemTrans = new THREE.Matrix4();
-				let XYZ = new THREE.Vector3();
-				let e = null;
+				// let itemTrans = new THREE.Matrix4();
+				// let XYZ = new THREE.Vector3();
+				// let e = null;
 
-				scene.children.forEach(item => {
-					if (item.userData.canDelete === true || item.userData.object === "Axis") {
-						if (document.getElementById("UseLocCoord").checked) {
-							text += item.exportAsText(dragger.origin) + "\n,"
-						} else {
-							text += item.exportAsText() + "\n,"
-						}
-					}
+				// scene.children.forEach(item => {
+				// 	if (item.userData.canDelete === true || item.userData.object === "Axis") {
+				// 		if (document.getElementById("UseLocCoord").checked) {
+				// 			text += item.exportAsText(dragger.origin) + "\n,"
+				// 		} else {
+				// 			text += item.exportAsText() + "\n,"
+				// 		}
+				// 	}
+				// })
+				// // remove last comma
 
-
-					// if (item.userData.object === "Vector") {
-					// 	itemTrans.copy(item.matrixWorld);
-					// 	itemTrans.premultiply(dragger.originInverse)
-					// 	XYZ.setFromMatrixPosition(itemTrans);
-
-					// 	text += '\n{"type":"vector",\n'
-					// 	text += '"label":"' + item.children[0].children[0].element.value + '",\n';
-					// 	text += '"x":' + XYZ.x + ", "
-					// 		+ '"y":' + XYZ.y + ", "
-					// 		+ '"z":' + XYZ.z + ',\n'
-
-					// 	// item.updateWorldMatrix(true, false);
-					// 	// const e = item.matrixWorld.elements;
-					// 	e = itemTrans.elements;
-					// 	XYZ.set(e[4], e[5], e[6])
-					// 	//const unit = new THREE.Vector3(e[4], e[5], e[6]);
-					// 	XYZ.normalize();
-
-					// 	text += '"ux":' + XYZ.x + ", "
-					// 		+ '"uy":' + XYZ.y + ", "
-					// 		+ '"uz":' + XYZ.z + "\n"
-
-
-					// 	text += '},'
-					// } else if (item.userData.object === "Axis") {
-					// 	e = item.matrixWorld.elements;
-					// 	text += '\n{"type":"axis",\n'
-					// 	text += '"transform": [\n'
-					// 	for (let i = 0; i < 4; i++) {
-					// 		text += e[i] + ", " + e[i + 4] + ", " + e[i + 8] + ", " + e[i + 12] + "\n"
-					// 	};
-					// 	text += ']},\n'
-					// }
-				})
-				// remove last comma
-
-				text = text.substring(0, text.length - 1);
-				text += "\n]"
-				document.getElementById("exportJSON").value = text;
+				// text = text.substring(0, text.length - 1);
+				// text += "\n]"
+				// document.getElementById("exportJSON").value = text;
 
 			})
 
@@ -499,13 +536,6 @@ G. Mason
 
 				const newmod = new model();
 				const model3d = newmod.load(jsondata);
-
-				// 				const Pgeometry = new THREE.PlaneGeometry( 40, 40 );
-				// const Pmaterial = new THREE.MeshBasicMaterial( {color: 0x0000ff, transparent: true, opacity: 0.01, side: THREE.DoubleSide} );
-				// const Pplane = new THREE.Mesh( Pgeometry, Pmaterial );
-				// Pplane.renderOrder=101;
-				// Pplane.userData.object="TrackingPlane"
-				// model3d.add( Pplane );
 
 				scene.add(model3d)
 
@@ -586,9 +616,9 @@ G. Mason
 			// })
 
 
-	//		document.getElementById("showAxis").addEventListener("click", event => {
-	//			axis.makevisible(document.getElementById("showAxis").checked);
-	//		})
+			//		document.getElementById("showAxis").addEventListener("click", event => {
+			//			axis.makevisible(document.getElementById("showAxis").checked);
+			//		})
 
 			document.getElementById("enableOrbit").addEventListener("click", event => {
 				if (controls.enabled) {
@@ -611,17 +641,20 @@ G. Mason
 
 
 			document.getElementById("check").addEventListener("click", event => {
-				let key;
-				let ans;
-				try {
-					key = JSON.parse(document.getElementById("solutionJSON").value);
-					ans = JSON.parse(document.getElementById("exportJSON").value);
-				} catch {
-					window.alert("Invalid export or solution")
-					return;
-				}
-				let text = checkSolution(ans, key);
-				window.alert(text)
+				exportUserElements();
+				updateAndCheckSolution();
+
+				// let key;
+				// let ans;
+				// try {
+				// 	key = JSON.parse(document.getElementById("solutionJSON").value);
+				// 	ans = JSON.parse(document.getElementById("exportJSON").value);
+				// } catch {
+				// 	window.alert("Invalid export or solution")
+				// 	return;
+				// }
+				// let text = checkSolution(ans, key);
+				// window.alert(text)
 
 			})
 
@@ -674,6 +707,40 @@ G. Mason
 				}
 			})
 
+			document.getElementById("selectXYZ").addEventListener("click", event => {
+				selectXYZcontrols('XYZ');
+				// document.getElementById("showXYZ").style.display = 'inline';
+				// document.getElementById("showUVWL").style.display = 'none';
+				// document.getElementById("showDxyz").style.display = 'none';
+
+				// document.getElementById("selectXYZ").style.opacity = 1;
+				// document.getElementById("selectUVWL").style.opacity = 0.4;
+				// document.getElementById("selectDxyz").style.opacity = 0.4;
+			})
+
+			document.getElementById("selectUVWL").addEventListener("click", event => {
+				selectXYZcontrols('UVWL');
+				// document.getElementById("showXYZ").style.display = 'none';
+				// document.getElementById("showUVWL").style.display = 'inline';
+				// document.getElementById("showDxyz").style.display = 'none';
+
+				// document.getElementById("selectXYZ").style.opacity = 0.4;
+				// document.getElementById("selectUVWL").style.opacity = 1;
+				// document.getElementById("selectDxyz").style.opacity = 0.4;
+			})
+
+			document.getElementById("selectDxyz").addEventListener("click", event => {
+				selectXYZcontrols('Dxyz');
+				// document.getElementById("showXYZ").style.display = 'none';
+				// document.getElementById("showUVWL").style.display = 'none';
+				// document.getElementById("showDxyz").style.display = 'inline';
+
+				// document.getElementById("selectXYZ").style.opacity = 0.4;
+				// document.getElementById("selectUVWL").style.opacity = 0.4;
+				// document.getElementById("selectDxyz").style.opacity = 1;
+			})
+
+
 
 			// enable to enable key shortcuts
 			// this needs to be fixed to avoid overlap with edit boxes
@@ -684,6 +751,46 @@ G. Mason
 			// 	setCameraView(event.key);
 
 			// })
+
+
+		}
+
+		function exportUserElements() {
+			let text = "[";
+
+			let itemTrans = new THREE.Matrix4();
+			let XYZ = new THREE.Vector3();
+			let e = null;
+
+			scene.children.forEach(item => {
+				if (item.userData.canDelete === true || item.userData.object === "Axis") {
+					if (document.getElementById("UseLocCoord").checked) {
+						text += item.exportAsText(dragger.origin) + "\n,"
+					} else {
+						text += item.exportAsText() + "\n,"
+					}
+				}
+			})
+			// remove last comma
+
+			text = text.substring(0, text.length - 1);
+			text += "\n]"
+			document.getElementById("exportJSON").value = text;
+		}
+
+		function updateAndCheckSolution() {
+
+			let key;
+			let ans;
+			try {
+				key = JSON.parse(document.getElementById("solutionJSON").value);
+				ans = JSON.parse(document.getElementById("exportJSON").value);
+			} catch {
+				window.alert("Invalid export or solution")
+				return;
+			}
+			let text = checkSolution(ans, key);
+			window.alert(text)
 		}
 
 		function disableDefaultCameraControls(state) {
@@ -769,7 +876,12 @@ G. Mason
 
 		function loadJSONExample(idx) {
 			// load the JSON example
-			document.getElementById("importModel").value = JSON.stringify(FBDExampleModels[idx], null, 2);
+
+			//document.getElementById("importModel").value = JSON.stringify(FBDExampleModels[idx], null, 2);
+
+			document.getElementById("importModel").value = JSON.stringify(FBDExampleModels[idx].model, null, 2);
+			document.getElementById("solutionJSON").value = JSON.stringify(FBDExampleModels[idx].solution, null, 2);
+
 		}
 
 		function animate() {
@@ -819,7 +931,7 @@ G. Mason
 
 
 		const dragger = new dragControls(cssrenderer.domElement, camera, scene,
-			[document.getElementById("quickAxisContainer"), document.getElementById("coordsContainer")],iconHandlers);
+			[document.getElementById("quickAxisContainer"), document.getElementById("coordsContainer")], iconHandlers);
 
 
 		// orbit controls

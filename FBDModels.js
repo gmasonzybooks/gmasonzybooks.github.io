@@ -7,6 +7,7 @@ var FBDExampleModels = [];
 
 FBDExampleModels.push({
     desc: "Simply supported beam",
+    model:{
     x: 0, y: -1, z: 0,
     opacity: 0.6,
     origin:[0,0,0],
@@ -44,10 +45,19 @@ FBDExampleModels.push({
             x: 0, y: 1, z: 0,
             rx: 0, ry: 0, rz: 0
         }]
+      },
+    solution:
+    [
+      {name:"Ax", type:"Vector", x:0, y:0, z:0, ux:1, uy:0, uz:0, tol:0.1 },
+      {name:"Ay", type:"Vector", x:0, y:0, z:0, ux:0, uy:1, uz:0, tol:0.1 },
+      {name:"By", type:"Vector", x:8, y:0, z:0, ux:0, uy:1, uz:0, tol:0.1 },
+      {name:"W", type:"Vector", x:7, y:0,  z:0, ux:0, uy:-1, uz:0, tol:0.1, options:"colinear"},
+    ]
 })
 
 FBDExampleModels.push( {
         desc: "Beam supported by cables",
+        model:{
         x: -2,
         y: 0,
         z: 0,
@@ -168,12 +178,25 @@ FBDExampleModels.push( {
             rz: -1.57
           }
         ]
-      }
+      },
+      solution:
+      [
+        {name:"C1", type:"Vector", x:10, y:0.5, z:0, 
+            ux:-0.9267286746472214, uy:0.2780185983769059, uz:0.2527441839946968, tol:0.1, options:"colinear" },
+        {name:"C2", type:"Vector", x:10, y:0.5, z:0, 
+        ux:-0.9267286746472214, uy:0.2780185983769059, uz:-0.2527441839946967,
+        tol:0.1, options:"colinear" },
+        {name:"Ax", type:"Vector", x:0, y:0, z:0, ux:1, uy:0, uz:0, tol:0.1 },
+        {name:"Ay", type:"Vector", x:0, y:0, z:0, ux:0, uy:1, uz:0, tol:0.1 },
+        {name:"W", type:"Vector", x:7, y:0,  z:0, ux:0, uy:-1, uz:0, tol:0.1, options:"colinear"},
+      ]
+    }
    )
 
 
 FBDExampleModels.push({
     desc: "Box on ramp",
+    model:{
     x: 0, y: 0, z: 0,
     opacity: 0.9,
     origin:[0,0,0],
@@ -194,12 +217,17 @@ FBDExampleModels.push({
       x: 2.5, y: 2.6, z: 0,
         rx: 0, ry: 0, rz: 0.5404
     }]
+  },
+  solution:{
+    a:1
+  }
 });
 
 
 
 FBDExampleModels.push({
   desc: "FCC small",
+  model:{
   x: 0, y: 0, z: 0,
   opacity: 1,
   origin:[0,0,0],
@@ -326,11 +354,16 @@ FBDExampleModels.push({
           rx: 0, ry: 0, rz: 0
       }
   ]
+},
+solution:{
+  a:1
+}
 })
 
 
 FBDExampleModels.push({
     desc: "FCC large",
+    model:{
     x: 0, y: 0, z: 0,
     opacity: 1,
     objects: [
@@ -456,11 +489,16 @@ FBDExampleModels.push({
             rx: 0, ry: 0, rz: 0
         }
     ]
+  },
+  solution:{
+    a:1
+  }
 })
 
 
 FBDExampleModels.push({
     desc: "Bar graph",
+    model:{
     x: 0,
     y: 0,
     z: 0,
@@ -493,6 +531,10 @@ FBDExampleModels.push({
         x: 0, y: 0,z: 0,
         rx: 0,ry: 0,rz: 0
       }]
+    },
+    solution:{
+      a:1
+    }
   }
 );
     
@@ -500,6 +542,7 @@ FBDExampleModels.push({
 
 FBDExampleModels.push({
     desc: "VM graph",
+    model:{
     x: 0,
     y: 0,
     z: 0,
@@ -586,6 +629,10 @@ FBDExampleModels.push({
         "ry": 0,
         "rz": 0
       }]
+    },
+    solution:{
+      a:1
+    }
   }
 );
     

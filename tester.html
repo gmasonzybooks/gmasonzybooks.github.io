@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<!--
+Tester
+-->
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Tester</title>
+    <link rel="script" src="chart.js">
+
+    <style>
+        .canvas{
+            max-height:200px;
+            max-width:200px;
+        }
+    </style>
+</head>
+
+<div>
+    <canvas id="myChart1" height="200" width="200"></canvas>
+    <canvas id="myChart2" height="200" width="200" style="border:solid;"></canvas>
+</div>
+
+<script src="chart.js"></script>
+
+<script>
+  
+const canv1=document.getElementById("myChart1");
+const canv2=document.getElementById("myChart2");
+
+
+const canv = document.createElement("canvas");
+const ctx = canv.getContext("2d");
+canv.style.maxHeight="200px";
+canv.style.maxWidth="200px"
+canv.style.display = "none";
+document.body.append(canv);
+
+
+    let mychart1 = new Chart(canv, {
+        type: 'scatter',
+            data: {
+                datasets: [{
+                  label: 'V',
+                  data: [{
+                    x: -10,
+                    y: 0
+                  }, {
+                    x: 0,
+                    y: 10
+                  }],
+                  backgroundColor: 'rgb(255, 99, 132)'
+                }],
+              },
+            options: {
+              scales: {
+                x: {
+                  type: 'linear',
+                  position: 'bottom'
+                }
+              }
+            }
+    });
+   
+   // mychart1.update();
+    const ctx2= canv2.getContext('2d');
+
+
+    ctx2.drawImage(mychart1.canvas,0,0)
+</script>
+</body>
+
+</html>

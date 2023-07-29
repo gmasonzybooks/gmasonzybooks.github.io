@@ -58,6 +58,8 @@ function checkSolution(ans, key) {
     // set the status of each ans and vector
     key.forEach(item => {
         item.status = KS_NULL;
+
+        if (item.options === undefined) item.options="";
     })
 
     ans.forEach(item => {
@@ -79,6 +81,7 @@ function checkSolution(ans, key) {
         key.forEach(keyitem => {
             // if the types match and the key hasn't been matched exactly
             tol2 = keyitem.tol*keyitem.tol;
+        
             if (ansitem.type === keyitem.type && keyitem.status !== KS_MATCH) {
                 if (ansitem.type === "Vector") {
                     ansV.set(ansitem.x, ansitem.y, ansitem.z);
@@ -89,7 +92,7 @@ function checkSolution(ans, key) {
                         // found a match for vector position and direction
                         keyitem.status = KS_MATCH;
                         ansitem.status = AS_CORRECT;
-                    } else if (keyitem.option === 'colinear') {
+                    } else if (keyitem.options.includes('colinear')) {
                         tempV1.addVectors(keyV,keyU)
                         const line=new THREE.Line3(keyV, tempV1);
                         const d=line.closestPointToPoint(ansV,false,tempV1).distanceTo(ansV);
@@ -123,6 +126,7 @@ function checkSolution(ans, key) {
             // ans item doesn't match, or partially match, the solution
             key.forEach(keyitem => {
                 tol2 = keyitem.tol*keyitem.tol;
+              
                 // if the types match and the key hasn't been matched
                 if (ansitem.type === keyitem.type && keyitem.status === KS_NULL) {
                     if (ansitem.type === "Vector") {
@@ -134,7 +138,7 @@ function checkSolution(ans, key) {
                             // found a match for vector position and direction
                             keyitem.status = KS_PARTMATCH;
                             ansitem.status = AS_WRONGDIR;
-                        } else if (keyitem.option === 'colinear') {
+                        } else if (keyitem.options.includes('colinear')) {
                             // does the vector passthrough the correct point
                             tempV1.addVectors(ansV,ansU)
                             const line=new THREE.Line3(ansV, tempV1); // line formed by answer vector

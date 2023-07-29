@@ -4,6 +4,58 @@ support classes and function for FBDmail.html
 G. Mason 2022
 1/3/2023
 */
+
+
+// control selection support function
+// this is a terrible design, needs fixing
+// should add a controls class and add in all static controls
+function selectXYZcontrols(item) {
+    document.getElementById("showXYZ").style.display = 'none';
+    document.getElementById("showUVWL").style.display = 'none';
+    document.getElementById("showDxyz").style.display = 'none';
+
+    document.getElementById("selectXYZ").style.opacity = 0.4;
+    document.getElementById("selectUVWL").style.opacity = 0.4;
+    document.getElementById("selectDxyz").style.opacity = 0.4;
+
+    if (item === 'XYZ') {
+        document.getElementById("showXYZ").style.display = 'inline';
+        document.getElementById("selectXYZ").style.opacity = 1;
+    } else if (item === 'Dxyz') {
+        document.getElementById("showDxyz").style.display = 'inline';
+        document.getElementById("selectDxyz").style.opacity = 1;
+    } else {
+        document.getElementById("showUVWL").style.display = 'inline';
+        document.getElementById("selectUVWL").style.opacity = 1;
+    }
+}
+
+function enableXYZcontrols(item) {
+    document.getElementById('selectXYZ').style.opacity = 1;
+    if (item === 'vector') {
+
+        //	document.getElementById('selectXYZ').style.opacity=1;
+        //	document.getElementById('selectDxyz').style.opacity=0.4;
+        //	document.getElementById('selectUVWL').style.opacity=0.4;
+
+        //	document.getElementById('selectXYZ').style.display='inline';
+        document.getElementById('selectDxyz').style.display = 'inline';
+        document.getElementById('selectUVWL').style.display = 'inline';
+
+    } else { // not a vector
+        document.getElementById('selectXYZ').style.opacity = 1;
+        //	document.getElementById('selectDxyz').style.opacity=0.4;
+        //	document.getElementById('selectUVWL').style.opacity=0.4;
+
+        //	document.getElementById('selectXYZ').style.display='inline';
+        document.getElementById('selectDxyz').style.display = 'none';
+        document.getElementById('selectUVWL').style.display = 'none';
+
+    }
+    selectXYZcontrols('XYZ');
+}
+
+// classes
 class orthoCamera extends THREE.OrthographicCamera {
     constructor(aspect, maxdim) {
         super(-maxdim * aspect, maxdim * aspect, maxdim, -maxdim, -maxdim, maxdim);
@@ -308,6 +360,8 @@ class draggableVector extends draggableObject {
             this.length = point.distanceTo(this.position) // - 1
             if (this.length < 2) this.length = 2;
 
+
+
             this.updateGeometry(this.length);
             //            this.arrow.children[0].position.set(0, -this.length - 0.3, 0)
             this.arrow.children[0].position.set(0, -this.length - 1, 0)
@@ -327,7 +381,12 @@ class draggableVector extends draggableObject {
 
             // get the cross product between the vectors
             // this is the vector about which we must rotate.
-            yvec.cross(newv).normalize();
+            if (Math.abs(ang - Math.PI) < 0.01) {
+                yvec.set(0, 0, -1)
+            } else {
+                yvec.cross(newv).normalize();
+            }
+
 
             // rotate the vector's coordinate space so the y axis aligns with the new desired direction
             this.setRotationFromAxisAngle(yvec, ang);
@@ -402,7 +461,7 @@ class draggableVector extends draggableObject {
 
 
 class draggableBox extends draggableObject {
-    constructor(dragger) {
+    constructor(dragger, color) {
         // 				const bgeometry = new THREE.BufferGeometry();
         // 				var bvertices = new Float32Array([
         // 					2, 2, 0,
@@ -444,10 +503,9 @@ class draggableBox extends draggableObject {
         // itemSize = 3 because there are 3 values (components) per vertex
         geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
         geometry.setIndex(indices)
-        //geometry.setAttribute('index', new THREE.BufferAttribute(indices, 3));
-        //	const material = new THREE.LineBasicMaterial({ color: 0x000000 });
-        //		const mesh = new THREE.LineLoop(geometry,material);
-        const material = new THREE.MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.4 });
+       
+        // the color property isn't working as expected, must be a error in how I'm using the material
+        const material = new THREE.MeshStandardMaterial({ color: 0xFFFF00, transparent: true, opacity: 0.4 });
         const mesh = new THREE.Mesh(geometry, material);
 
 
@@ -461,15 +519,15 @@ class draggableBox extends draggableObject {
         this.dragger = dragger
 
 
-
+        this.addDragCtrlPt(0, 0, 0);
         this.addSizeCtrlPt(-2, -2, 0, 0);
         this.addSizeCtrlPt(2, -2, 0, 3);
         this.addSizeCtrlPt(2, 2, 0, 6);
         this.addSizeCtrlPt(-2, 2, 0, 9);
-        this.addDragCtrlPt(0, 0, 0);
+
         this.dragger.addObject(this);
 
-        this.userData.object = "Line"
+        this.userData.object = "Box"
         this.userData.canDelete = true;
     }
 
@@ -499,6 +557,32 @@ class draggableBox extends draggableObject {
         } else {
             super.dragUpdate(ctrl, point, gnorm)
         }
+    }
+
+    exportAsText(origin) {
+        let text = '{' + super.exportAsText(origin) + ',\n';
+
+        let inv = origin.clone().invert()
+        let loc;
+        let i, itext;
+        for (i = 0; i < 4; i++) {
+
+            loc = new THREE.Vector3(this.bvertices[3 * i + 0], this.bvertices[3 * i + 1], this.bvertices[3 * i + 2]);
+            this.localToWorld(loc);
+            if (origin !== undefined) {
+                loc.applyMatrix4(inv);
+            }
+            itext = i + 1;
+            text += '"x' + itext + '":' + loc.x + ", "
+                + '"y' + itext + '":' + loc.y + ", "
+                + '"z' + itext + '":' + loc.z 
+            if (i<3){
+                text += + ",\n"
+            } 
+        }
+        text += '\n}'
+        return text;
+
     }
 }
 
@@ -598,6 +682,8 @@ class draggableLine extends draggableObject {
     }
 }
 
+// this is not a true quadratic.  This is a bazier curve (a parametric curve) with three control points.
+// Under certain conditions the curve can be represented by a quadratics
 class draggableQuadratic extends draggableObject {
     constructor(dragger) {
 
@@ -633,7 +719,7 @@ class draggableQuadratic extends draggableObject {
 
         this.dragger.addObject(this);
 
-        this.userData.object = "Quadline"
+        this.userData.object = "Curve"
         this.userData.canDelete = true;
     }
 
@@ -919,6 +1005,7 @@ class dragControls {
         this.originInverse.invert(); // still identity, done here for clarity.
 
         this.snap = true;
+        this.vectorctrl = false;
 
         graphWindow.addEventListener('mousemove', event => {
 
@@ -947,7 +1034,7 @@ class dragControls {
 
 
                 } else {
-                   if ((this.hilitedCtrl !== null) && (this.hilitedCtrl !== this.selectedCtrl)) this.hilitedCtrl.material.opacity = 0.1;
+                    if ((this.hilitedCtrl !== null) && (this.hilitedCtrl !== this.selectedCtrl)) this.hilitedCtrl.material.opacity = 0.1;
                     this.hilitedCtrl = null;
 
                 }
@@ -1075,7 +1162,7 @@ class dragControls {
                     // clicked on a viable object so update the selected control and hiliting
 
                     // reset selection if needed
-                    if ((this.selectedCtrl !== null) && (this.selectedCtrl !== intersects[0].object)) this.selectedCtrl.material.opacity=0.1
+                    if ((this.selectedCtrl !== null) && (this.selectedCtrl !== intersects[0].object)) this.selectedCtrl.material.opacity = 0.1
 
                     // reset hiliting
                     if (this.hilitedCtrl !== null) this.hilitedCtrl.material.opacity = 0.1;
@@ -1094,7 +1181,7 @@ class dragControls {
                     // this.planegrp.visible = true;
                     // this.controls[0].style.display = 'inline';
                     // this.controls[1].style.display = 'inline';
-                    this.showplane(true);
+                    this.showplane(true, (this.selectedCtrl.parent.userData.object === "Vector" ? true : false));
                     //this.controls[1].innerHTML = ""
                     //let pos = new THREE.Vector3();
                     //this.selectedCtrl.getWorldPosition(pos);
@@ -1127,25 +1214,116 @@ class dragControls {
 
         // poor portability, should pass in the controls, being lazy
         document.getElementById("ENTER").addEventListener('click', event => {
-            let x = Number(document.getElementById("Xcoord").value);
-            let y = Number(document.getElementById("Ycoord").value);
-            let z = Number(document.getElementById("Zcoord").value);
 
-            let point = new THREE.Vector3(x, y, z);
+            let x = 0
+            let y = 0
+            let z = 0
+            let L = 0
+            let point; //=new THREE.Vector3();
+            let point2; //=new THREE.Vector3();
+            let point3;
+            // enter coordinates directly
+            if (document.getElementById("showXYZ").style.display !== 'none') {
+                x = Number(document.getElementById("Xcoord").value);
+                y = Number(document.getElementById("Ycoord").value);
+                z = Number(document.getElementById("Zcoord").value);
+                point = new THREE.Vector3(x, y, z)
 
-            point.applyMatrix4(this.origin);
+                point.applyMatrix4(this.origin);
+                this.selectedCtrl.parent.dragUpdate(this.selectedCtrl, point, this.planenorm)
+
+            } else {  // so must be Dxyz or UVWL
+                // and so must be a vector
+
+                if (document.getElementById("showDxyz").style.display !== 'none') {
+
+                    x = Number(document.getElementById("dX").value);
+                    y = Number(document.getElementById("dY").value);
+                    z = Number(document.getElementById("dZ").value);
+
+                } else {
+                    // if this is a UVWL convert the values to dXYZ by
+                    // multiplying by L
+
+                    L = Number(document.getElementById("uL").value);
+                    x = Number(document.getElementById("uX").value);
+                    y = Number(document.getElementById("uY").value);
+                    z = Number(document.getElementById("uZ").value);
+
+                    // make sure the values represent a unit vector
+                    let W = Math.sqrt(x * x + y * y + z * z);
+                    x = x / W;
+                    y = y / W;
+                    z = z / W;
 
 
-            ///
+                    // update the display to a unit vector
+                    document.getElementById("uX").value = x.toFixed(2);
+                    document.getElementById("uY").value = y.toFixed(2);
+                    document.getElementById("uZ").value = z.toFixed(2);
+
+                    // convert to Dxyz
+                    x = x * L;
+                    y = y * L;
+                    z = z * L;
+
+                }
+
+                point2 = new THREE.Vector3(x, y, z);
+
+                let tempM=this.origin.clone().setPosition(0,0,0);
+                point2.applyMatrix4(tempM);  // converts to world space
+
+                if (this.selectedCtrl.userData.action === 'Drag') {
+                    // drag point = the vector head
+                    // new head position is tail + dx,dy,dz
+
+                    // get the tail position
+                    point = this.selectedCtrl.parent.children[2].position.clone();
+                    this.selectedCtrl.parent.localToWorld(point);
+                    point3 = point.clone();
+                    //   point2 = new THREE.Vector3(x, y, z);
+                    //   point2.applyMatrix4(this.origin);  // converts to world space
+                    point.add(point2);  // new vector head
+                    // update the head position
+                    this.selectedCtrl.parent.dragUpdate(this.selectedCtrl, point, this.planenorm)
+
+                    // need to reset the tail to its original position
+                    this.selectedCtrl.parent.dragUpdate(this.selectedCtrl.parent.children[2], point3, this.planenorm)
+
+                } else {
+                    // drag point = the vector tail
+                    // new head position is head - dx,dy,dz
+                    // in this case the head does not change, only the tail
+
+                    // get the head position
+                    point = this.selectedCtrl.parent.children[1].position.clone();
+                    this.selectedCtrl.parent.localToWorld(point);
+
+                    //  point2 = new THREE.Vector3(x, y, z);
+                    //  point2.applyMatrix4(this.origin);  // converts to world space
+
+                    // calculate the new tail position
+                    point.sub(point2);  // new vector head
+                    // update the tail position
+                    this.selectedCtrl.parent.dragUpdate(this.selectedCtrl, point, this.planenorm)
+
+
+                }
+
+
+            }
+
+            ////
             if (this.iconHandlers.anySelected()) {
                 this.selectedCtrl = this.addNewItem();
                 this.hilitedCtrl = this.selectedCtrl;
             }
-
             ////
 
 
-            this.selectedCtrl.parent.dragUpdate(this.selectedCtrl, point, this.planenorm)
+            //  this.selectedCtrl.parent.dragUpdate(this.selectedCtrl, point, this.planenorm)
+
 
 
             // update the x,y,z position
@@ -1160,21 +1338,23 @@ class dragControls {
     addNewItem() {
         // add new item and return the object
 
-        let force;
+        let item;
         if (this.iconHandlers.states.addVector) {
-            force = new draggableVector(this, 0xFF0000);
+            item = new draggableVector(this, 0xFF0000);
         } else if (this.iconHandlers.states.addLine) {
-            force = new draggableLine(this, 0xFF0000);
+            item = new draggableLine(this, 0xFF0000);
         } else if (this.iconHandlers.states.addQuad) {
-            force = new draggableQuadratic(this, 0xFF0000);
+            item = new draggableQuadratic(this, 0xFF0000);
+        } else if (this.iconHandlers.states.addBox) {
+            item = new draggableBox(this, 0x0000FF);
         }
 
         this.iconHandlers.resetSelectorState()
 
-        this.scene.add(force);
+        this.scene.add(item);
 
 
-        return force.children[1];
+        return item.children[1];
 
         //this.hilitedCtrl=force.children[1];
         //this.selectedCtrl=this.hilitedCtrl;
@@ -1215,15 +1395,40 @@ class dragControls {
         }
     }
 
-    showplane(state) {
+    showplane(state, vectorctrl) {
         if (state) {
             this.planegrp.visible = true;
+
+
+            if (vectorctrl) {
+
+                enableXYZcontrols('vector');
+                // this.controls[1].children[0].style.display = 'inline';
+                // this.controls[1].children[1].style.display = 'inline';
+                // this.controls[1].children[2].style.display = 'inline';
+                this.vectorctrl = true;
+            } else {
+                enableXYZcontrols(''); // not a vector
+                // this.controls[1].children[0].style.display = 'inline';
+                // this.controls[1].children[1].style.display = 'none';
+                // this.controls[1].children[2].style.display = 'none';
+
+                // this.controls[1].children[3].style.display='inline'
+                // this.controls[1].children[4].style.display='none'
+                // this.controls[1].children[5].style.display='none'
+
+                this.vectorctrl = false;
+            }
+
             this.controls[0].style.display = 'inline';
             this.controls[1].style.display = 'inline';
         } else {
             this.planegrp.visible = false;
             this.controls[0].style.display = 'none';
             this.controls[1].style.display = 'none';
+
+            //    this.controls[1].children[0].style.display = 'none';
+            this.vectorctrl = false;
         }
     }
     changeOrigin(mat) {
@@ -1242,15 +1447,47 @@ class dragControls {
 
     updateXYZ(ctrl) { // was (point)
         let xyzpoint = new THREE.Vector3();
+        let xyzpoint2 = new THREE.Vector3();
         ctrl.getWorldPosition(xyzpoint);
 
         //let xyzpoint = point.clone();
         xyzpoint.applyMatrix4(this.originInverse);
 
-        document.getElementById("Xcoord").value = xyzpoint.x.toFixed(1);
-        document.getElementById("Ycoord").value = xyzpoint.y.toFixed(1)
-        document.getElementById("Zcoord").value = xyzpoint.z.toFixed(1);
+        // always update the position even if its hidden
 
+        document.getElementById("Xcoord").value = xyzpoint.x.toFixed(2);
+        document.getElementById("Ycoord").value = xyzpoint.y.toFixed(2)
+        document.getElementById("Zcoord").value = xyzpoint.z.toFixed(2);
+
+        if (this.vectorctrl) {
+
+            ctrl.parent.children[1].getWorldPosition(xyzpoint);
+            ctrl.parent.children[2].getWorldPosition(xyzpoint2);
+
+            xyzpoint.applyMatrix4(this.originInverse);
+            xyzpoint2.applyMatrix4(this.originInverse);
+
+            xyzpoint.sub(xyzpoint2);
+            //   if (ctrl.userData.action === "Rotate") {
+            //       xyzpoint.negate();
+            //   }
+
+
+
+            document.getElementById("dX").value = xyzpoint.x.toFixed(2);
+            document.getElementById("dY").value = xyzpoint.y.toFixed(2);
+            document.getElementById("dZ").value = xyzpoint.z.toFixed(2);
+
+            document.getElementById("uL").value = xyzpoint.length().toFixed(2);
+            xyzpoint.normalize(0);
+            document.getElementById("uX").value = xyzpoint.x.toFixed(2);
+            document.getElementById("uY").value = xyzpoint.y.toFixed(2);
+            document.getElementById("uZ").value = xyzpoint.z.toFixed(2);
+
+
+        }
+
+        // }
         // this.controls[1].value =  xyzpoint.x.toFixed(1) + ", "
         // + xyzpoint.y.toFixed(1) + ", "
         // + xyzpoint.z.toFixed(1) 
