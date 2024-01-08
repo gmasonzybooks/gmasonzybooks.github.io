@@ -7447,7 +7447,7 @@ const SVGSTRING = String.raw`<?xml version="1.0" encoding="UTF-8" standalone="no
        height="238.07646"
        x="224.14029"
        y="108.33813"
-       class="answer" ansType="vector" ansOpts="up" ansDesc="Reaction 1"/>
+       class="answer" ansType="vector"  ansDesc="Reaction 1"/>
     <rect
        style="fill:#bee6b6;fill-opacity:1;stroke:none;stroke-width:1.30238;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none"
        id="rect36"
@@ -7471,13 +7471,14 @@ const SVGSTRING = String.raw`<?xml version="1.0" encoding="UTF-8" standalone="no
            id="weight"
            transform="rotate(0,79.562673,234.85927)" params='{"transform":"rotate($T2,79.562673,234.85927)"}'>
           <rect
+             transform="rotate(180,79.44,232.85927)"
              style="fill:#bee6b6;fill-opacity:1;stroke:none;stroke-width:1.24866;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none"
              id="rect29"
              width="25.753479"
              height="238.07646"
              x="66.578995"
              y="114.82104"
-             class="answer" ansType="vector" ansDesc="Reaction 3"/>
+             class="answer" ansType="vector" ansOpts="direction" ansDesc="Reaction 3"/>
           <g
              id="g27"
              transform="matrix(1.2704264,0,0,1.2704264,-36.737172,-249.18887)">
@@ -7569,7 +7570,7 @@ const SVGSTRING = String.raw`<?xml version="1.0" encoding="UTF-8" standalone="no
                height="25.786579"
                x="111.77897"
                y="60.468304"
-               class="answer" ansType="vector"  ansDesc="Reaction 4"/>
+               class="answer" ansType="vector" ansDesc="Reaction 4"/>
             <g
                id="g11"
                transform="matrix(1.2704264,0,0,1.2704264,-191.55964,-38.990084)">

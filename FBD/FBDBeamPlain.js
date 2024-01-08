@@ -123,6 +123,7 @@ const SVGSTRING = String.raw`<?xml version="1.0" encoding="UTF-8" standalone="no
        id="weight"
        transform="translate(0)"  params='{"transform":"translate($W)"}'>
       <rect
+      transform="rotate(180,224.6,107.2)"
          style="opacity:0.48929;fill:#8eb766;fill-opacity:1;stroke:none;stroke-width:51.2005;stroke-linecap:round;stroke-linejoin:round"
          id="rect5"
          width="18.847458"
@@ -131,7 +132,7 @@ const SVGSTRING = String.raw`<?xml version="1.0" encoding="UTF-8" standalone="no
          y="33.159985"
          ry="0"
          class="answer"
-         ansType="vector"
+         ansType="vector" ansOpts="direction"
          ansDesc="Weight vector" />
       <g
          id="g8">
