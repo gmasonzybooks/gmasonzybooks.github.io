@@ -1,6 +1,6 @@
 
 // ----- Rocker FBD -----
-const SVGPARAMS = '"$T1":0, "$A1":0, "$T2":0, "$A2":0,"$W":-56.65356'
+const SVGPARAMS = '"$T1":0, "$A1":0, "$T2":0, "$A2":0, "$T3":0, "$W1":70'
 
 const SVGSTRING = String.raw`<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
@@ -7463,7 +7463,7 @@ const SVGSTRING = String.raw`<?xml version="1.0" encoding="UTF-8" standalone="no
          style="fill:#b6d4e6;fill-opacity:1;stroke:#000000;stroke-width:1.27043px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          d="m 238.02996,235.32023 h -71.99697 l 70.10382,-56.65356 z"
          id="web" 
-         params='{"d":"m 238.02996,235.32023 h -71.99697 l 70.10382,$W z"}'/>
+         params='{"d":"m 238.02996,235.32023 h -71.99697 l $W1,-56.65356 z"}'/>
       <g
          id="arm1"
          transform="translate(0)" params='{"transform":"translate($A1)"}'>>
@@ -7513,7 +7513,8 @@ const SVGSTRING = String.raw`<?xml version="1.0" encoding="UTF-8" standalone="no
          style="fill:url(#linearGradient6);stroke:#231f20;stroke-width:1.27043;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          d="M 74.515847,243.11324 H 205.75189 c 9.97101,0.13655 13.29819,1.46443 19.27972,5.4539 l -0.66747,-26.93203 c -5.98153,3.98947 -8.97125,5.21085 -18.94225,5.34472 H 74.515847" />
       <g
-         id="vertArm">
+         id="vertArm" transform="rotate(0,237.24868,234.63163)"
+         params='{"transform":"rotate($T3,237.24868,234.63163)"}'>
         <path
            id="path9"
            style="fill:url(#linearGradient9);stroke:#231f20;stroke-width:1.27043;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
