@@ -43,6 +43,7 @@ Konva.Vector = class myvect extends Konva.Group {
          name: "tail"
       });
 
+      // added to bypass a bug when adding multiple items to a layer where events are not assigned correctly
       this.dummy = new Konva.Rect({
          x: x,
          y: y,
@@ -53,6 +54,7 @@ Konva.Vector = class myvect extends Konva.Group {
          strokeWidth: 1,
          draggable: false,
          opacity: 0.0,
+         visibility: false
       });
 
       // weird bug prevents the last item added from firing correctly so added a dummy object
@@ -147,6 +149,8 @@ Konva.CurveLine = class mycurve extends Konva.Group {
       for (var j = 0; j < this.points.length / 2; j++) { // dangerous if /2 is not a integer
          this.addControl(j)
       }
+
+      // added to bypass a bug when adding multiple items to a layer where events are not assigned correctly
       this.dummy = new Konva.Rect({
          x: x,
          y: y,
@@ -157,6 +161,7 @@ Konva.CurveLine = class mycurve extends Konva.Group {
          strokeWidth: 1,
          draggable: false,
          opacity: 0.0,
+         visibility: false
       });
 
       this.add(this.curve, ...this.controls, this.dummy)
