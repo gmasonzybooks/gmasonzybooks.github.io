@@ -2,7 +2,7 @@
 
 
 // ----- Shear moment diagram -----
-const SVGPARAMS = '"$Dx":107, "$Dy":0, "$Dv":"5", "$Dwx":161, "$Px":53.6, "$Pv":"3", "$Sx":214, "$Vxy":"M -10,-48 54,-48 54,-24  107,-24 161,56 214,56 214,0 278,0", "$Vmax":"8", "$Vmin":"-8", "$Mmax":"20", "$Mmin":"-20", "$Mxy":"M -5,5 54,-38 107,-57.6 127,-61 147.5,-53  161,-41.6 214,0 278,0"'
+const SVGPARAMS = '"$Dx":107, "$Dy":0, "$Dv":"5", "$Dwx":161, "$Px":53.6, "$Pv":"3", "$Sx":214, "$Vxy":"M -10,-48 54,-48 54,-24  107,-24 161,56 214,56 214,0 278,0", "$Vmax":"8", "$Vmin":"-8", "$Mmax":"20", "$Mmin":"-20", "$Mxy":"M -5,5 54,-40 107,-55.6 127,-57 147.5,-52  161,-41.6 214,0 278,0"'
 
 const SVGSTRING = String.raw`<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
@@ -827,7 +827,7 @@ const SVGSTRING = String.raw`<?xml version="1.0" encoding="UTF-8" standalone="no
        width="12.042008"
        height="1"
        x="244"
-       y="317.82059"
+       y="319.82059"
        class="answer" ansType="curve" ansOpts="inside" ansDesc="Moment maximum value"
        />
       <rect
