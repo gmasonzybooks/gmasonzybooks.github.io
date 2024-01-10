@@ -821,6 +821,15 @@ const SVGSTRING = String.raw`<?xml version="1.0" encoding="UTF-8" standalone="no
        y="377.82059"
        class="answer" ansType="curve" ansOpts="inside" ansDesc="Moment ending value"
        />
+    <rect
+       style="fill:#bee6b6;fill-opacity:0.97561;stroke:none;stroke-width:1"
+       id="Mmax"
+       width="12.042008"
+       height="1"
+       x="244"
+       y="317.82059"
+       class="answer" ansType="curve" ansOpts="inside" ansDesc="Moment maximum value"
+       />
       <rect
        style="fill:#bee6b6;fill-opacity:0.97561;stroke:none;stroke-width:0.978873"
        id="VxGraph"
