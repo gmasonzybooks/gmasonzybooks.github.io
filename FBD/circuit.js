@@ -166,13 +166,22 @@ const SVGSTRING = String.raw`<?xml version="1.0" encoding="UTF-8" standalone="no
      class="answer" ansType="user"  ansDesc="Parallel resistor 2" />
   <rect
      style="fill:#bfeceb;fill-opacity:0.540816;stroke:none;stroke-width:1.95142;stroke-opacity:1"
-     id="ParallelWire"
+     id="ParallelWireA"
      width="18.808033"
-     height="78.927208"
+     height="18.927208"
      x="-58.17202"
      y="140.1441"
      transform="rotate(-90)"
-     class="answer" ansType="curve"  ansDesc="Parallel wire" />
+     class="answer" ansType="curve" ansOpts="inside" ansDesc="Parallel wire start" />
+   <rect
+     style="fill:#bfeceb;fill-opacity:0.540816;stroke:none;stroke-width:1.95142;stroke-opacity:1"
+     id="ParallelWireB"
+     width="18.808033"
+     height="18.927208"
+     x="-58.17202"
+     y="200.1441"
+     transform="rotate(-90)"
+     class="answer" ansType="curve"  ansOpts="inside" ansDesc="Parallel wire end" />
   <rect
      style="fill:#bfeceb;fill-opacity:0.540816;stroke:none;stroke-width:1.95142;stroke-opacity:1"
      id="SeriesR1"
