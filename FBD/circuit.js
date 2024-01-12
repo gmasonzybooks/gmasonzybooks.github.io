@@ -151,17 +151,17 @@ const SVGSTRING = String.raw`<?xml version="1.0" encoding="UTF-8" standalone="no
   <rect
      style="fill:#bfeceb;fill-opacity:0.540816;stroke:none;stroke-width:1.95142;stroke-opacity:1"
      id="ParallelR1"
-     width="18.808033"
+     width="28.808033"
      height="78.927208"
-     x="200.4735"
+     x="195.4735"
      y="39.153778"
     class="answer" ansType="user"  ansDesc="Parallel resistor 1" />
   <rect
      style="fill:#bfeceb;fill-opacity:0.540816;stroke:none;stroke-width:1.95142;stroke-opacity:1"
      id="ParallelR2"
-     width="18.808033"
+     width="28.808033"
      height="78.927208"
-     x="140.35432"
+     x="135.35432"
      y="39.153778"
      class="answer" ansType="user"  ansDesc="Parallel resistor 2" />
   <rect
@@ -176,18 +176,18 @@ const SVGSTRING = String.raw`<?xml version="1.0" encoding="UTF-8" standalone="no
   <rect
      style="fill:#bfeceb;fill-opacity:0.540816;stroke:none;stroke-width:1.95142;stroke-opacity:1"
      id="SeriesR1"
-     width="18.808033"
+     width="28.808033"
      height="78.927208"
-     x="-57.751606"
+     x="-62.751606"
      y="364.64508"
      transform="rotate(-90)"
      class="answer" ansType="user"  ansDesc="Series resistor 1" />
   <rect
      style="fill:#bfeceb;fill-opacity:0.540816;stroke:none;stroke-width:1.95142;stroke-opacity:1"
      id="SeriesR2"
-     width="18.808033"
+     width="28"
      height="78.927208"
-     x="424.55405"
+     x="420.55405"
      y="38.733364"
      class="answer" ansType="user"  ansDesc="Series resistor 2"  />
 </svg>`
