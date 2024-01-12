@@ -353,7 +353,7 @@ function loadModel() {
                   stroke: color,
                   fill: color,
                   closed: item.opts.includes("closed"),
-                  opacity: 0.3,
+                  opacity: 0.2,
                   strokeWidth: (item.type.includes("curve") ? 10 : 1), // draw curves thick.  Should the thickness be an option?
                   name: item.type.trim(),
                   listening: false
