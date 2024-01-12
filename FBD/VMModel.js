@@ -2,8 +2,8 @@
 
 
 // ----- Shear moment diagram -----
-const SVGPARAMS = '"$Dx":107, "$Dy":0, "$Dv":"5", "$Dwx":161, "$Px":53.6, "$Pv":"3", "$Sx":214, "$Vxy":"M -10,-48 54,-48 54,-24  107,-24 161,56 214,56 214,0 278,0", "$Vmax":"8", "$Vmin":"-8", "$Mmax":"20", "$Mmin":"-20", "$Mxy":"M -5,5 54,-40 107,-55.6 127,-57 147.5,-52  161,-41.6 214,0 278,0"'
-
+const SVGPARAMS = '"$Dx":107, "$Dy":0, "$Dv":"5", "$Dwx":161, "$Px":53.6, "$Pv":"3", "$Sx":214, "$Vxy":"M 0,-48 54,-48 54,-24  107,-24 161,56 214,56 214,0 268,0", "$Vmax":"8", "$Vmin":"-8", "$Mmax":"20", "$Mmin":"-20", "$Mxy":"M -5,5 54,-40 107,-55.6 127,-57 147.5,-52  161,-41.6 214,0 278,0"'
+var SOLNITEMS = ["curve","curve"] 
 const SVGSTRING = String.raw`<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
@@ -821,7 +821,7 @@ const SVGSTRING = String.raw`<?xml version="1.0" encoding="UTF-8" standalone="no
        y="377.82059"
        class="answer" ansType="curve" ansOpts="inside" ansDesc="Moment ending value"
        />
-    <rect
+       <rect
        style="fill:#bee6b6;fill-opacity:0.97561;stroke:none;stroke-width:1"
        id="Mmax"
        width="12.042008"

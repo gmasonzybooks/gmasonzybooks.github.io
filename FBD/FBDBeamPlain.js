@@ -1,6 +1,6 @@
 // ----- Beam FBD -----
 const SVGPARAMS = '"$W":0, "$SS":0'
-
+var SOLNITEMS = ["curve","vector","vector","vector","vector"] 
 const SVGSTRING = String.raw`<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 

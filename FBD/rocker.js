@@ -1,6 +1,6 @@
 // ----- Rocker FBD -----
 const SVGPARAMS = '"$T1":0, "$A1":0, "$T2":0, "$A2":0, "$T3":0, "$W1":70'
-
+var SOLNITEMS = ["vector","vector","vector","vector"] 
 const SVGSTRING = String.raw`<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 

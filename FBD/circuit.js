@@ -1,5 +1,6 @@
 // ----- Shear moment diagram -----
 var SVGPARAMS = ''
+var SOLNITEMS = ["curve","user","user","user","user"] 
 // figure is not scaled properly so fudged xfinal by 2 px
 
 

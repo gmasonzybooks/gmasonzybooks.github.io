@@ -1,7 +1,7 @@
 // ----- Shear moment diagram -----
 var SVGPARAMS = '"$Vang":35,"$Vel":80, "$xmax":169.44, "$ymax": 66.69, "$yfence":55.7,"$xfinal":299.8,"$yfinal": 32.87764'
 // figure is not scaled properly so fudged xfinal by 2 px
-
+var SOLNITEMS = ["curve"] 
 
 const SVGSTRING = String.raw`<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Generator: Adobe Illustrator 26.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->

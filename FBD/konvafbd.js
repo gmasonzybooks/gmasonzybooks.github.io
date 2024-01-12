@@ -511,9 +511,9 @@ document.getElementById("checkSolution").addEventListener("click", (evt) => {
          answ.forEach(ans => {
             // must match the solution type
             if (sol.name() == ans.name()) {
-               if (answerOverlap(ans.find(".ansShape")[0], sol, TOLERANCE, sol.outsideCount)) {
+               if (!isSatisfied[idx] && answerOverlap(ans.find(".ansShape")[0], sol, TOLERANCE, sol.outsideCount)) {
                   isSatisfied[idx] = true;
-                  text += sol.description + " satisfied"
+                  text += sol.description + " is correct"
 
                   // if a direction also required check that
                   if (sol.direction && !ans.isDirectionTowards(sol.getDirPoint())) {
@@ -528,13 +528,49 @@ document.getElementById("checkSolution").addEventListener("click", (evt) => {
    text += "\n"
    solns.forEach((sol, idx) => {
       if (!isSatisfied[idx]) {
-         text += sol.description + " not satisfied\n"
+         text += sol.description + " is incorrect\n"
       }
    })
 
-   // the above approach doesn't account for redundant answers
-   // should also check against an answer count as provided by or calculated from the answer key. Ex: solution has 5 vectors and 2 lines.
+   // check for redundant item by comparing the solnitemlist with SOLNITEMS
+   // only need to catch extra items the user has added. Missing items will be caught by previous checks
 
+   // this is an inefficient way to do this, fortunantly the loop only runs when checking the solution
+   var anslist=[];
+ 
+   answ.forEach(item=>{
+      anslist.push(item.name())
+   })
+   var nans=anslist.length
+
+   SOLNITEMS.forEach(item=>{
+      // find and tag found items
+      for (let i=0;i<anslist.length;i++){
+         if (item===anslist[i]) {
+            anslist[i]=""; // mark as blank so it doesn't get counted again
+            nans--;
+            break;
+         }
+      }
+   })
+   // optionally make a list of all non empty array items
+   // var xtratext="";
+   // anslist.forEach(item=>{
+   //    if (item !== ""){
+   //       xtratext += item+" "
+   //    }
+   // })
+   if (nans > 0) {
+      if (nans === 1) {
+         text += "\nThere is 1 additional incorrect component";
+      } else {
+         text += "\nThere are "+nans+" additional incorrect components";
+      }
+  
+   }
+
+
+  
    window.alert(text)
 
 })
