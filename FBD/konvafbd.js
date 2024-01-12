@@ -54,7 +54,7 @@ Konva.Vector = class myvect extends Konva.Group {
          strokeWidth: 1,
          draggable: false,
          opacity: 0.0,
-         visibility: false
+         visibility: false  // is this redundant?
       });
 
       // weird bug prevents the last item added from firing correctly so added a dummy object
@@ -265,7 +265,13 @@ Konva.UserImage = class myimage extends Konva.Group {
          image: theimage,
          x: 0,
          y: 0,
+         offsetX: theimage.width/2,
+         offsetY: theimage.height/2,
          name: "ansShape",
+      })
+
+      this.image.on("pointerdblclick", (evt) =>{
+         this.image.rotate(90)
       })
 
       this.add(this.image)
@@ -353,7 +359,7 @@ function loadModel() {
                   stroke: color,
                   fill: color,
                   closed: item.opts.includes("closed"),
-                  opacity: 0.2,
+                  opacity: 0.3,
                   strokeWidth: (item.type.includes("curve") ? 10 : 1), // draw curves thick.  Should the thickness be an option?
                   name: item.type.trim(),
                   listening: false
