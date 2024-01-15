@@ -126,7 +126,7 @@ Konva.CurveLine = class mycurve extends Konva.Group {
          draggable: true, x: x, y: y, name: "curve"
       });
 
-      this.points = [0, 0, 100, 0]; //, 100, 0, 150, 0];
+      this.points = [0, 0, 60, 0]; //, 100, 0, 150, 0];
 
       this.curve = new Konva.Line({
          points: this.points,
