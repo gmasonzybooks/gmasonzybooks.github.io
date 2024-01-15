@@ -48,23 +48,23 @@ G. Mason
 
 <body>
    <div class="canvas" id="container" style="width:500px; height:500px;"></div>
-   <div id="xy">&nbsp;</div>
-   <p> </p>
-   <button id="addVector">Add vector</button>
-   <button id="addCurve">Add curve</button>&nbsp;<button id="addUser">Add user item</button>&nbsp;Show solution<input
-      type="checkbox" id="showSoln"><br />
-   SVG params: <br />
-   <textarea id="svgParams" rows="6" cols="80">"$Dx":107, "$Dy":0, "$Dv":"5", "$Dwx":161, "$Px":53.6, "$Pv":"3", "$Sx":214, "$Vxy":"M 0,-48 54,-48 54,-24  107,-24 161,56 214,56 214,0 268,0", "$Vmax":"8", "$Vmin":"-8", "$Mmax":"20", "$Mmin":"-20", "$Mxy":"M 0,0 54,-38 107,-57.6 134,-61 147.5,-54  161,-41.6 214,0 268,0"
-   </textarea>
-   <br /><button id="updateModel">Update</button>
-   <br /> <button id="checkSolution">Check solution</button>
-   <!--
-      <input id="svgParams"  style="border:none; width:600px" type="textarea"
-      value='"$Dx":107, "$Dy":0, "$Dv":"5", "$Dwx":161, "$Px":53.6, "$Pv":"3", "$Sx":214, "$Vxy":"M 0,-50 54,-50 54,-25  107,-25 161,55 214,55 214,60 268,0", "$Vmax":"8", "$Vmin":"-8", "$Mmax":"10"' /><button id="updateModel">Update</button>
-   -->
 
-   <!-- "$Dx":0, "$Dy":0, "$Dv":0, "$Dwx":0, "$Px":0, "Sx":0, "$Vxy":"m 0,-50 50,0 100,20 150,-10" -->
-   <!-- "$T1": 10, "$T2":180, "$A1":-20, "$A2":20, "$VM":"1111.222 kN/m" -->
+   <div>
+      <p><button id="addVector">Add vector</button></p>
+      <p><button id="addCurve">Add curve</button> &nbsp<span style="font-size: small">(double click nodes to add nodes)</span></p>
+      <p><button id="addUser">Add custom</button> &nbsp<span style="font-size: small">(double click shape to rotate)</span></p>
+      <div style="margin-top:20px;">
+         <div style="width:400px; margin-bottom:5px;"> SVG params: <button style="float:right;"
+               id="updateModel">Update</button></span>
+         </div>
+         <textarea id="svgParams" rows="6" cols="80">"$Dx":107, "$Dy":0, "$Dv":"5", "$Dwx":161, "$Px":53.6, "$Pv":"3", "$Sx":214, "$Vxy":"M 0,-48 54,-48 54,-24  107,-24 161,56 214,56 214,0 268,0", "$Vmax":"8", "$Vmin":"-8", "$Mmax":"20", "$Mmin":"-20", "$Mxy":"M 0,0 54,-38 107,-57.6 134,-61 147.5,-54  161,-41.6 214,0 268,0"
+   </textarea>
+      </div>
+
+      <p><button id="checkSolution">Check solution</button><span style="margin-left:50px;"></span>Show solution<input
+            type="checkbox" id="showSoln"></span>
+      </p>
+   </div>
 </body>
 
 
