@@ -126,7 +126,7 @@ Konva.CurveLine = class mycurve extends Konva.Group {
          draggable: true, x: x, y: y, name: "curve"
       });
 
-      this.points = [0, 0, 50, 0]; //, 100, 0, 150, 0];
+      this.points = [0, 0, 100, 0]; //, 100, 0, 150, 0];
 
       this.curve = new Konva.Line({
          points: this.points,
@@ -220,8 +220,13 @@ Konva.CurveLine = class mycurve extends Konva.Group {
             this.points[2 * idx + 3] = (this.points[2 * idx + 1] + this.points[2 * idx + 5]) / 2; // x average
 
          } else {
-            // adding to the end, no need to shift points/controls
-            this.points.push(this.points[2 * idx] + 20, this.points[2 * idx + 1])
+             // adding to the end, no need to shift
+               // project new point based on current slope
+               let dx = this.points[2 * idx]-this.points[2*idx-2];
+               let dy = this.points[2 * idx+1]-this.points[2*idx-1];
+               let m = Math.sqrt(dx*dx+dy*dy);
+
+               this.points.push(this.points[2 * idx] + 30*dx/m, this.points[2 * idx + 1]+30*dy/m);
 
          }
          idx++; // new point
