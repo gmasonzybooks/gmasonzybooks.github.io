@@ -323,7 +323,7 @@ function pixelToEngineering(pxy, scale) {
    let exy = [];
    for (let i = 0; i < pxy.length; i += 2) {
       exy.push(scale.xo + pxy[i] * scale.xs);
-      exy.push(-(scale.yo + pxy[i + 1] * scale.ys));
+      exy.push(scale.yo + pxy[i + 1] * scale.ys);
    }
    return exy
 }
@@ -333,8 +333,8 @@ function engineeringToPixel(exy, scale) {
    // returns [x1, y1, ...  xn, yn] in pixels
    let pxy = [];
    for (let i = 0; i < exy.length; i += 2) {
-      pxy.push((exy[i] - scale.xo) / scale.xs+scale.dx);
-      pxy.push((-exy[i + 1] - scale.yo) / scale.ys+scale.dy);
+      pxy.push((exy[i] - scale.xo) / scale.xs );
+      pxy.push((exy[i + 1] - scale.yo) / scale.ys );
    }
    return pxy
 }
@@ -383,7 +383,7 @@ function parseObjects(xmlString, modelParams) {
             fill: cleanAttr(zyObject.getAttribute("background-color"), 'red'),
             cornerRadius: cleanAttr(zyObject.getAttribute("border-radius"), 0),
             stroke: cleanAttr(zyObject.getAttribute("border-color"), "black"),
-            opacity: cleanAttr(zyObject.getAttribute("opacity"), 100)/100,
+            opacity: cleanAttr(zyObject.getAttribute("opacity"), 100) / 100,
             //  rotation: Number(cleanAttr(zyObject.getAttribute("transformDeg",0)))  // not reliable because Animator is use the same rotation method as Konva.  
             // Needs mapping update - maybe set object center using offset and x,y value
          })
@@ -395,6 +395,26 @@ function parseObjects(xmlString, modelParams) {
          shape.getDirPoint = function () {
             return { x: shape.x(), y: shape.y() }
          }
+      } else if (zyObject.getAttribute("objType") == "text") {
+         shape = new Konva.Text({
+            x: cleanAttr(zyObject.getAttribute("left")),
+            y: cleanAttr(zyObject.getAttribute("top")),
+            id: zyObject.getAttribute("objNum"),
+            name: zyObject.getAttribute("objName"),
+            opacity: cleanAttr(zyObject.getAttribute("opacity"), 100) / 100,
+            text: zyObject.getElementsByTagName("text")[0].innerHTML // or pull the  zyObject inner html and parse off the text tag
+            //  rotation: Number(cleanAttr(zyObject.getAttribute("transformDeg",0)))  // not reliable because Animator is use the same rotation method as Konva.  
+            // Needs mapping update - maybe set object center using offset and x,y value
+         })
+
+         // if rotation, make adjustments to position to get center rotation
+         centerRotateNode(shape, cleanAttr(zyObject.getAttribute("transformDeg", 0)))
+
+         // used to indicate the top of the object
+         shape.getDirPoint = function () {
+            return { x: shape.x(), y: shape.y() }
+         }
+
       } else if (zyObject.getAttribute("objType") == "polyline") {
          shape = new Konva.Line({
             // x: cleanAttr(zyObject.getAttribute("left")),  // some inconsistency in line and rect xml.  using left top for the polyline, but the points determine the poitioning
@@ -403,9 +423,10 @@ function parseObjects(xmlString, modelParams) {
             name: zyObject.getAttribute("objName"),
             fill: cleanAttr(zyObject.getAttribute("background-color"), 'transparent'),
             tension: 0,
+            lineCap: "round",  // or make optional?  
             stroke: cleanAttr(zyObject.getAttribute("stroke"), "black"),
             strokeWidth: cleanAttr(zyObject.getAttribute("strokeWidth"), 2),
-            opacity: cleanAttr(zyObject.getAttribute("opacity"), 100)/100,
+            opacity: cleanAttr(zyObject.getAttribute("opacity"), 100) / 100,
             points: cleanAttr(JSON.parse('[' + zyObject.getAttribute("polyPoints") + ']'), [0, 0, 0, 70]),
             closed: cleanAttr(zyObject.getAttribute("closed", "false")) === "true" ? true : false // messy
             //  rotation: Number(cleanAttr(zyObject.getAttribute("transformDeg",0)))  // not supported, use transformDeg for consistency  
@@ -441,6 +462,9 @@ function parseObjects(xmlString, modelParams) {
             // fix the rotation now that we have the image dimensions
             centerRotateNode(tempitem, tempitem.rotation())
 
+            // tempitem.offsetX(img.width / 2)   should the image be centered?  This behavior would not align with the Animator
+            // tempitem.offsetY(img.height / 2)
+
             _layerProblem.cache({ drawBorder: false }); // recache for delayed load
          };
          img.src = zyObject.getAttribute("googleDriveFileID")
@@ -459,9 +483,11 @@ function parseObjects(xmlString, modelParams) {
          //  use to set the scaling for items in a group
          let width = cleanAttr(zyObject.getAttribute("width"), 300)
          let height = cleanAttr(zyObject.getAttribute("height"), 300)
+         let x= cleanAttr(zyObject.getAttribute("left"))
+         let y= cleanAttr(zyObject.getAttribute("top"))
          shape = new Konva.Rect({
-            x: cleanAttr(zyObject.getAttribute("left")),
-            y: cleanAttr(zyObject.getAttribute("top")),
+            x: x,
+            y: y,
             width: width, // cleanAttr(zyObject.getAttribute("width"), 200),
             height: height, //cleanAttr(zyObject.getAttribute("height"), 200),
             opacity: 0, // 0.2,  // non zero for DEBUGGING
@@ -472,7 +498,13 @@ function parseObjects(xmlString, modelParams) {
          // scaling  engineeringValue = xoff + xscale* pixelValue
          //   of     pixelValue =  (engineeringValue-xoff)/xscale    // accept the division
          // dx,dy accounts for the graph's position
-         shape.graphscale = { xo: c[0], xs: (c[2] - c[0]) / width, yo: c[1], ys: (c[3] - c[1]) / height, dx:shape.x(), dy:shape.y() }
+         // c = xmin, ymin,  xmax, ymax
+         //       0    1       2     3
+         let Xs=(c[2]-c[0])/width;
+         let Xo=c[0]-Xs*x;
+         let Ys= (c[1]-c[3])/height;
+         let Yo=c[3]-Ys*y;
+         shape.graphscale = { xo: Xo, xs: Xs, yo: Yo, ys: Ys, dx: shape.x(), dy: shape.y() }
 
          if (zyObject.getAttribute("graphCursor") === "true") {
             // only add to graph tracking list if set to track a mouse position.  Otherwise is only used for scaline
@@ -487,7 +519,8 @@ function parseObjects(xmlString, modelParams) {
 
             shape.on("xyupdate mousemove", (evt) => {  // xyupdate if fired from controls
                let target = evt.target;
-               let mousePos = target.getRelativePointerPosition();
+               let mousePos = _stage.getPointerPosition();
+              // let mousePos = target.getAbsolutePointerPosition();
                let xy = pixelToEngineering([mousePos.x, mousePos.y], target.graphscale)
 
                document.getElementById("xy").innerHTML = target.description + ' x=' + xy[0].toFixed(2) + ', y=' + (xy[1]).toFixed(2);
@@ -528,8 +561,8 @@ function parseObjects(xmlString, modelParams) {
 
 
       // set the default scaling for the group 
-      grpProb.graphscale = { xo: 0, xs: 1, yo: 0, ys: 1, dx:0, dy:0 } // 1:1 scaling
-      grpSoln.graphscale = { xo: 0, xs: 1, yo: 0, ys: 1, dx:0, dy:0 } // 1:1 scaling
+      grpProb.graphscale = { xo: 0, xs: 1, yo: 0, ys: 1, dx: 0, dy: 0 } // 1:1 scaling
+      grpSoln.graphscale = { xo: 0, xs: 1, yo: 0, ys: 1, dx: 0, dy: 0 } // 1:1 scaling
 
       let id = zyObject.getAttribute("scaleGraph");
       // if (id === null) {
@@ -600,11 +633,11 @@ function parseObjects(xmlString, modelParams) {
          if (temp2[1] === "rotation" && prevAction !== "offset") {
             // rotate about the center
             centerRotateNode(obj, JSON.parse(temp1[1])) // no check on parse validity, so could crash
-           
+
          } else {
             let value = JSON.parse(temp1[1]);
             let parent = obj.getParent()
-            let svalue=value; // the defauls value
+            let svalue = value; // the defauls value
             if (parent.getType() === "Group") {
                // apply the scaling
                //  either a scalar or and array.  
@@ -612,9 +645,10 @@ function parseObjects(xmlString, modelParams) {
                   svalue = engineeringToPixel([value, 0], parent.graphscale)[0] // extract x value
                } else if (temp2[1] === 'y' || temp2[1] === 'top' || temp2[1] === 'height') {
                   svalue = engineeringToPixel([0, value], parent.graphscale)[1] // extract y value
-               } else {
-                  // assume is xy array
+               } else if (temp2[1] === 'points') {
                   svalue = engineeringToPixel(value, parent.graphscale)
+               } else {  
+                  svalue = value;              // assume is text.  Need a cleaner way to identify and parse attribute types  
                }
             }
             obj.setAttr(temp2[1], svalue);  // no check on parse validity, so could crash
@@ -685,8 +719,8 @@ function answerOverlap(answer, solution, tolerance, compareType) {
    _layerCalcs.draw()
 
    // only need to scan the union of the bounding box for the answer when looking 
-    var r1 = answerClone.getClientRect();
-   var imageData = _layerCalcs.getContext().getImageData(r1.x - 5, r1.y - 5,  r1.width + 10, r1.height + 10).data;
+   var r1 = answerClone.getClientRect();
+   var imageData = _layerCalcs.getContext().getImageData(r1.x - 5, r1.y - 5, r1.width + 10, r1.height + 10).data;
 
    // the entire canvas if needed for debutting
    // var imageData = _layerCalcs.getContext().getImageData(0, 0, 500, 500).data;  // grab everything -- should only check union of bounding boxes, see above.

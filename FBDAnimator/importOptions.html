@@ -71,6 +71,10 @@ G. Mason
          <br />curve = only curve answer objects are checked against the solution object
          <br />userdefined = only answer objects matching the userdefined name are checked against the solution object
       </li>
+
+      <li>
+         <h6>innerHTML</h6> When an object is a solution, the description for that object is in the object's innerHTML 
+      </li>
   
       <li>
          <h6>graph (objType)</h6> A custom animator objType used for scaling.  Object must be an animator "box"
@@ -99,7 +103,7 @@ G. Mason
    <h3>Notes:</h3>
 <ol>
    <li>All objects must have a unique objNum and objName</li>
-   <li>Object parameter can be changed using ObjectName_attribute=value;  Ex.  box1_x=10;  changes the x value of object named box1 to 10.</li>
+   <li>Object parameter can be changed using ObjectName_attribute=value;  Ex.  box1_x=10;  changes the x value of object named box1 to 10. <br/>Images are position relative to their upper left coordinates. Consider centering images.</li>
    <li>Groups with a graph object use the graph's scaling when changing object parameters</li>
 </ol>   
 
