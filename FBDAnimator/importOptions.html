@@ -51,25 +51,24 @@ G. Mason
    <h3>Animation XML options</h3>
    <ul>
       <li>
-         <h6>solnType (attribute)</h6> Identifies an object as a solution area. solnType must be pair with a solnObj
+         <h6>solnType (attribute)</h6> Identifies an object as a solution area. solnType must be paired with a solnObj
          <br />
-         <h7>Options:</h7><br />AllInside = solution is satisfied when all of the answer object must be inside the area
-         and direction is not considered
-         <br />AllInsideDir = solution is satisfied when all of the answer object must be inside the area and pointed in
+         <h7>Options:</h7><br />AllInside = solution is satisfied when all of an answer object is inside the solution area. Direction is not considered
+         <br />AllInsideDir = solution is satisfied when all of an answer object is inside the solution area and pointed in
          the same direction as the solution object
-         <br />AnyInside = solution is satisfied when any of the answer object can be inside solution object
-         <br />NoneInside = solution is satisfied only if no answer object matching the solnObj type is inside the
+         <br />AnyInside = solution is satisfied when any of the answer object is inside solution object
+         <br />NoneInside = solution is satisfied if no answer objects matching the solnObj type are inside the
          solution object's area
       </li>
 
       <li>
-         <h6>solnObj (attribute)</h6> Identifies the type of answer object measured by a solution object object as a solution area.
-         solnObj must be pair with a solnType
+         <h6>solnObj (attribute)</h6> Identifies the type of answer object measured by a solution object object in a solution area.
+         solnObj must be paired with a solnType
          <br />
          <h7>Options:</h7>
          <br />vector = only vector answer objects are checked against the solution object
          <br />curve = only curve answer objects are checked against the solution object
-         <br />userdefined = only answer objects matching the userdefined name are checked against the solution object
+         <br />userdefined = only answer objects matching the userdefined names are checked against the solnObj
       </li>
 
       <li>
@@ -78,7 +77,7 @@ G. Mason
   
       <li>
          <h6>graph (objType)</h6> A custom animator objType used for scaling.  Object must be an animator "box"
-         <br/><h6>graphScale (attribute)</h6>  graphScale="[xmin, ymin, xmax, ymax]" specifies the engineering units corresponding to the rectangle's size 
+         <br/><h6>graphScale (attribute)</h6>  graphScale="[xmin, ymin, xmax, ymax]" specifies the engineering units corresponding to the rectangle's location and size 
          <br /><h6>graphCursor (attribute)</h6>
          <br/><h7>Options: </h7>
          <br/>"true"= the corresponding engineering units are displayed when the mouse is moved inside the object's rectange
