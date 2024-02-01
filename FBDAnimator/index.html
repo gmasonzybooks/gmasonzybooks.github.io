@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<!--
+ FBD
+G. Mason
+12/26/2023
+
+-->
+<html>
+
+<head>
+   <meta charset="utf-8">
+   <title>Beam</title>
+
+   <script src="https://unpkg.com/konva@9/konva.js"></script>
+<script src="konvafbd.js" defer></script>
+
+
+<style>
+   p {
+      margin-top: 0px;
+      margin-bottom: 5px;
+   }
+
+   textarea {
+      width: 600px;
+   }
+
+   button {
+      width:130px;
+   }
+   body {
+      margin: 0;
+   }
+</style>
+</head>
+
+
+
+<body>
+   <div class="canvas" id="container" style="width:500px; height:500px;"></div>
+   <div id="xy">&nbsp;</div><br/>
+   <div>
+      <p><button id="addVector">Add vector</button></p>
+      <p><button id="addCurve">Add curve</button> &nbsp<span style="font-size: small">(double click nodes to add nodes)</span></p>
+      <p><button id="addUser">Add custom</button> &nbsp<span style="font-size: small">(double click shape to rotate)</span></p>
+      
+
+      <p><button id="checkSolution">Check solution</button><span style="margin-left:50px;"></span>Show solution<input
+            type="checkbox" id="showSoln"></span>
+      </p>
+   </div>
+
+
+
+   <div style="margin-top:20px;">
+      <div style="width:600px; margin-bottom:5px;"> Model params: (<a href="importOptions.html" target="_blank">Notes</a>)<button style="float:right;"
+            id="updateModel">Update</button></span>
+      </div>
+      <textarea id="modelParams" rows="2" cols="80"> </textarea>
+      <p>Model XML:</p>
+      <textarea id="modelXML" cols="500" wrap="hard" rows="15">
+<zyAnimator id="c9ad31f6-1eb8-4da1-a3de-ad4c2474e0b2" caption="VM layout" height="500px" width="500px" made-with="2" selectedInstr="none" selectedObj="none" numObjsEverCreated="11" loadOnDemand="false" image-ids="1MOQrBcOvQoy4IbqTN-UlEQ7vhXstSuLi,1ETDaOEIvU-A65F0i1SeOJtTphgKgD9Kr,1MwUUP6Ymlg4p8bJO7bGgkwl445stWmS4,1FXXLRtFYy8pnHqmBy9jX_bc34LQ5Puii">
+   <zyObjects><zyObject objNum="2" objType="image" objName="simpleSupport" top="104px" left="347px" useConstrainedProportions="true" constrainedProportionsHeight="37" constrainedProportionsWidth="89" googleDriveFileID="Images/simpleSupport.png" height="19px" width="45px" transformDeg="0"></zyObject><zyObject objNum="3" objType="image" objName="PointLoad" top="58px" left="188px" useConstrainedProportions="true" constrainedProportionsHeight="75" constrainedProportionsWidth="14" googleDriveFileID="Images/PointLoad.png" height="36px" width="7px" transformDeg="0"></zyObject><zyObject objNum="12" objType="graph" objName="BGraph" top="53px" left="140px" opacity="20" background-color="blue" useConstrainedProportions="false" height="63px" width="255px" border-color="transparent" transformDeg="0"  graphCursor="false" graphScale="[0,0,10,20]"></zyObject><zyObject objNum="4" objType="image" objName="Beam" top="93px" left="120px" useConstrainedProportions="true" constrainedProportionsHeight="60" constrainedProportionsWidth="556" googleDriveFileID="Images/Beam.png" height="30px" width="278px" transformDeg="0"></zyObject><zyObject objNum="5" objType="graph" objName="VGraph" top="172px" left="139px" opacity="30" background-color="blue" useConstrainedProportions="false" height="124px" width="255px" border-color="transparent" transformDeg="0" graphCursor="true" graphScale="[0,-10,10,10]"></zyObject><zyObject objNum="8" objType="polyline" objName="Vsoln" polyPoints="139,232,390,200" x="138" y="232.5" length="100" stroke="green" strokeWidth="9"  opacity="50" solnType="AllInside" solnObj="curve">shear curve's shape</zyObject><zyObject objNum="6" objType="graph" objName="MGraph" top="321px" left="140px" opacity="30" background-color="blue" useConstrainedProportions="false" height="124px" width="255px" border-color="transparent" transformDeg="0"  graphCursor="true" graphScale="[0,-20,10,20]"></zyObject><zyObject objNum="9" objType="polyline" objName="Msoln" polyPoints="139,383,390,340" x="139" y="383.5" length="100" stroke="green" strokeWidth="9" opacity="50"  solnType="AllInside" solnObj="curve">moment curve's shape</zyObject><zyObject objNum="1" objType="image" objName="VMGrid" top="127px" left="93px" useConstrainedProportions="true" constrainedProportionsHeight="640" constrainedProportionsWidth="632" googleDriveFileID="Images/VMGrid.png" height="320px" width="316px" transformDeg="0"></zyObject></zyObjects>
+   <zyGroups><zyGroup id="10" name="VGroup" objectIds="5,8"></zyGroup><zyGroup id="11" name="MGroup" objectIds="6,9"></zyGroup><zyGroup id="13" name="BGroup" objectIds="2,3,12"></zyGroup></zyGroups>
+   <zyInstructions><zyInstruction instrType="step1"><text></text></zyInstruction><zyInstruction instrType="startStep"><text></text></zyInstruction></zyInstructions>
+   <solnList>curve,curve</solnList>
+   <zyAltDescription></zyAltDescription>
+   </zyAnimator>
+            </textarea>
+   </div>
+</div>
+   
+</body>
+
+
+
+</html>
+
+
+
+
+            <!-- RAW animator file Last modified Wed Jan 31 2024 16:12:33 GMT-0800 (Pacific Standard Time) with canvas animator version -->
+            <!--
+<zyAnimator id="c9ad31f6-1eb8-4da1-a3de-ad4c2474e0b2" caption="VM layout" height="500px" width="500px" made-with="2" selectedInstr="none" selectedObj="2 3 12 13" numObjsEverCreated="13" loadOnDemand="false" image-ids="1MwUUP6Ymlg4p8bJO7bGgkwl445stWmS4,1MOQrBcOvQoy4IbqTN-UlEQ7vhXstSuLi,1ETDaOEIvU-A65F0i1SeOJtTphgKgD9Kr,1FXXLRtFYy8pnHqmBy9jX_bc34LQ5Puii">
+   <zyObjects><zyObject objNum="4" objType="image" objName="Beam" top="93px" left="120px" useConstrainedProportions="true" constrainedProportionsHeight="60" constrainedProportionsWidth="556" googleDriveFileID="1MwUUP6Ymlg4p8bJO7bGgkwl445stWmS4" height="30px" width="278px" transformDeg="0"></zyObject><zyObject objNum="5" objType="box" objName="VGraph" top="172px" left="139px" opacity="30" background-color="light-blue" useConstrainedProportions="false" height="119px" width="250px" border-color="transparent" transformDeg="0"></zyObject><zyObject objNum="8" objType="line" objName="Vsoln" x="138" y="232.5" length="100" stroke="green" strokeWidth="9"></zyObject><zyObject objNum="2" objType="image" objName="simpleSupport" top="104px" left="347px" useConstrainedProportions="true" constrainedProportionsHeight="37" constrainedProportionsWidth="89" googleDriveFileID="1MOQrBcOvQoy4IbqTN-UlEQ7vhXstSuLi" height="19px" width="45px" transformDeg="0"></zyObject><zyObject objNum="3" objType="image" objName="PointLoad" top="58px" left="188px" useConstrainedProportions="true" constrainedProportionsHeight="75" constrainedProportionsWidth="14" googleDriveFileID="1ETDaOEIvU-A65F0i1SeOJtTphgKgD9Kr" height="36px" width="7px" transformDeg="0"></zyObject><zyObject objNum="12" objType="box" objName="BGraph" top="53px" left="140px" opacity="20" background-color="light-blue" useConstrainedProportions="false" height="63px" width="250px" border-color="transparent" transformDeg="0"></zyObject><zyObject objNum="6" objType="box" objName="MGraph" top="321px" left="140px" opacity="30" background-color="light-blue" useConstrainedProportions="false" height="119px" width="250px" border-color="transparent" transformDeg="0"></zyObject><zyObject objNum="9" objType="line" objName="Msoln" x="139" y="383.5" length="100" stroke="green" strokeWidth="9"></zyObject><zyObject objNum="1" objType="image" objName="VMGrid" top="127px" left="93px" useConstrainedProportions="true" constrainedProportionsHeight="640" constrainedProportionsWidth="632" googleDriveFileID="1FXXLRtFYy8pnHqmBy9jX_bc34LQ5Puii" height="320px" width="316px" transformDeg="0"></zyObject></zyObjects>
+   <zyGroups><zyGroup id="10" name="VGroup" objectIds="5,8"></zyGroup><zyGroup id="11" name="MGroup" objectIds="6,9"></zyGroup><zyGroup id="13" name="BGroup" objectIds="2,3,12"></zyGroup></zyGroups>
+   <zyInstructions><zyInstruction instrType="step1"><text></text></zyInstruction><zyInstruction instrType="startStep"><text></text></zyInstruction></zyInstructions>
+   <zyAltDescription></zyAltDescription>
+   </zyAnimator>
+-->
