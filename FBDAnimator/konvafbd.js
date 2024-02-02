@@ -302,7 +302,7 @@ function centerRotateNode(node, ang) {
    if (ang === 0) return;
 
    let xy = node.getClientRect();
-   node.setAttr("offset", { x: xy.x + xy.width / 2, y: xy.y + xy.height / 2 });
+   node.setAttr("offset", { x: xy.width / 2, y: xy.height / 2 });
    node.setAttr("position", { x: xy.x + xy.width / 2, y: xy.y + xy.height / 2 });
    node.setAttr("rotation", ang);
 }
@@ -393,7 +393,7 @@ function parseObjects(xmlString, modelParams) {
 
          // used to indicate the top of the object
          shape.getDirPoint = function () {
-            return { x: shape.x(), y: shape.y() }
+            return this.getAbsolutePosition()
          }
       } else if (zyObject.getAttribute("objType") == "text") {
          shape = new Konva.Text({
@@ -412,7 +412,7 @@ function parseObjects(xmlString, modelParams) {
 
          // used to indicate the top of the object
          shape.getDirPoint = function () {
-            return { x: shape.x(), y: shape.y() }
+            return  this.getAbsolutePosition() 
          }
 
       } else if (zyObject.getAttribute("objType") == "polyline") {
@@ -438,7 +438,7 @@ function parseObjects(xmlString, modelParams) {
 
          // used to indicate the top of the object
          shape.getDirPoint = function () {
-            var pts = shape.points();
+            var pts = this.points();
             return { x: pts[0], y: pts[1] }
          }
       } else if (zyObject.getAttribute("objType") == "image") {
@@ -472,7 +472,7 @@ function parseObjects(xmlString, modelParams) {
 
          // returns the "head" for the item.  used when determining direction
          shape.getDirPoint = function () {
-            return { x: shape.x(), y: shape.y() }; // or should use the top center of the image?
+            return this.getAbsolutePosition(); // or should use the top center of the image?
          }
       }
 
@@ -681,6 +681,7 @@ function answerOverlap(answer, solution, tolerance, compareType) {
    _layerCalcs.clearCache();
    // create a clone with the same transform.  Account for nesting in groups
    var solutionClone = solution.clone().setAttrs(solution.getAbsoluteTransform().decompose());
+   solutionClone.absolutePosition(solution.getAbsolutePosition());  // something weird about the transformation when there is an offset
    solutionClone.opacity(1)
    //  solutionClone.fill('black')
    //  solutionClone.stroke('black')
