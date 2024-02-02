@@ -393,7 +393,7 @@ function parseObjects(xmlString, modelParams) {
 
          // used to indicate the top of the object
          shape.getDirPoint = function () {
-            return this.getAbsolutePosition()
+            return this.getAbsoluteTransform().getTranslation()
          }
       } else if (zyObject.getAttribute("objType") == "text") {
          shape = new Konva.Text({
@@ -412,7 +412,7 @@ function parseObjects(xmlString, modelParams) {
 
          // used to indicate the top of the object
          shape.getDirPoint = function () {
-            return  this.getAbsolutePosition() 
+            return   this.getAbsoluteTransform().getTranslation()
          }
 
       } else if (zyObject.getAttribute("objType") == "polyline") {
@@ -439,7 +439,8 @@ function parseObjects(xmlString, modelParams) {
          // used to indicate the top of the object
          shape.getDirPoint = function () {
             var pts = this.points();
-            return { x: pts[0], y: pts[1] }
+            var xy = this.getAbsoluteTransform().getTranslation()
+            return { x: pts[0]+xy.x, y: pts[1]+xy.y }
          }
       } else if (zyObject.getAttribute("objType") == "image") {
          // create object with a blank image to establish a place holder and preserve layering order
@@ -453,8 +454,6 @@ function parseObjects(xmlString, modelParams) {
             id: zyObject.getAttribute("objNum"),
             rotation: cleanAttr(zyObject.getAttribute("transformDeg", 0))
          });
-
-
 
          let img = new Image();
          img.onload = evt => {
@@ -472,7 +471,7 @@ function parseObjects(xmlString, modelParams) {
 
          // returns the "head" for the item.  used when determining direction
          shape.getDirPoint = function () {
-            return this.getAbsolutePosition(); // or should use the top center of the image?
+            return this.getAbsoluteTransform().getTranslation() // or should use the top center of the image?
          }
       }
 
@@ -625,8 +624,6 @@ function parseObjects(xmlString, modelParams) {
       gitObj.push(..._layerProblem.find("." + temp2[0]));
       gitObj.push(..._layerSolution.find("." + temp2[0]));
 
-
-
       gitObj.forEach(obj => {
 
          // Found an object
@@ -648,7 +645,7 @@ function parseObjects(xmlString, modelParams) {
                } else if (temp2[1] === 'points') {
                   svalue = engineeringToPixel(value, parent.graphscale)
                } else {  
-                  svalue = value;              // assume is text.  Need a cleaner way to identify and parse attribute types  
+                  svalue = value;              // redundant assignment for clearity, assume is text.  Need a cleaner way to identify and parse attribute types  
                }
             }
             obj.setAttr(temp2[1], svalue);  // no check on parse validity, so could crash
@@ -656,11 +653,6 @@ function parseObjects(xmlString, modelParams) {
          prevAction = temp2[1]; // remember if need to center the rotation
 
       })
-
-
-
-
-
    })
 
    _layerProblem.cache({ drawBorder: false });   // cache to optimize drawing of the problem statement.
