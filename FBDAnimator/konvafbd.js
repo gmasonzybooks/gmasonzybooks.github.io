@@ -300,10 +300,20 @@ function updateGraphXY(xy) {
 // load the model and solution elements
 function centerRotateNode(node, ang) {
    if (ang === 0) return;
-
-   let xy = node.getClientRect();
-   node.setAttr("offset", { x: xy.width / 2, y: xy.height / 2 });
-   node.setAttr("position", { x: xy.x + xy.width / 2, y: xy.y + xy.height / 2 });
+   var xy; // holds clientrect encapsulating objects to be rotated
+  
+  // let pxy = node.position();
+   if (node.getType()==="Group"){
+       // always used the corresponding group in the problemLayer to calculate the bounds for rotation
+      // this assumes the solution objects are bounded by the problem objects
+      // makes assumtion about existance, OK to find yourself
+      xy = _layerProblem.find("."+node.name())[0].getClientRect(); 
+      node.setAttr("offset", { x: xy.x + xy.width / 2, y: xy.y + xy.height / 2 });
+   } else {
+      xy = node.getClientRect();
+      node.setAttr("offset", { x: xy.width / 2, y: xy.height / 2 });
+   }
+   node.setAttr("position", { x: xy.x + xy.width / 2, y: xy.y + xy.height / 2 }); 
    node.setAttr("rotation", ang);
 }
 
@@ -333,11 +343,19 @@ function engineeringToPixel(exy, scale) {
    // returns [x1, y1, ...  xn, yn] in pixels
    let pxy = [];
    for (let i = 0; i < exy.length; i += 2) {
-      pxy.push((exy[i] - scale.xo) / scale.xs );
-      pxy.push((exy[i + 1] - scale.yo) / scale.ys );
+      pxy.push((exy[i] - scale.xo) / scale.xs);
+      pxy.push((exy[i + 1] - scale.yo) / scale.ys);
    }
    return pxy
 }
+
+async function loadImage(url, node){
+   let img = new Image()
+   img.src = url;
+   await img.decode();
+   node.image(img);
+}
+
 
 function parseObjects(xmlString, modelParams) {
    // parse the xmlString for objects
@@ -368,6 +386,9 @@ function parseObjects(xmlString, modelParams) {
 
    var zyObjects = xmlDoc.getElementsByTagName("zyObject");
 
+
+
+   var loadingImages = [];
    // cycle through all of the objects
    for (let zyObject of zyObjects) {
       var shape = null;
@@ -412,7 +433,7 @@ function parseObjects(xmlString, modelParams) {
 
          // used to indicate the top of the object
          shape.getDirPoint = function () {
-            return   this.getAbsoluteTransform().getTranslation()
+            return this.getAbsoluteTransform().getTranslation()
          }
 
       } else if (zyObject.getAttribute("objType") == "polyline") {
@@ -440,50 +461,37 @@ function parseObjects(xmlString, modelParams) {
          shape.getDirPoint = function () {
             var pts = this.points();
             var xy = this.getAbsoluteTransform().getTranslation()
-            return { x: pts[0]+xy.x, y: pts[1]+xy.y }
+            return { x: pts[0] + xy.x, y: pts[1] + xy.y }
          }
       } else if (zyObject.getAttribute("objType") == "image") {
          // create object with a blank image to establish a place holder and preserve layering order
-         let tempitem = new Konva.Image({
-            image: null,
+         shape = new Konva.Image({
+            image: null,  // placeholder image could use a dummy image
             x: cleanAttr(zyObject.getAttribute("left")),
             y: cleanAttr(zyObject.getAttribute("top")),
             width: cleanAttr(zyObject.getAttribute("width"), 200),
             height: cleanAttr(zyObject.getAttribute("height"), 200),
             name: zyObject.getAttribute("objName"),
             id: zyObject.getAttribute("objNum"),
-            rotation: cleanAttr(zyObject.getAttribute("transformDeg", 0))
+            //rotation: cleanAttr(zyObject.getAttribute("transformDeg", 0))
          });
 
-         let img = new Image();
-         img.onload = evt => {
-            tempitem.image(img)
-            // fix the rotation now that we have the image dimensions
-            centerRotateNode(tempitem, tempitem.rotation())
-
-            // tempitem.offsetX(img.width / 2)   should the image be centered?  This behavior would not align with the Animator
-            // tempitem.offsetY(img.height / 2)
-
-            _layerProblem.cache({ drawBorder: false }); // recache for delayed load
-         };
-         img.src = zyObject.getAttribute("googleDriveFileID")
-         shape = tempitem;
+         loadingImages.push(loadImage(zyObject.getAttribute("googleDriveFileID"),shape))
+         
+      
 
          // returns the "head" for the item.  used when determining direction
          shape.getDirPoint = function () {
             return this.getAbsoluteTransform().getTranslation() // or should use the top center of the image?
          }
-      }
-
-
-      else if (zyObject.getAttribute("objType") == "graph") {
+      } else if (zyObject.getAttribute("objType") == "graph") {
          // graphs options
          //  use to scale mouse positions
          //  use to set the scaling for items in a group
          let width = cleanAttr(zyObject.getAttribute("width"), 300)
          let height = cleanAttr(zyObject.getAttribute("height"), 300)
-         let x= cleanAttr(zyObject.getAttribute("left"))
-         let y= cleanAttr(zyObject.getAttribute("top"))
+         let x = cleanAttr(zyObject.getAttribute("left"))
+         let y = cleanAttr(zyObject.getAttribute("top"))
          shape = new Konva.Rect({
             x: x,
             y: y,
@@ -499,10 +507,10 @@ function parseObjects(xmlString, modelParams) {
          // dx,dy accounts for the graph's position
          // c = xmin, ymin,  xmax, ymax
          //       0    1       2     3
-         let Xs=(c[2]-c[0])/width;
-         let Xo=c[0]-Xs*x;
-         let Ys= (c[1]-c[3])/height;
-         let Yo=c[3]-Ys*y;
+         let Xs = (c[2] - c[0]) / width;
+         let Xo = c[0] - Xs * x;
+         let Ys = (c[1] - c[3]) / height;
+         let Yo = c[3] - Ys * y;
          shape.graphscale = { xo: Xo, xs: Xs, yo: Yo, ys: Ys, dx: shape.x(), dy: shape.y() }
 
          if (zyObject.getAttribute("graphCursor") === "true") {
@@ -519,7 +527,7 @@ function parseObjects(xmlString, modelParams) {
             shape.on("xyupdate mousemove", (evt) => {  // xyupdate if fired from controls
                let target = evt.target;
                let mousePos = _stage.getPointerPosition();
-              // let mousePos = target.getAbsolutePointerPosition();
+               // let mousePos = target.getAbsolutePointerPosition();
                let xy = pixelToEngineering([mousePos.x, mousePos.y], target.graphscale)
 
                document.getElementById("xy").innerHTML = target.description + ' x=' + xy[0].toFixed(2) + ', y=' + (xy[1]).toFixed(2);
@@ -529,8 +537,6 @@ function parseObjects(xmlString, modelParams) {
             _graphs.push(shape)
          }
       }
-
-
 
       // determine which layer ahd add in additional parameters
       let attr = zyObject.getAttribute("solnType")
@@ -545,56 +551,61 @@ function parseObjects(xmlString, modelParams) {
 
    }
 
-   zyObjects = xmlDoc.getElementsByTagName("zyGroup");
-   // cycle through all of the groups
-   for (let zyObject of zyObjects) {
-      var grpProb = new Konva.Group({
-         //id="4" name="group: 1" objectIds="1,2"
-         name: zyObject.getAttribute("name"),
-         id: zyObject.getAttribute("id"),
-      })
-
-      _layerProblem.add(grpProb)
-      var grpSoln = grpProb.clone();
-      _layerSolution.add(grpSoln)
+   // wait for all of the images to load before updating values
+   Promise.all(loadingImages).then(() => {
 
 
-      // set the default scaling for the group 
-      grpProb.graphscale = { xo: 0, xs: 1, yo: 0, ys: 1, dx: 0, dy: 0 } // 1:1 scaling
-      grpSoln.graphscale = { xo: 0, xs: 1, yo: 0, ys: 1, dx: 0, dy: 0 } // 1:1 scaling
-
-      let id = zyObject.getAttribute("scaleGraph");
-      // if (id === null) {
-      //    grpProb.graphscale = { xo: 0, xs: 1, yo: 0, ys: 1 } // 1:1 scaling
-      //    grpSoln.graphscale = { xo: 0, xs: 1, yo: 0, ys: 1 } // 1:1 scaling
-      // } else {
-      //    let graph = _layerProblem.find("#" + id); // only check the problem layer.  Doesn't make sense to put a scaling graph on the solution layer
-      //    if (graph.length !== 0) {
-      //       grpProb.graphscale = graph[0].graphscale;
-      //       grpSoln.graphscale = graph[0].graphscale;
-      //    }
-      // }
-
-
-      let items = zyObject.getAttribute("objectIds").split(",")
-      for (let item of items) {
-         let gitm = _layerProblem.find("#" + item)
-         if (gitm.length !== 0) {
-            // ids should be unique so should have only one item in the list
-            gitm[0].moveTo(grpProb);
-            // if the item is a graph item, copy the scale over to both groups
-            // since graphs should only appear on the layerProblem, check for it here.
-            if (gitm[0].graphscale !== undefined) {
-               grpProb.graphscale = gitm[0].graphscale;
-               grpSoln.graphscale = gitm[0].graphscale;
+      // handle the groups
+      zyObjects = xmlDoc.getElementsByTagName("zyGroup");
+      // cycle through all of the groups
+      for (let zyObject of zyObjects) {
+         var grpProb = new Konva.Group({
+            //id="4" name="group: 1" objectIds="1,2"
+            name: zyObject.getAttribute("name"),
+            id: zyObject.getAttribute("id"),
+         })
+   
+         _layerProblem.add(grpProb)
+         var grpSoln = grpProb.clone();
+         _layerSolution.add(grpSoln)
+   
+   
+         // set the default scaling for the group 
+         grpProb.graphscale = { xo: 0, xs: 1, yo: 0, ys: 1, dx: 0, dy: 0 } // 1:1 scaling
+         grpSoln.graphscale = { xo: 0, xs: 1, yo: 0, ys: 1, dx: 0, dy: 0 } // 1:1 scaling
+   
+         let id = zyObject.getAttribute("scaleGraph");
+         // if (id === null) {
+         //    grpProb.graphscale = { xo: 0, xs: 1, yo: 0, ys: 1 } // 1:1 scaling
+         //    grpSoln.graphscale = { xo: 0, xs: 1, yo: 0, ys: 1 } // 1:1 scaling
+         // } else {
+         //    let graph = _layerProblem.find("#" + id); // only check the problem layer.  Doesn't make sense to put a scaling graph on the solution layer
+         //    if (graph.length !== 0) {
+         //       grpProb.graphscale = graph[0].graphscale;
+         //       grpSoln.graphscale = graph[0].graphscale;
+         //    }
+         // }
+   
+   
+         let items = zyObject.getAttribute("objectIds").split(",")
+         for (let item of items) {
+            let gitm = _layerProblem.find("#" + item)
+            if (gitm.length !== 0) {
+               // ids should be unique so should have only one item in the list
+               gitm[0].moveTo(grpProb);
+               // if the item is a graph item, copy the scale over to both groups
+               // since graphs should only appear on the layerProblem, check for it here.
+               if (gitm[0].graphscale !== undefined) {
+                  grpProb.graphscale = gitm[0].graphscale;
+                  grpSoln.graphscale = gitm[0].graphscale;
+               }
             }
+   
+            gitm = _layerSolution.find("#" + item)
+            if (gitm.length !== 0) gitm[0].moveTo(grpSoln);
+            // if the item is a graph item, copy the scale over
          }
-
-         gitm = _layerSolution.find("#" + item)
-         if (gitm.length !== 0) gitm[0].moveTo(grpSoln);
-         // if the item is a graph item, copy the scale over
       }
-   }
 
 
    // list of solution items
@@ -604,61 +615,59 @@ function parseObjects(xmlString, modelParams) {
    _solnitemlist.every((value, i, arr) => { arr[i] = value.trim(); })
    _solnitemlist.every((value) => { value = value.trim(); })
 
-
-   // Load in the variables and update the model 
-   // update modelParams
-
-   // can't move or scale boxes  **** check this ****
-
-
-   var params = modelParams.split(";");
-   var prevAction = "";
-   params.forEach(item => {
-      // name_attr=value
-      let temp1 = item.trim().split("=");
-      let temp2 = temp1[0].trim().split("_");
+// adjust base on the parameters
+      var params = modelParams.split(";");
+      var prevAction = "";
+      params.forEach(item => {
+         // name_attr=value
+         let temp1 = item.trim().split("=");
+         let temp2 = temp1[0].trim().split("_");
 
 
-      let gitObj = [];
+         let gitObj = [];
 
-      gitObj.push(..._layerProblem.find("." + temp2[0]));
-      gitObj.push(..._layerSolution.find("." + temp2[0]));
+         gitObj.push(..._layerProblem.find("." + temp2[0]));
+         gitObj.push(..._layerSolution.find("." + temp2[0]));
 
-      gitObj.forEach(obj => {
+         gitObj.forEach(obj => {
 
-         // Found an object
-         if (temp2[1] === "rotation" && prevAction !== "offset") {
-            // rotate about the center
-            centerRotateNode(obj, JSON.parse(temp1[1])) // no check on parse validity, so could crash
+            // Found an object
+            if (temp2[1] === "rotation" && prevAction !== "offset") {
+               // rotate about the center
+               centerRotateNode(obj, JSON.parse(temp1[1])) // no check on parse validity, so could crash
 
-         } else {
-            let value = JSON.parse(temp1[1]);
-            let parent = obj.getParent()
-            let svalue = value; // the defauls value
-            if (parent.getType() === "Group") {
-               // apply the scaling
-               //  either a scalar or and array.  
-               if (temp2[1] === 'x' || temp2[1] === 'left' || temp2[1] === 'width') {
-                  svalue = engineeringToPixel([value, 0], parent.graphscale)[0] // extract x value
-               } else if (temp2[1] === 'y' || temp2[1] === 'top' || temp2[1] === 'height') {
-                  svalue = engineeringToPixel([0, value], parent.graphscale)[1] // extract y value
-               } else if (temp2[1] === 'points') {
-                  svalue = engineeringToPixel(value, parent.graphscale)
-               } else {  
-                  svalue = value;              // redundant assignment for clearity, assume is text.  Need a cleaner way to identify and parse attribute types  
+            } else {
+               let value = JSON.parse(temp1[1]);
+               let parent = obj.getParent()
+               let svalue = value; // the defauls value
+               if (parent.getType() === "Group") {
+                  // apply the scaling
+                  //  either a scalar or and array.  
+                  if (temp2[1] === 'x' || temp2[1] === 'left' || temp2[1] === 'width') {
+                     svalue = engineeringToPixel([value, 0], parent.graphscale)[0] // extract x value
+                  } else if (temp2[1] === 'y' || temp2[1] === 'top' || temp2[1] === 'height') {
+                     svalue = engineeringToPixel([0, value], parent.graphscale)[1] // extract y value
+                  } else if (temp2[1] === 'points') {
+                     svalue = engineeringToPixel(value, parent.graphscale)
+                  } else {
+                     svalue = value;              // redundant assignment for clearity, assume is text.  Need a cleaner way to identify and parse attribute types  
+                  }
                }
+               obj.setAttr(temp2[1], svalue);  // no check on parse validity, so could crash
             }
-            obj.setAttr(temp2[1], svalue);  // no check on parse validity, so could crash
-         }
-         prevAction = temp2[1]; // remember if need to center the rotation
+            prevAction = temp2[1]; // remember if need to center the rotation
 
+         })
       })
+
+      _layerProblem.cache({ drawBorder: false });   // cache to optimize drawing of the problem statement.
+
+
+      return //initDone; // return an array of promises
    })
 
-   _layerProblem.cache({ drawBorder: false });   // cache to optimize drawing of the problem statement.
+   return;
 
-
-   return //initDone; // return an array of promises
 }
 
 
@@ -706,17 +715,19 @@ function answerOverlap(answer, solution, tolerance, compareType) {
    _layerCalcs.add(solutionClone);
    // answerClone.globalCompositeOperation("source-out")
    answerClone.globalCompositeOperation(compositeType)
-   // _layerCalcs.getContext()._context.globalCompositeOperation="source-out"
+
+    //_layerCalcs.getContext()._context.globalCompositeOperation=compositeType
    _layerCalcs.add(answerClone);
 
    _layerCalcs.draw()
 
    // only need to scan the union of the bounding box for the answer when looking 
+   var pxr = _layerCalcs.getContext().canvas.getPixelRatio(); // account for HDPI scaling by Konva
    var r1 = answerClone.getClientRect();
-   var imageData = _layerCalcs.getContext().getImageData(r1.x - 5, r1.y - 5, r1.width + 10, r1.height + 10).data;
+   var imageData = _layerCalcs.getContext().getImageData(pxr*r1.x - 5, pxr*r1.y - 5, pxr*r1.width + 10, pxr*r1.height + 10).data;
 
    // the entire canvas if needed for debutting
-   // var imageData = _layerCalcs.getContext().getImageData(0, 0, 500, 500).data;  // grab everything -- should only check union of bounding boxes, see above.
+   // var imageData = _layerCalcs.getContext().getImageData(0, 0, 1000, 1000).data;  // grab everything -- should only check union of bounding boxes, see above.
 
 
    var sum = 0;
@@ -826,7 +837,7 @@ document.getElementById("checkSolution").addEventListener("click", (evt) => {
          answ.forEach(ans => {
             // must match the solution type
             if (sol.solnObj == ans.name()) {
-               if (!isSatisfied[idx] && answerOverlap(ans.find(".ansShape")[0], sol, TOLERANCE, sol.solnType)) {
+               if (answerOverlap(ans.find(".ansShape")[0], sol, TOLERANCE, sol.solnType)) {
                   isSatisfied[idx] = true;
                   text += sol.description + " is correct"
 
@@ -902,8 +913,8 @@ var _stage = new Konva.Stage({
 
 
 // then create layer
-var _layerProblem = new Konva.Layer();
-var _layerSolution = new Konva.Layer();
+var _layerProblem = new Konva.Layer({name:"problem"});
+var _layerSolution = new Konva.Layer({name:"solution"});
 _layerSolution.listening(false);  // don't need to track this layer
 var _layerAnswer = new Konva.Layer();
 // var layerGraph = new Konva.Layer();
@@ -926,10 +937,21 @@ _layerProblem.opacity(0.1)
 
 // Hidden layer for checking the solution
 var _layerCalcs = new Konva.Layer();
+// duplicate the problemlayer size, account for HDI display
 _layerCalcs.size({
    width: 500,
-   height: 500
+   height: 500,
 });
+
+// alternative ways to get a hidden canvas in konva
+// var _stageCalcs = new Konva.Stage({
+//    container: 'calcs',   // id of container <div>
+//    width: 500,
+//    height: 500
+// });
+// var _layerCalcs = new Konva.Layer();
+// _stageCalcs.add(_layerCalcs)
+//var _layerCalcs = _layerProblem.clone();
 
 _layerCalcs.listening(false);
 // _stage.add(_layerCalcs);  // for debugging
