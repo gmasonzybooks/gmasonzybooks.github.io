@@ -424,7 +424,8 @@ function answerOverlap(answer, solution, tolerance, countOutside) {
    // var right = Math.max(r1.x+r1.width, r2.x+r2.width)
    // var imageData = layerCalcs.getContext().getImageData(left-1, top-1, (right-left)+2, (bottom-top)+2).data;
 
-   var imageData = layerCalcs.getContext().getImageData(0, 0, 500, 500).data;  // grab everything -- should only check union of bounding boxes, see above.
+  var pxr = layerCalcs.getContext().canvas.getPixelRatio(); // account for HDPI scaling by Konva
+   var imageData = layerCalcs.getContext().getImageData(0, 0, 500*pxr, 500*pxr).data;  // grab everything -- should only check union of bounding boxes, see above.
 
 
    var sum = 0;
