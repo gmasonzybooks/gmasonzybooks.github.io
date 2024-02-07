@@ -1,3 +1,6 @@
+// FBD Tool for testing ideas
+// Greg Mason 2/1/2023
+
 // ----- vector
 Konva.Vector = class myvect extends Konva.Group {
    constructor(x, y, fixedLength) {  // fixedLength not implemented, intended for vectors that can be stretched
@@ -297,7 +300,7 @@ function updateGraphXY(xy) {
 }
 
 // ---------
-// load the model and solution elements
+// load/modify the model and solution elements
 function centerRotateNode(node, ang) {
    if (ang === 0) return;
    var xy; // holds clientrect encapsulating objects to be rotated
@@ -306,7 +309,7 @@ function centerRotateNode(node, ang) {
    if (node.getType()==="Group"){
        // always used the corresponding group in the problemLayer to calculate the bounds for rotation
       // this assumes the solution objects are bounded by the problem objects
-      // makes assumtion about existance, OK to find yourself
+      // makes assumption about existance, OK to find yourself
       xy = _layerProblem.find("."+node.name())[0].getClientRect(); 
       node.setAttr("offset", { x: xy.x + xy.width / 2, y: xy.y + xy.height / 2 });
    } else {
@@ -327,6 +330,7 @@ function cleanAttr(attr, deflt) {
    return z;
 }
 
+// unit converstions
 function pixelToEngineering(pxy, scale) {
    // pxy = [x1, y1, ...  xn, yn] in pixels 
    // returns [x1, y1, ...  xn, yn] in engineering units
@@ -349,6 +353,8 @@ function engineeringToPixel(exy, scale) {
    return pxy
 }
 
+
+// background loading of objects
 async function loadImage(url, node){
    let img = new Image()
    img.src = url;
@@ -363,9 +369,9 @@ function parseObjects(xmlString, modelParams) {
    // this proof of concepts loads the problem and solution from the same model
    // better to load the solution model separately from the server only when needed to keep students from hacking for the solution
    //
-   // there is some extra coding to separate the layers and keep the group the same
+   // there is some extra coding to separate the layers and keep the groups the same
 
-   // Extra attributes for solution objects
+   // Extra attributes for solution objects -- see documentation,  the text below may be outdated
    // solnType:  AllInside, AllInsideDir, AnyInside, NoneInside
    // solnObj: type of object (name attribute) to test against the solnType shape, Vector, Line, name of custom object
 
@@ -615,7 +621,7 @@ function parseObjects(xmlString, modelParams) {
    _solnitemlist.every((value, i, arr) => { arr[i] = value.trim(); })
    _solnitemlist.every((value) => { value = value.trim(); })
 
-// adjust base on the parameters
+// adjust based on the parameters
       var params = modelParams.split(";");
       var prevAction = "";
       params.forEach(item => {
@@ -673,7 +679,7 @@ function parseObjects(xmlString, modelParams) {
 
 
 
-// calculate overlap
+// calculate overlap of soln and answer objects
 function answerOverlap(answer, solution, tolerance, compareType) {
    // solnType:   AllInside, AllInsideDir, AnyInside, NoneInside
 
@@ -688,7 +694,7 @@ function answerOverlap(answer, solution, tolerance, compareType) {
    //  solutionClone.stroke('black')
 
    // Really don't need to transform since the answer is on a single layer
-   // BUG  this transform results in a 6 pixel shift in y for arrows.  Why? 
+   // BUG  this transform results in a 6 pixel shift in y for arrows.  Why? How is Konva handling offset in the transform?
    //var answerClone = answer.clone().setAttrs(answer.getAbsoluteTransform().decompose());
 
    var answerClone = answer.clone();
@@ -801,6 +807,7 @@ document.getElementById("showSoln").addEventListener("click", (evt) => {
 
 })
 
+// compare answer objects to solution objects
 document.getElementById("checkSolution").addEventListener("click", (evt) => {
    // solnType:   AllInside, AllInsideDir, AnyInside, NoneInside
    // solnObj: type of object (name attribute) to test against the solnType shape, Vector, Line, name of custom object
@@ -926,7 +933,7 @@ var _layerDebug = new Konva.Layer();
 _stage.add(_layerProblem);
 _stage.add(_layerSolution);
 _stage.add(_layerAnswer);
-// _stage.add(layerGraph);
+
 
 /* DEBUG  show the mapping
 _stage.add(_layerDebug)
