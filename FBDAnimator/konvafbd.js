@@ -721,12 +721,12 @@ function answerOverlap(answer, solution, tolerance, compareType) {
 
    _layerCalcs.draw()
 
-   // only need to scan the union of the bounding box for the answer when looking 
+   // only need to scan the answer object's bounding box  
    var pxr = _layerCalcs.getContext().canvas.getPixelRatio(); // account for HDPI scaling by Konva
    var r1 = answerClone.getClientRect();
    var imageData = _layerCalcs.getContext().getImageData(pxr*r1.x - 5, pxr*r1.y - 5, pxr*r1.width + 10, pxr*r1.height + 10).data;
 
-   // the entire canvas if needed for debutting
+   // the entire canvas if needed for debugging
    // var imageData = _layerCalcs.getContext().getImageData(0, 0, 1000, 1000).data;  // grab everything -- should only check union of bounding boxes, see above.
 
 
