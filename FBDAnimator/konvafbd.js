@@ -1,6 +1,3 @@
-// FBD Tool for testing ideas
-// Greg Mason 2/1/2023
-
 // ----- vector
 Konva.Vector = class myvect extends Konva.Group {
    constructor(x, y, fixedLength) {  // fixedLength not implemented, intended for vectors that can be stretched
@@ -300,23 +297,23 @@ function updateGraphXY(xy) {
 }
 
 // ---------
-// load/modify the model and solution elements
+// load the model and solution elements
 function centerRotateNode(node, ang) {
    if (ang === 0) return;
    var xy; // holds clientrect encapsulating objects to be rotated
-  
-  // let pxy = node.position();
-   if (node.getType()==="Group"){
-       // always used the corresponding group in the problemLayer to calculate the bounds for rotation
+
+   // let pxy = node.position();
+   if (node.getType() === "Group") {
+      // always used the corresponding group in the problemLayer to calculate the bounds for rotation
       // this assumes the solution objects are bounded by the problem objects
-      // makes assumption about existance, OK to find yourself
-      xy = _layerProblem.find("."+node.name())[0].getClientRect(); 
+      // makes assumtion about existance, OK to find yourself
+      xy = _layerProblem.find("." + node.name())[0].getClientRect();
       node.setAttr("offset", { x: xy.x + xy.width / 2, y: xy.y + xy.height / 2 });
    } else {
       xy = node.getClientRect();
       node.setAttr("offset", { x: xy.width / 2, y: xy.height / 2 });
    }
-   node.setAttr("position", { x: xy.x + xy.width / 2, y: xy.y + xy.height / 2 }); 
+   node.setAttr("position", { x: xy.x + xy.width / 2, y: xy.y + xy.height / 2 });
    node.setAttr("rotation", ang);
 }
 
@@ -330,7 +327,6 @@ function cleanAttr(attr, deflt) {
    return z;
 }
 
-// unit converstions
 function pixelToEngineering(pxy, scale) {
    // pxy = [x1, y1, ...  xn, yn] in pixels 
    // returns [x1, y1, ...  xn, yn] in engineering units
@@ -353,9 +349,7 @@ function engineeringToPixel(exy, scale) {
    return pxy
 }
 
-
-// background loading of objects
-async function loadImage(url, node){
+async function loadImage(url, node) {
    let img = new Image()
    img.src = url;
    await img.decode();
@@ -369,9 +363,9 @@ function parseObjects(xmlString, modelParams) {
    // this proof of concepts loads the problem and solution from the same model
    // better to load the solution model separately from the server only when needed to keep students from hacking for the solution
    //
-   // there is some extra coding to separate the layers and keep the groups the same
+   // there is some extra coding to separate the layers and keep the group the same
 
-   // Extra attributes for solution objects -- see documentation,  the text below may be outdated
+   // Extra attributes for solution objects
    // solnType:  AllInside, AllInsideDir, AnyInside, NoneInside
    // solnObj: type of object (name attribute) to test against the solnType shape, Vector, Line, name of custom object
 
@@ -411,6 +405,7 @@ function parseObjects(xmlString, modelParams) {
             cornerRadius: cleanAttr(zyObject.getAttribute("border-radius"), 0),
             stroke: cleanAttr(zyObject.getAttribute("border-color"), "black"),
             opacity: cleanAttr(zyObject.getAttribute("opacity"), 100) / 100,
+            listening: false
             //  rotation: Number(cleanAttr(zyObject.getAttribute("transformDeg",0)))  // not reliable because Animator is use the same rotation method as Konva.  
             // Needs mapping update - maybe set object center using offset and x,y value
          })
@@ -429,7 +424,8 @@ function parseObjects(xmlString, modelParams) {
             id: zyObject.getAttribute("objNum"),
             name: zyObject.getAttribute("objName"),
             opacity: cleanAttr(zyObject.getAttribute("opacity"), 100) / 100,
-            text: zyObject.getElementsByTagName("text")[0].innerHTML // or pull the  zyObject inner html and parse off the text tag
+            text: zyObject.getElementsByTagName("text")[0].innerHTML,
+            listening: false // or pull the  zyObject inner html and parse off the text tag
             //  rotation: Number(cleanAttr(zyObject.getAttribute("transformDeg",0)))  // not reliable because Animator is use the same rotation method as Konva.  
             // Needs mapping update - maybe set object center using offset and x,y value
          })
@@ -455,7 +451,8 @@ function parseObjects(xmlString, modelParams) {
             strokeWidth: cleanAttr(zyObject.getAttribute("strokeWidth"), 2),
             opacity: cleanAttr(zyObject.getAttribute("opacity"), 100) / 100,
             points: cleanAttr(JSON.parse('[' + zyObject.getAttribute("polyPoints") + ']'), [0, 0, 0, 70]),
-            closed: cleanAttr(zyObject.getAttribute("closed", "false")) === "true" ? true : false // messy
+            closed: cleanAttr(zyObject.getAttribute("closed", "false")) === "true" ? true : false, // messy
+            listening: false
             //  rotation: Number(cleanAttr(zyObject.getAttribute("transformDeg",0)))  // not supported, use transformDeg for consistency  
             // Needs mapping update - maybe set object center using offset and x,y value
          })
@@ -479,12 +476,13 @@ function parseObjects(xmlString, modelParams) {
             height: cleanAttr(zyObject.getAttribute("height"), 200),
             name: zyObject.getAttribute("objName"),
             id: zyObject.getAttribute("objNum"),
+            listening: false
             //rotation: cleanAttr(zyObject.getAttribute("transformDeg", 0))
          });
 
-         loadingImages.push(loadImage(zyObject.getAttribute("googleDriveFileID"),shape))
-         
-      
+         loadingImages.push(loadImage(zyObject.getAttribute("googleDriveFileID"), shape))
+
+
 
          // returns the "head" for the item.  used when determining direction
          shape.getDirPoint = function () {
@@ -506,6 +504,7 @@ function parseObjects(xmlString, modelParams) {
             opacity: 0, // 0.2,  // non zero for DEBUGGING
             fill: 'gray',
             id: zyObject.getAttribute("objNum"),
+            listening: true
          })
          let c = JSON.parse(cleanAttr(zyObject.getAttribute("graphScale"), "[0,0,10,10]")); // xmin, ymin,  xmax,ymax
          // scaling  engineeringValue = xoff + xscale* pixelValue
@@ -570,16 +569,16 @@ function parseObjects(xmlString, modelParams) {
             name: zyObject.getAttribute("name"),
             id: zyObject.getAttribute("id"),
          })
-   
+
          _layerProblem.add(grpProb)
          var grpSoln = grpProb.clone();
          _layerSolution.add(grpSoln)
-   
-   
+
+
          // set the default scaling for the group 
          grpProb.graphscale = { xo: 0, xs: 1, yo: 0, ys: 1, dx: 0, dy: 0 } // 1:1 scaling
          grpSoln.graphscale = { xo: 0, xs: 1, yo: 0, ys: 1, dx: 0, dy: 0 } // 1:1 scaling
-   
+
          let id = zyObject.getAttribute("scaleGraph");
          // if (id === null) {
          //    grpProb.graphscale = { xo: 0, xs: 1, yo: 0, ys: 1 } // 1:1 scaling
@@ -591,8 +590,8 @@ function parseObjects(xmlString, modelParams) {
          //       grpSoln.graphscale = graph[0].graphscale;
          //    }
          // }
-   
-   
+
+
          let items = zyObject.getAttribute("objectIds").split(",")
          for (let item of items) {
             let gitm = _layerProblem.find("#" + item)
@@ -606,7 +605,7 @@ function parseObjects(xmlString, modelParams) {
                   grpSoln.graphscale = gitm[0].graphscale;
                }
             }
-   
+
             gitm = _layerSolution.find("#" + item)
             if (gitm.length !== 0) gitm[0].moveTo(grpSoln);
             // if the item is a graph item, copy the scale over
@@ -614,14 +613,14 @@ function parseObjects(xmlString, modelParams) {
       }
 
 
-   // list of solution items
-   zyObjects = xmlDoc.getElementsByTagName("solnList");
-   if (zyObjects.length === 0) window.alert("Missing solnList")
-   _solnitemlist = zyObjects[0].innerHTML.split(",");
-   _solnitemlist.every((value, i, arr) => { arr[i] = value.trim(); })
-   _solnitemlist.every((value) => { value = value.trim(); })
+      // list of solution items
+      zyObjects = xmlDoc.getElementsByTagName("solnList");
+      if (zyObjects.length === 0) window.alert("Missing solnList")
+      _solnitemlist = zyObjects[0].innerHTML.split(",");
+      _solnitemlist.every((value, i, arr) => { arr[i] = value.trim(); })
+      _solnitemlist.every((value) => { value = value.trim(); })
 
-// adjust based on the parameters
+      // adjust base on the parameters
       var params = modelParams.split(";");
       var prevAction = "";
       params.forEach(item => {
@@ -679,7 +678,7 @@ function parseObjects(xmlString, modelParams) {
 
 
 
-// calculate overlap of soln and answer objects
+// calculate overlap
 function answerOverlap(answer, solution, tolerance, compareType) {
    // solnType:   AllInside, AllInsideDir, AnyInside, NoneInside
 
@@ -694,7 +693,7 @@ function answerOverlap(answer, solution, tolerance, compareType) {
    //  solutionClone.stroke('black')
 
    // Really don't need to transform since the answer is on a single layer
-   // BUG  this transform results in a 6 pixel shift in y for arrows.  Why? How is Konva handling offset in the transform?
+   // BUG  this transform results in a 6 pixel shift in y for arrows.  Why? 
    //var answerClone = answer.clone().setAttrs(answer.getAbsoluteTransform().decompose());
 
    var answerClone = answer.clone();
@@ -722,15 +721,15 @@ function answerOverlap(answer, solution, tolerance, compareType) {
    // answerClone.globalCompositeOperation("source-out")
    answerClone.globalCompositeOperation(compositeType)
 
-    //_layerCalcs.getContext()._context.globalCompositeOperation=compositeType
+   //_layerCalcs.getContext()._context.globalCompositeOperation=compositeType
    _layerCalcs.add(answerClone);
 
    _layerCalcs.draw()
 
-   // only need to scan the answer object's bounding box  
+   // only need to scan the answer's bounding box when checking the solution 
    var pxr = _layerCalcs.getContext().canvas.getPixelRatio(); // account for HDPI scaling by Konva
    var r1 = answerClone.getClientRect();
-   var imageData = _layerCalcs.getContext().getImageData(pxr*r1.x - 5, pxr*r1.y - 5, pxr*r1.width + 10, pxr*r1.height + 10).data;
+   var imageData = _layerCalcs.getContext().getImageData(pxr * r1.x - 5, pxr * r1.y - 5, pxr * r1.width + 10, pxr * r1.height + 10).data;
 
    // the entire canvas if needed for debugging
    // var imageData = _layerCalcs.getContext().getImageData(0, 0, 1000, 1000).data;  // grab everything -- should only check union of bounding boxes, see above.
@@ -741,6 +740,43 @@ function answerOverlap(answer, solution, tolerance, compareType) {
       sum += (imageData[i] > 10 ? 1 : 0);  // 10 = lower bound for opacity.  Shouldn't be necessary.
    }
    // console.log(sum) // number of pixels 
+
+   // detect when an answer is inside and solution, but is supposed to fill the solution
+   // implemented for curves.  will need to do something similar if add abily to create areas answers
+   //  if solution type is a curve and compareType is AllInsideFill
+   // If the AllInside is not satisfed, don't proceed.
+   if (compareType.includes("Fill") && (solution.solnObj === "curve") && (sum < tolerance)) {
+      // have a curve object that is inside the specified solution shape and Fill type comparison is specified
+      // can do a simple text by slicing the solutions bounding box and checking for a part of the answer in each slice
+      // only doing a crude slicing 
+      r1 = solutionClone.getClientRect();
+      let dx = (pxr * (r1.width -20))/ 3; // -20 for the width of the slice 3 slices = both ends and two center slices
+     // _layerCalcs.remove(solutionClone);
+      solutionClone.hide()
+      answerClone.globalCompositeOperation("source-over"); // redraw just the answer
+      _layerCalcs.draw();
+    
+      // ** NOTE: This approach reporst error the same as if the answer was ouside the solution
+      //    better to return and error code (not just T or F) stating that the answer is incomplete
+      // capture both edges of the bounding box plus two center slices
+      for (let x = pxr * r1.x; x < pxr * (r1.x + r1.width); x += dx) {
+         imageData = _layerCalcs.getContext().getImageData(x, pxr * r1.y, pxr*20, pxr * r1.height).data;
+
+         let ssum = 0; 
+         for (var i = 3; i < imageData.length; i += 4) {
+            ssum += (imageData[i] > 10 ? 1 : 0);  // 10 = lower bound for opacity.  Shouldn't be necessary.
+         }
+         if (ssum < 2) {
+            // no answer in the required space
+            // force an exit through sum
+            sum = tolerance + 1; // allow to pass through to the end of the function and return a fals.
+            break   // should fix this later, final exit contition is obscured doing things this way
+         }
+
+      }
+     
+   }
+
 
 
    _layerCalcs.destroyChildren();
@@ -807,7 +843,6 @@ document.getElementById("showSoln").addEventListener("click", (evt) => {
 
 })
 
-// compare answer objects to solution objects
 document.getElementById("checkSolution").addEventListener("click", (evt) => {
    // solnType:   AllInside, AllInsideDir, AnyInside, NoneInside
    // solnObj: type of object (name attribute) to test against the solnType shape, Vector, Line, name of custom object
@@ -849,6 +884,7 @@ document.getElementById("checkSolution").addEventListener("click", (evt) => {
                   text += sol.description + " is correct"
 
                   // if a direction also required check that
+                  // Better to wrap the direction check into the answerOverlap function and return a error code
                   if (sol.solnType == "AllInsideDir" && !ans.isDirectionTowards(sol.getDirPoint())) {
                      text += " but with wrong direction"
                   }
@@ -920,8 +956,8 @@ var _stage = new Konva.Stage({
 
 
 // then create layer
-var _layerProblem = new Konva.Layer({name:"problem"});
-var _layerSolution = new Konva.Layer({name:"solution"});
+var _layerProblem = new Konva.Layer({ name: "problem" });
+var _layerSolution = new Konva.Layer({ name: "solution" });
 _layerSolution.listening(false);  // don't need to track this layer
 var _layerAnswer = new Konva.Layer();
 // var layerGraph = new Konva.Layer();
@@ -933,7 +969,7 @@ var _layerDebug = new Konva.Layer();
 _stage.add(_layerProblem);
 _stage.add(_layerSolution);
 _stage.add(_layerAnswer);
-
+// _stage.add(layerGraph);
 
 /* DEBUG  show the mapping
 _stage.add(_layerDebug)
