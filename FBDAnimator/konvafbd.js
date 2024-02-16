@@ -1,3 +1,11 @@
+// ---- error codes
+_resultsStatus = {
+   'passes': ' is correct',
+   'wrong_direction': ' is correct but in the wrong direction',
+   'not_filled': ' is partially correct',
+   'fails': ' is not correct'
+}
+
 // ----- vector
 Konva.Vector = class myvect extends Konva.Group {
    constructor(x, y, fixedLength) {  // fixedLength not implemented, intended for vectors that can be stretched
@@ -680,6 +688,7 @@ function parseObjects(xmlString, modelParams) {
 
 // calculate overlap
 function answerOverlap(answer, solution, tolerance, compareType) {
+   var status = { satisfied: false, message: "" } // {satisfied: true/false, message: the message}
    // solnType:   AllInside, AllInsideDir, AnyInside, NoneInside
 
    // if has All in the compareType look for any answer outside of the solution shape
@@ -741,54 +750,65 @@ function answerOverlap(answer, solution, tolerance, compareType) {
    }
    // console.log(sum) // number of pixels 
 
-   // detect when an answer is inside and solution, but is supposed to fill the solution
-   // implemented for curves.  will need to do something similar if add abily to create areas answers
-   //  if solution type is a curve and compareType is AllInsideFill
-   // If the AllInside is not satisfed, don't proceed.
-   if (compareType.includes("Fill") && (solution.solnObj === "curve") && (sum < tolerance)) {
-      // have a curve object that is inside the specified solution shape and Fill type comparison is specified
-      // can do a simple text by slicing the solutions bounding box and checking for a part of the answer in each slice
-      // only doing a crude slicing 
-      r1 = solutionClone.getClientRect();
-      let dx = (pxr * (r1.width -20))/ 3; // -20 for the width of the slice 3 slices = both ends and two center slices
-     // _layerCalcs.remove(solutionClone);
-      solutionClone.hide()
-      answerClone.globalCompositeOperation("source-over"); // redraw just the answer
-      _layerCalcs.draw();
-    
-      // ** NOTE: This approach reporst error the same as if the answer was ouside the solution
-      //    better to return and error code (not just T or F) stating that the answer is incomplete
-      // capture both edges of the bounding box plus two center slices
-      for (let x = pxr * r1.x; x < pxr * (r1.x + r1.width); x += dx) {
-         imageData = _layerCalcs.getContext().getImageData(x, pxr * r1.y, pxr*20, pxr * r1.height).data;
-
-         let ssum = 0; 
-         for (var i = 3; i < imageData.length; i += 4) {
-            ssum += (imageData[i] > 10 ? 1 : 0);  // 10 = lower bound for opacity.  Shouldn't be necessary.
-         }
-         if (ssum < 2) {
-            // no answer in the required space
-            // force an exit through sum
-            sum = tolerance + 1; // allow to pass through to the end of the function and return a fals.
-            break   // should fix this later, final exit contition is obscured doing things this way
-         }
-
-      }
-     
-   }
+   // the solution can complete or partially fail (= passes the shape enclusion/exclusion test but may be the wrong direction or a partially
+   // satisfied curve object)
+   // for complete fails use the default status (= fails) otherwise check for partial fails.the status and bypass other checks
 
 
-
-   _layerCalcs.destroyChildren();
-
-   // for compareTypes, the solution criterion is satisfied  as follows
+   // Notes for compareTypes, the solution criterion is satisfied  as follows
    // AllInside -> sum < tolerance         nothing outside the solution region
    // AllInsideDir  -> sum < tolerance     nothing outside the solution region, but still need to check the direction separately
    // AnyInside  -> sum > tolerance        anything inside the solution region
    // NoneInside -> sum < tolerance        nothing inside the solution region
-
    //compareType.includes("Any") -> only true for AnyInside
-   return ((sum < tolerance) !== compareType.includes("Any"))
+   if ((sum < tolerance) !== compareType.includes("Any")) {
+      // the object shape test pass, but need to check for partial fails
+      status.satisfied = true;
+      status.message = _resultsStatus.passes; // defaults satisfied message
+
+      // now check for partially satisfied conditions and update the message, Ex:  a curve not completely filling the shape, or a vector in the wrong direction
+
+      // detect when an answer is inside the solution, but is supposed to fill the solution
+      // implemented for curves.  will need to do something similar if add abily to create areas answers
+      //  if solution type is a curve and compareType is AllInsideFill
+      // If the AllInside is not satisfed flag as an error
+      if (compareType.includes("Fill") && (solution.solnObj === "curve")) {
+         // have a curve object that is inside the specified solution shape and Fill type comparison is specified
+         // can do a simple text by slicing the solutions bounding box and checking for a part of the answer in each slice
+         // only doing a crude slicing 
+         r1 = solutionClone.getClientRect();
+         let dx = (pxr * (r1.width - 20)) / 3; // -20 for the width of the slice 3 slices = both ends and two center slices
+         // _layerCalcs.remove(solutionClone);
+         solutionClone.hide()
+         answerClone.globalCompositeOperation("source-over"); // redraw just the answer
+         _layerCalcs.draw();
+
+         // ** NOTE: This approach reporst error the same as if the answer was ouside the solution
+         //    better to return and error code (not just T or F) stating that the answer is incomplete
+         // capture both edges of the bounding box plus two center slices
+         for (let x = pxr * r1.x; x < pxr * (r1.x + r1.width); x += dx) {
+            imageData = _layerCalcs.getContext().getImageData(x, pxr * r1.y, pxr * 20, pxr * r1.height).data;
+
+            let ssum = 0;
+            for (var i = 3; i < imageData.length; i += 4) {
+               ssum += (imageData[i] > 10 ? 1 : 0);  // 10 = lower bound for opacity.  Shouldn't be necessary.
+            }
+            if (ssum < 2) {
+               // no answer in the required space, thus a partial fail
+               status.message = _resultsStatus.not_filled;
+               break   // should fix this later, final exit contition is obscured doing things this way
+            }
+
+         }
+      } else if (compareType.includes("AllInsideDir") && !answer.getParent().isDirectionTowards(solution.getDirPoint())) {
+         // check for object directions
+         status.message = _resultsStatus.wrong_direction
+      }
+   }
+
+
+   _layerCalcs.destroyChildren();
+   return status
 }
 
 
@@ -843,6 +863,7 @@ document.getElementById("showSoln").addEventListener("click", (evt) => {
 
 })
 
+// check the solution against the answers
 document.getElementById("checkSolution").addEventListener("click", (evt) => {
    // solnType:   AllInside, AllInsideDir, AnyInside, NoneInside
    // solnObj: type of object (name attribute) to test against the solnType shape, Vector, Line, name of custom object
@@ -855,14 +876,16 @@ document.getElementById("checkSolution").addEventListener("click", (evt) => {
    const TOLERANCE = 5;
    //var solns = _layerSolution.getChildren();
 
-   // get everything that is not a group
+   // get solution object that is not a group
    var solns = _layerSolution.find(node => {
       return node.getType() !== 'Group';
    });
 
    // solns = [solns[0]]  // debugging
+   // get all of the answer objects
    var answ = _layerAnswer.getChildren();
 
+   // exit if nothing to check 
    if (solns.length < 1 || answ.length < 1) {
       window.alert("Nothing to check")
       return; // bomb out if nothing to check
@@ -870,39 +893,50 @@ document.getElementById("checkSolution").addEventListener("click", (evt) => {
    }
 
 
-   var text = ""
+   // compare every solution object against every answer object until a solution is satisfied
+   // note that one answer can satisfy multiple solution objects
+   var statusText = ""
    var isSatisfied = Array(solns.length).fill(false);
    solns.forEach((sol, idx) => {
       if (!isSatisfied[idx]) {
          // compare every answer against every unsatisfied solution
-         // this redundantly rechecks answers that already satisfy another solution - fix later
          answ.forEach(ans => {
-            // must match the solution type
+            // the answer type must match the solution type
             if (sol.solnObj == ans.name()) {
-               if (answerOverlap(ans.find(".ansShape")[0], sol, TOLERANCE, sol.solnType)) {
-                  isSatisfied[idx] = true;
-                  text += sol.description + " is correct"
 
-                  // if a direction also required check that
-                  // Better to wrap the direction check into the answerOverlap function and return a error code
-                  if (sol.solnType == "AllInsideDir" && !ans.isDirectionTowards(sol.getDirPoint())) {
-                     text += " but with wrong direction"
-                  }
-                  text += "\n"
+               // status = {satisfied: true/false, message: the message}
+               let status = answerOverlap(ans.find(".ansShape")[0], sol, TOLERANCE, sol.solnType)
+               if (status.satisfied) {
+                  isSatisfied[idx] = true;  // or status.satisfied
+                  statusText += sol.description + status.message + "\n"
                }
+
+
+               // if (answerOverlap(ans.find(".ansShape")[0], sol, TOLERANCE, sol.solnType)) {
+               //    isSatisfied[idx] = true;
+               //    statusText += sol.description + " is correct"
+
+               //    // if a direction also required check that
+               //    // Better to wrap the direction check into the answerOverlap function and return a error code
+               //    if (sol.solnType == "AllInsideDir" && !ans.isDirectionTowards(sol.getDirPoint())) {
+               //       statusText += " but with wrong direction"
+               //    }
+               //    statusText += "\n"
+               // }
             }
          })
       }
    })
-   text += "\n"
+   // note the unsatisfied solution objects
+   statusText += "\n"
    solns.forEach((sol, idx) => {
       if (!isSatisfied[idx]) {
-         text += sol.description + " is incorrect\n"
+         statusText += sol.description + _resultsStatus.fails + "\n"
       }
    })
 
    // check for redundant item by comparing the _solnitemlist with answer items from the user
-   // only need to catch extra items the user has added. Missing items will be caught by previous checks
+   // only need to catch extra answer items the user has added. Missing items will be caught by previous checks
 
    // this is an inefficient way to do this, fortunantly the loop only runs when checking the solution
    var anslist = [];
@@ -931,16 +965,16 @@ document.getElementById("checkSolution").addEventListener("click", (evt) => {
    // })
    if (nans > 0) {
       if (nans === 1) {
-         text += "\nThere is 1 additional incorrect component";
+         statusText += "\nThere is 1 additional incorrect component";
       } else {
-         text += "\nThere are " + nans + " additional incorrect components";
+         statusText += "\nThere are " + nans + " additional incorrect components";
       }
 
    }
 
 
 
-   window.alert(text)
+   window.alert(statusText)
 
 })
 
