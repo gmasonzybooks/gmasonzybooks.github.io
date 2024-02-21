@@ -896,36 +896,30 @@ document.getElementById("checkSolution").addEventListener("click", (evt) => {
    // compare every solution object against every answer object until a solution is satisfied
    // note that one answer can satisfy multiple solution objects
    var statusText = ""
-   var isSatisfied = Array(solns.length).fill(false);
+   var isSatisfied = Array(solns.length).fill(false);  // flags when a solution object is satisfied
+   var canUseAnswer = Array(answ.length).fill(true);  // flags answers that have been used to satisfy a solution with a Unique tag
    solns.forEach((sol, idx) => {
-      if (!isSatisfied[idx]) {
+     // if (!isSatisfied[idx]) {
          // compare every answer against every unsatisfied solution
-         answ.forEach(ans => {
+         answ.every((ans,adx) => {
             // the answer type must match the solution type
-            if (sol.solnObj == ans.name()) {
+            if ((sol.solnObj == ans.name()) && canUseAnswer[adx]){
 
                // status = {satisfied: true/false, message: the message}
                let status = answerOverlap(ans.find(".ansShape")[0], sol, TOLERANCE, sol.solnType)
                if (status.satisfied) {
                   isSatisfied[idx] = true;  // or status.satisfied
                   statusText += sol.description + status.message + "\n"
+                  if (sol.solnType.includes("Unique")){
+                     // used an answer object on a unique solution object so disqualify the answer object from future use
+                     canUseAnswer[adx] = false;
+                  }
+                  return false; // break out of the answ loop
                }
-
-
-               // if (answerOverlap(ans.find(".ansShape")[0], sol, TOLERANCE, sol.solnType)) {
-               //    isSatisfied[idx] = true;
-               //    statusText += sol.description + " is correct"
-
-               //    // if a direction also required check that
-               //    // Better to wrap the direction check into the answerOverlap function and return a error code
-               //    if (sol.solnType == "AllInsideDir" && !ans.isDirectionTowards(sol.getDirPoint())) {
-               //       statusText += " but with wrong direction"
-               //    }
-               //    statusText += "\n"
-               // }
             }
+            return true; // continue
          })
-      }
+   //   }
    })
    // note the unsatisfied solution objects
    statusText += "\n"
