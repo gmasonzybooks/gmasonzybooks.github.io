@@ -282,7 +282,7 @@ Konva.CurveLine = class mycurve extends Konva.Group {
             var idx = Number(evt.target.name()); // index of selected point
 
 
-            if (idx < this.controls.length - 1) {
+            if (this.controls.length > 4 && idx < this.controls.length - 1) {
                // delete three points to the right
 
                // remove the controls
@@ -293,13 +293,13 @@ Konva.CurveLine = class mycurve extends Konva.Group {
                this.points.splice(idx * 2, 6);
                this.curve.points(this.points)
                // rename the controls to match their indices
-               for (var i = idx; idx < this.controls.length; idx++) {
+               for (var i = idx; i < this.controls.length; i++) {
                   this.controls[i].name(i.toString())
                }
 
 
 
-            } else {
+            } else if (idx === this.controls.length-1) {
                // adding to the end, no need to shift points/controls
                this.points.push(this.points[2 * idx] + 20, this.points[2 * idx + 1]
                   , this.points[2 * idx] + 40, this.points[2 * idx + 1]
