@@ -135,11 +135,11 @@ Konva.CurveLine = class mycurve extends Konva.Group {
       });
 
 
-      this.points = [0, 0, 25, 0, 50, 0, 75, 0];
+      this.points = [0, 0, 25, 0, 50, 0, 75, 0];//, 50, 50,  20, 50, 20,80];
 
       this.curve = new Konva.Line({
          points: this.points,
-         //fill: 'none',
+        // fill: 'blue',
          stroke: 'red',
          strokeWidth: 2,
          //draggable: true,
@@ -150,6 +150,7 @@ Konva.CurveLine = class mycurve extends Konva.Group {
          name: "ansShape",
 
          bezier: true,
+        // closed: true,
          tension: 0
       });
 
@@ -193,7 +194,7 @@ Konva.CurveLine = class mycurve extends Konva.Group {
          name: j.toString() // this array index
       })
 
-      // this isn't quite right because tracks to pointer location and not the circle's center
+      // this isn't quite right because tracks to pointer location and not the circle's center?
       this.controls[j].on("dragmove", (evt) => {
          var offsetP = this.absolutePosition();
          var mousePos = this.getStage().getPointerPosition();
@@ -212,8 +213,6 @@ Konva.CurveLine = class mycurve extends Konva.Group {
          if (idx % 3 === 0) {
             // if an end point, then move the control points proportionally 
             // the distance to the previous control point
-
-
 
             // points behind
             if (idx >= 3) {
@@ -278,6 +277,7 @@ Konva.CurveLine = class mycurve extends Konva.Group {
 
       // double click add a new curve segment after the clicked control point
       if (j % 3 === 0) {
+         // action for large nodes
          this.controls[j].on("pointerdblclick", (evt) => {
             var idx = Number(evt.target.name()); // index of selected point
 
@@ -300,10 +300,20 @@ Konva.CurveLine = class mycurve extends Konva.Group {
 
 
             } else if (idx === this.controls.length-1) {
-               // adding to the end, no need to shift points/controls
-               this.points.push(this.points[2 * idx] + 20, this.points[2 * idx + 1]
-                  , this.points[2 * idx] + 40, this.points[2 * idx + 1]
-                  , this.points[2 * idx] + 60, this.points[2 * idx + 1])
+               // adding to the end
+               // extrapolate from tangent at the end point
+               let dx = this.points[2 * idx]-this.points[2 * (idx-1)];
+               let dy = this.points[2 * idx+1]-this.points[2 * (idx-1)+1];   // extra math for clarity
+               let dL = Math.sqrt(dx*dx + dy*dy);
+               dx=dx/dL;  // unit vector directions  (direction cosines)
+               dy=dy/dL;
+               this.points.push(this.points[2 * idx] + 20*dx, this.points[2 * idx + 1]+20*dy
+                  , this.points[2 * idx] + 40*dx, this.points[2 * idx + 1]+40*dy
+                  , this.points[2 * idx] + 60*dx, this.points[2 * idx + 1]+60*dy)
+
+               // this.points.push(this.points[2 * idx] + 20, this.points[2 * idx + 1]
+               //    , this.points[2 * idx] + 40, this.points[2 * idx + 1]
+               //    , this.points[2 * idx] + 60, this.points[2 * idx + 1])
 
                idx++; // new point
                this.curve.points(this.points);
@@ -354,7 +364,33 @@ Konva.CurveLine = class mycurve extends Konva.Group {
          }
 
          )
-      }
+      } else  {
+         // action for small nodes = linearize = align small nodes between large nodes
+         this.controls[j].on("pointerdblclick", (evt) => {
+            var idx = Number(evt.target.name()); // index of selected point
+           
+
+            // base calculation on left most node 
+            if (j % 3 === 2) {
+               idx--
+            }
+            // get dx dy between large nodes
+            var xL = this.points[2 * (idx-1)]
+            var yL = this.points[2 * (idx-1)+1]
+            //var xR = this.points[2 * (idx+2)]
+            //var yR = this.points[2 * (idx+2)+1]
+            var dx = (this.points[2 * (idx+2)]-xL)/3; // R - L nodes
+            var dy = (this.points[2 * (idx+2)+1]-yL)/3
+            this.points[2 * (idx)] = xL+dx;
+            this.points[2 * (idx)+1] = yL+dy;
+            this.points[2 * (idx+1)] = xL+2*dx;
+            this.points[2 * (idx+1)+1] = yL+2*dy;
+            this.controls[idx].x(xL+dx);
+            this.controls[idx].y(yL+dy);
+            this.controls[idx+1].x(xL+2*dx);
+            this.controls[idx+1].y(yL+2*dy);
+      })
+   }
    }
 
    showControls(state) {
