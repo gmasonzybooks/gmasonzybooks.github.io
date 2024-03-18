@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<!--
+ FBD
+G. Mason
+12/26/2023
+
+-->
+<html>
+
+<head>
+   <meta charset="utf-8">
+   <title>Beam</title>
+
+   <script src="https://unpkg.com/konva@9/konva.js"></script>
+   <script src="konvafbdBEZ.js" defer></script>
+
+
+   <style>
+      p {
+         margin-top: 0px;
+         margin-bottom: 5px;
+      }
+
+      textarea {
+         width: 600px;
+      }
+
+      button {
+         margin: 0;
+         padding: 1px 3px 3px 1px;
+      }
+
+      body {
+         margin: 0;
+      }
+
+      /* status area */
+      #status {
+         width: 500px;
+         min-height: 80px;
+         /* padding: 5px 0px 0px 0px; */
+         border: solid;
+         border-width: 2px;
+         border-color: darkgray;
+         position: absolute;
+         top: 50%;
+         left: 20px;
+         font-size: 90%;
+         padding: 0px;
+         background-color: lightgray;
+      }
+
+      #status div {
+         margin-top: 5px;
+      }
+
+      #statusTitleBar {
+         margin: 0px 0px 10px 0px !important;
+         width: 100%;
+         height: 20px;
+         background-color: darkgray;
+      }
+
+      .status_params {
+         position: relative;
+         width: 100%;
+         display: none;
+      }
+
+      .status_params input {
+         width: 8ch;
+      }
+
+     
+
+
+      .apply {
+         /* button */
+         float:right;
+         margin-right: 5px;
+         width: 8ch;
+      }
+   </style>
+</head>
+
+
+
+<body>
+   <!-- hidden layer done another way div class="canvas"  id="calcs" style="position:absolute; top:0; left:0 ; width:500px; height:500px;"></div-->
+   <div class="canvas" id="container" style="width:500px; height:500px;"></div>
+ <div id="xy">&nbsp;</div><br />
+
+
+   <div>
+      <p><button id="addVector">Add vector</button></p>
+      <p><button id="addCurve">Add curve</button> &nbsp<span style="font-size: small">(double-click node: end to add,
+            large to delete, small to linearize)</span></p>
+      <p><button id="addUser">Add custom</button> &nbsp<span style="font-size: small">(double-click shape to
+            rotate)</span></p>
+
+
+      <p><button id="checkSolution">Check solution</button><span style="margin-left:50px;"></span>Show solution<input
+            type="checkbox" id="showSoln"></span>
+      </p>
+   </div>
+
+
+
+   <div style="margin-top:20px;">
+      <div style="width:600px; margin-bottom:5px;"> Model params: (<a href="importOptions.html"
+            target="_blank">Notes</a>)<button style="float:right;" id="updateModel">Update</button></span>
+      </div>
+      <textarea id="modelParams" rows="2"
+         cols="80">PointLoad_x=5; Load_x=5; Load_text="10 kN"; simpleSupport_x=9; Vsoln_points=[0,5,5,5,5,-5,10,-5]; Msoln_points=[0,0,5,25,10,0]</textarea>
+      <p>Model XML:</p>
+      <textarea id="modelXML" cols="500" wrap="hard" rows="15">
+<zyAnimator id="c9ad31f6-1eb8-4da1-a3de-ad4c2474e0b2" caption="VM layout" height="500px" width="500px" made-with="2" selectedInstr="none" selectedObj="none" numObjsEverCreated="11" loadOnDemand="false" image-ids="1MOQrBcOvQoy4IbqTN-UlEQ7vhXstSuLi,1ETDaOEIvU-A65F0i1SeOJtTphgKgD9Kr,1MwUUP6Ymlg4p8bJO7bGgkwl445stWmS4,1FXXLRtFYy8pnHqmBy9jX_bc34LQ5Puii">
+   <zyObjects><zyObject objNum="2" objType="image" objName="simpleSupport" top="104px" left="347px" useConstrainedProportions="true" constrainedProportionsHeight="37" constrainedProportionsWidth="89" googleDriveFileID="Images/simpleSupport.png" height="19px" width="45px" transformDeg="0"></zyObject><zyObject objNum="3" objType="image" objName="PointLoad" top="58px" left="188px" useConstrainedProportions="true" constrainedProportionsHeight="75" constrainedProportionsWidth="14" googleDriveFileID="Images/PointLoad.png" height="36px" width="7px" transformDeg="0"></zyObject><zyObject objNum="12" objType="graph" objName="gBeam" top="53px" left="140px" opacity="20" background-color="blue" useConstrainedProportions="false" height="63px" width="255px" border-color="transparent" transformDeg="0"  graphCursor="false" graphScale="[0,0,10,20]"></zyObject><zyObject objNum="4" objType="image" objName="Beam" top="93px" left="120px" useConstrainedProportions="true" constrainedProportionsHeight="60" constrainedProportionsWidth="556" googleDriveFileID="Images/Beam.png" height="30px" width="278px" transformDeg="0"></zyObject><zyObject objNum="5" objType="graph" objName="gShear" top="172px" left="139px" opacity="30" background-color="blue" useConstrainedProportions="false" height="124px" width="255px" border-color="transparent" transformDeg="0" graphCursor="true" graphScale="[0,-10,10,10]"></zyObject><zyObject objNum="8" objType="polyline" objName="Vsoln" polyPoints="139,232,390,200" x="138" y="232.5" length="100" stroke="green" strokeWidth="9"  opacity="50" solnType="AllInsideFill" solnObj="curve">shear curve's shape</zyObject><zyObject objNum="6" objType="graph" objName="gMoment" top="321px" left="140px" opacity="30" background-color="blue" useConstrainedProportions="false" height="124px" width="255px" border-color="transparent" transformDeg="0"  graphCursor="true" graphScale="[0,-10,10,30]"></zyObject><zyObject objNum="9" objType="polyline" objName="Msoln" polyPoints="139,383,390,340" x="139" y="383.5" length="100" stroke="green" strokeWidth="9" opacity="50"  solnType="AllInsideFill" solnObj="curve">moment curve's shape</zyObject><zyObject objNum="1" objType="image" objName="VMGrid" top="127px" left="93px" useConstrainedProportions="true" constrainedProportionsHeight="640" constrainedProportionsWidth="632" googleDriveFileID="Images/VMGrid.png" height="320px" width="316px" transformDeg="0"></zyObject><zyObject objNum="14" objType="text" objName="Load" top="47px" left="185px" color="black" font-family="Arial" transformDeg="0"><text>10 kN</text></zyObject></zyObjects>
+   <zyGroups><zyGroup id="10" name="Shear" objectIds="5,8"></zyGroup><zyGroup id="11" name="Moment" objectIds="6,9"></zyGroup><zyGroup id="13" name="Beam" objectIds="2,3,12,14"></zyGroup></zyGroups>
+   <zyInstructions><zyInstruction instrType="step1"><text></text></zyInstruction><zyInstruction instrType="startStep"><text></text></zyInstruction></zyInstructions>
+   <solnList>curve,curve</solnList>
+   <zyAltDescription></zyAltDescription>
+   </zyAnimator>
+            </textarea>
+   </div>
+
+
+   <div id="status" style="display:none">
+      <div id="statusTitleBar"><span id="statusTitle"></span><button id="statusClose" style="float:right; padding:0; width:3ch;">x</button></div>
+      <div>
+         <span id="xshowCoords">Coordinates: <select name="coords" id="status_coords">
+         </select></span>
+         <button id="statusApply" class="apply">Apply</button>
+      </div>
+      <div>Name: <input id="item_name" type=text value="x"/></div>
+
+      <div id="paramsXy" class="status_params" style="display:none;">Position: <span id="xy">&nbsp;</span></div>
+
+      <div id="paramsVector" class="status_params" style="display:none;">
+         <button id="showHT">H</button> <button id="showLT">L</button>
+         <span id="headtail" style="display:inline;">Head: <input id="arrow_head_x" type="number" />, <input
+               id="arrow_head_y" type="number" /><span style="padding-left: 20px;">Tail: </span><input id="arrow_tail_x"
+               type="number" />, <input id="arrow_tail_y" type="number" /></span>
+      </div>
+
+      <div id="paramsCurve" class="status_params" style="display:none;">
+         <div style="height:60px; overflow-y:auto">
+            <div>N0: <input id="curve_x0" type="number" />, <input id="curve_y0" type="number" /> <button>-</button>
+            </div>
+            <div>N1: <input id="curve_x1" type="number" />, <input id="curve_y1" type="number" /> <button>-</button>
+            </div>
+            <div>N2: <input id="curve_x2" type="number" />, <input id="curve_y2" type="number" /> <button>+</button>
+            </div>
+         </div>
+      </div>
+
+
+   </div>
+
+</body>
+
+
+
+</html>
+
+
+
+
+<!-- RAW animator file Last modified Wed Jan 31 2024 16:12:33 GMT-0800 (Pacific Standard Time) with canvas animator version -->
+<!--
+<zyAnimator id="c9ad31f6-1eb8-4da1-a3de-ad4c2474e0b2" caption="VM layout" height="500px" width="500px" made-with="2" selectedInstr="none" selectedObj="none" numObjsEverCreated="14" loadOnDemand="false" image-ids="1MwUUP6Ymlg4p8bJO7bGgkwl445stWmS4,1MOQrBcOvQoy4IbqTN-UlEQ7vhXstSuLi,1ETDaOEIvU-A65F0i1SeOJtTphgKgD9Kr,1FXXLRtFYy8pnHqmBy9jX_bc34LQ5Puii">
+   <zyObjects><zyObject objNum="4" objType="image" objName="Beam" top="93px" left="120px" useConstrainedProportions="true" constrainedProportionsHeight="60" constrainedProportionsWidth="556" googleDriveFileID="1MwUUP6Ymlg4p8bJO7bGgkwl445stWmS4" height="30px" width="278px" transformDeg="0"></zyObject><zyObject objNum="5" objType="box" objName="VGraph" top="172px" left="139px" opacity="30" background-color="light-blue" useConstrainedProportions="false" height="119px" width="250px" border-color="transparent" transformDeg="0"></zyObject><zyObject objNum="8" objType="line" objName="Vsoln" x="138" y="232.5" length="100" stroke="green" strokeWidth="9"></zyObject><zyObject objNum="2" objType="image" objName="simpleSupport" top="104px" left="347px" useConstrainedProportions="true" constrainedProportionsHeight="37" constrainedProportionsWidth="89" googleDriveFileID="1MOQrBcOvQoy4IbqTN-UlEQ7vhXstSuLi" height="19px" width="45px" transformDeg="0"></zyObject><zyObject objNum="3" objType="image" objName="PointLoad" top="58px" left="188px" useConstrainedProportions="true" constrainedProportionsHeight="75" constrainedProportionsWidth="14" googleDriveFileID="1ETDaOEIvU-A65F0i1SeOJtTphgKgD9Kr" height="36px" width="7px" transformDeg="0"></zyObject><zyObject objNum="12" objType="box" objName="BGraph" top="53px" left="140px" opacity="20" background-color="light-blue" useConstrainedProportions="false" height="63px" width="250px" border-color="transparent" transformDeg="0"></zyObject><zyObject objNum="14" objType="text" objName="Load" top="41px" left="184px" color="black" font-family="Arial" transformDeg="0"><text>10 kN</text></zyObject><zyObject objNum="6" objType="box" objName="MGraph" top="321px" left="140px" opacity="30" background-color="light-blue" useConstrainedProportions="false" height="119px" width="250px" border-color="transparent" transformDeg="0"></zyObject><zyObject objNum="9" objType="line" objName="Msoln" x="139" y="383.5" length="100" stroke="green" strokeWidth="9"></zyObject><zyObject objNum="1" objType="image" objName="VMGrid" top="127px" left="93px" useConstrainedProportions="true" constrainedProportionsHeight="640" constrainedProportionsWidth="632" googleDriveFileID="1FXXLRtFYy8pnHqmBy9jX_bc34LQ5Puii" height="320px" width="316px" transformDeg="0"></zyObject></zyObjects>
+   <zyGroups><zyGroup id="10" name="VGroup" objectIds="5,8"></zyGroup><zyGroup id="11" name="MGroup" objectIds="6,9"></zyGroup><zyGroup id="13" name="BGroup" objectIds="2,3,12,14"></zyGroup></zyGroups>
+   <zyInstructions><zyInstruction instrType="step1"><text></text></zyInstruction><zyInstruction instrType="startStep"><text></text></zyInstruction></zyInstructions>
+   <zyAltDescription></zyAltDescription>
+   </zyAnimator>
+-->

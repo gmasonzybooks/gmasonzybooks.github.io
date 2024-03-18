@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<!--
+ FBD
+G. Mason
+12/26/2023
+
+-->
+<html>
+
+<head>
+   <meta charset="utf-8">
+   <title>3D Lever</title>
+
+   <script src="https://unpkg.com/konva@9/konva.js"></script>
+   <script src="konvafbdBEZ.js" defer></script>
+
+
+   <style>
+      p {
+         margin-top: 0px;
+         margin-bottom: 5px;
+      }
+
+      textarea {
+         width: 600px;
+      }
+
+      button {
+         margin: 0;
+         padding: 1px 3px 3px 1px;
+      }
+
+      body {
+         margin: 0;
+      }
+
+      /* status area */
+      #status {
+         width: 500px;
+         min-height: 80px;
+         /* padding: 5px 0px 0px 0px; */
+         border: solid;
+         border-width: 2px;
+         border-color: darkgray;
+         position: absolute;
+         top: 50%;
+         left: 20px;
+         font-size: 90%;
+         padding: 0px;
+         background-color: lightgray;
+      }
+
+      #status div {
+         margin-top: 5px;
+      }
+
+      #statusTitleBar {
+         margin: 0px 0px 10px 0px !important;
+         width: 100%;
+         height: 20px;
+         background-color: darkgray;
+      }
+
+      .status_params {
+         position: relative;
+         width: 100%;
+         display: none;
+      }
+
+      .status_params input {
+         width: 8ch;
+      }
+
+      #status div {
+         margin-top: 5px;
+      }
+
+
+
+      .apply {
+         /* button */
+         float:right;
+         margin-right: 5px;
+         width: 8ch;
+      }
+   </style>
+</head>
+
+
+
+<body>
+   <!-- hidden layer done another way div class="canvas"  id="calcs" style="position:absolute; top:0; left:0 ; width:500px; height:500px;"></div-->
+   <div class="canvas" id="container" style="width:500px; height:500px;"></div>
+
+
+
+   <div>
+      <p><button id="addVector">Add vector</button></p>
+      <p><button id="addCurve">Add curve</button> &nbsp<span style="font-size: small">(double-click node: end to add,
+            large to delete, small to linearize)</span></p>
+      <p><button id="addUser">Add custom</button> &nbsp<span style="font-size: small">(double-click shape to
+            rotate)</span></p>
+
+
+      <p><button id="checkSolution">Check solution</button><span style="margin-left:50px;"></span>Show solution<input
+            type="checkbox" id="showSoln"></span>
+      </p>
+   </div>
+ 
+   <div style="margin-top:20px;">
+      <div style="width:600px; margin-bottom:5px;"> Model params: (<a href="importOptions.html"
+            target="_blank">Notes</a>)<button style="float:right;" id="updateModel">Update</button></span>
+      </div>
+      <textarea id="modelParams" rows="2"
+         cols="80">PointLoad_x=5; Load_x=5; Load_text="10 kN"; simpleSupport_x=9; Vsoln_points=[0,5,5,5,5,-5,10,-5]; Msoln_points=[0,0,5,25,10,0]</textarea>
+      <p>Model XML:</p>
+      <textarea id="modelXML" cols="500" wrap="hard" rows="15">
+<!-- Last modified Sun Mar 10 2024 14:04:22 GMT-0700 (Pacific Daylight Time) with canvas animator version -->
+<zyAnimator id="b069789b-4d6d-423e-98d1-964423578f21" caption="" height="500px" width="500px" made-with="2" selectedInstr="none" selectedObj="1" numObjsEverCreated="6" loadOnDemand="false" image-ids="1V6UcjaS48s33FgaCQ3E0WXPezFy4A32L">
+   <zyObjects><zyObject objNum="1" objType="image" objName="shaftLever.png" top="0px" left="0px" useConstrainedProportions="true" constrainedProportionsHeight="538" constrainedProportionsWidth="679" googleDriveFileID="Images/shaftLever.png" height="396px" width="500px" transformDeg="0"></zyObject><zyObject objNum="2" objType="box" objName="Reaction C"  solnType="AllInside" solnObj="vector"  top="267px" left="7px" opacity="80" background-color="tan" useConstrainedProportions="false" height="19px" width="226px" border-color="transparent" transformDeg="309.81">Reaction at C</zyObject><zyObject objNum="3" objType="box" objName="Reaction Bx" solnType="AllInside" solnObj="vector" top="181px" left="399px" opacity="80" background-color="tan" useConstrainedProportions="false" height="211px" width="22px" border-color="transparent" transformDeg="0">Reaction Bx</zyObject><zyObject objNum="5" objType="box" objName="Reaction By"  solnType="AllInside" solnObj="vector" top="174px" left="402px" opacity="80" background-color="tan" useConstrainedProportions="false" height="211px" width="22px" border-color="transparent" transformDeg="70.09">Reaction By</zyObject><zyObject objNum="6" objType="box" objName="Reaction Ay"  solnType="AllInside" solnObj="vector" top="113px" left="257px" opacity="80" background-color="tan" useConstrainedProportions="false" height="191px" width="22px" border-color="transparent" transformDeg="70.09">Reaction Ay</zyObject><zyObject objNum="4" objType="box" objName="Reaction Ax"  solnType="AllInside" solnObj="vector" top="108px" left="248px" opacity="80" background-color="tan" useConstrainedProportions="false" height="211px" width="22px" border-color="transparent" transformDeg="0">Reaction Ax</zyObject><zyObject objNum="7" objType="box" objName="Weight" solnType="AllInside" solnObj="vector" top="191px" left="272px" opacity="80" background-color="tan" useConstrainedProportions="false" height="152px" width="22px" border-color="transparent" transformDeg="0">Weight at CG</zyObject></zyObjects>
+   <zyGroups></zyGroups>
+   <zyInstructions><zyInstruction instrType="step1"><text></text></zyInstruction><zyInstruction instrType="startStep"><text></text></zyInstruction></zyInstructions>
+   <solnList>vector,vector,vector,vector,vector</solnList>
+   <zyAltDescription></zyAltDescription>
+   </zyAnimator>
+            </textarea>
+   </div>
+
+
+   <div id="status" style="display:none">
+      <div id="statusTitleBar"><span id="statusTitle"></span><button id="statusClose" style="float:right; padding:0; width:3ch;">x</button></div>
+      <div>
+         <span id="showCoords">Coordinates: <select name="coords" id="status_coords">
+         </select>
+         </span>
+         <button id="statusApply" class="apply">Apply</button>
+      </div>
+      <div>Name: <input id="item_name" type=text value="x"/></div>
+
+    
+
+      <div id="paramsVector" class="status_params" style="display:none;">
+         <button id="showHT">H</button> <button id="showLT">L</button>
+         <span id="headtail" style="display:inline;">Head: <input id="arrow_head_x" type="number" />, <input
+               id="arrow_head_y" type="number" /><span style="padding-left: 20px;">Tail: </span><input id="arrow_tail_x"
+               type="number" />, <input id="arrow_tail_y" type="number" /></span>
+      </div>
+
+      <div id="paramsCurve" class="status_params" style="display:none;">
+         <div style="height:60px; overflow-y:auto">
+            <div>N0: <input id="curve_x0" type="number" />, <input id="curve_y0" type="number" /> <button>-</button>
+            </div>
+            <div>N1: <input id="curve_x1" type="number" />, <input id="curve_y1" type="number" /> <button>-</button>
+            </div>
+            <div>N2: <input id="curve_x2" type="number" />, <input id="curve_y2" type="number" /> <button>+</button>
+            </div>
+         </div>
+      </div>
+
+
+   </div>
+
+</body>
+
+
+
+</html>
+
+

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<!--
+ FBD
+G. Mason
+12/26/2023
+
+-->
+<html>
+
+<head>
+   <meta charset="utf-8">
+   <title>Notes</title>
+
+
+   <style>
+      p {
+         margin-top: 0px;
+         margin-bottom: 5px;
+      }
+
+      textarea {
+         width: 400px;
+      }
+
+      h6 {
+         display: inline;
+         font-weight: bold;
+         margin-right: 10px;
+         font-size: medium;
+      }
+
+      h7 {
+         display: inline;
+         font-style: italic;
+         margin-right: 10px;
+         font-size: medium;
+      }
+
+      li {
+         margin-bottom:10px;
+      }
+      body {
+         margin: 0;
+      }
+   </style>
+</head>
+
+
+
+<body>
+   <h3>Animation XML options</h3>
+   <ul>
+      <li>
+         <h6>solnType (attribute)</h6> Identifies an object as a solution area. solnType must be paired with a solnObj
+         <br />
+         <h7>Options:</h7><br />AllInside = solution is satisfied when all of an answer object is inside the solution area. Direction is not considered
+         <br />AllInsideDir = solution is satisfied when all of an answer object is inside the solution area and pointed in
+         the same direction as the solution object
+         <br />AllInsideFill = solution is satisfied when all of an answer object is inside the solution area and mostly fills the solution.  Currently only works with a curve object type.  If used with other objects the type acts like AllInside.
+         <br />AnyInside = solution is satisfied when any of the answer object is inside solution object
+         <br />NoneInside = solution is satisfied if no answer objects matching the solnObj type are inside the
+         solution object's area
+         <br /> *Unique  = the answer object satisfying this criterion can only be used once.  Allows to have to unique solutions objects on top of each other.
+      </li>
+
+      <li>
+         <h6>solnObj (attribute)</h6> Identifies the type of answer object measured by a solution object object in a solution area.
+         solnObj must be paired with a solnType
+         <br />
+         <h7>Options:</h7>
+         <br />vector = only vector answer objects are checked against the solution object
+         <br />curve = only curve answer objects are checked against the solution object
+         <br />userdefined = only answer objects matching the userdefined names are checked against the solnObj
+      </li>
+
+      <li>
+         <h6>innerHTML</h6> When an object is a solution, the description for that object is in the object's innerHTML 
+      </li>
+  
+      <li>
+         <h6>graph (objType)</h6> A custom animator objType used for scaling.  Object must be an animator "box"
+         <br/><h6>graphScale (attribute)</h6>  graphScale="[xmin, ymin, xmax, ymax]" specifies the engineering units corresponding to the rectangle's location and size 
+         <br /><h6>graphCursor (attribute)</h6>
+         <br/><h7>Options: </h7>
+         <br/>"true"= the corresponding engineering units are displayed when the mouse is moved inside the object's rectange
+         <br/>"false"= the corresponding engineering units are not displayed when the mouse is moved inside the object's rectange.  Option used for scaling from pixels to engineering units when the graph object is part of a group.
+      </li>
+   
+      <li>
+         <h6>polyline (objType)</h6> A custom animator objType used for drawing polygons (open or closed).  
+         <br/><h6>polyPoints (attribute)</h6>  polyPoints="x1,y1, x2,y2, ..." where x#,y# are the nodes of the polygon.
+         <br /><h6>closed (attribute)</h6>
+         <br/><h7>Options:</h7>
+         <br/>"true"= the polygon is closed, automatically connecting the first and last points in polyPoint
+         <br/>"false"= the polygon is open (a line)
+      </li>
+
+      <li>
+         <h6>group (objType)</h6> A group of objects with the same syntax and meaning as in the Animator.  However groups of objects can be moved or rotated by changing the groups parameters
+         <br/>If a graph is part of a group, the scaling for the graph is applied to all parameter changes for items inside the group.
+      </li>
+   </ul>
+
+   <h3>Notes:</h3>
+<ol>
+   <li>All objects must have a unique objNum and objName</li>
+   <li>Object parameter can be changed using ObjectName_attribute=value;  Ex.  box1_x=10;  changes the x value of object named box1 to 10. <br/>Images are position relative to their upper left coordinates. Consider centering images.</li>
+   <li>Groups with a graph object use the graph's scaling when changing object parameters</li>
+</ol>   
+
+
+
+</body>
+
+</html>
