@@ -6,50 +6,94 @@ _resultsStatus = {
    'fails': ' is not correct'
 }
 
+function _ptInRect(pt, rect) {
+   return ((pt.x > rect.x) && (pt.x < rect.x + rect.width) && (pt.y > rect.y) && (pt.y < rect.y + rect.height))
+}
+
+// snapping data
+class snaps {
+
+   constructor() {
+      // scan through the problem layer and get all snapping items
+      this.coords = [];
+      this.snapdropdown = document.createElement("select")
+
+      var snaps = _layerProblem.find(node => {
+         return node.getAttr("snap") === true
+         //  return node.listening();
+      })
+
+      var myOption = document.createElement("option");
+      myOption.text = "free";
+      myOption.value = 0;
+      this.snapdropdown.add(myOption);
+
+      this.coords.push({ x: 0, y: 0, node: null }) // filler
+
+      snaps.forEach((node, i) => {
+         var xy = node.getAbsolutePosition();
+
+         var myOption = document.createElement("option");
+         myOption.text = node.name();
+         myOption.value = i + 1; // since already put in dummy value for "free"
+         this.coords.push({ x: xy.x + node.width() / 2, y: xy.y + node.height() / 2, node: node });
+         this.snapdropdown.add(myOption);
+
+         // item.on("mouseover",evt=>{
+         //    evt.target.opacity(1)
+         // } )
+
+         // item.on("mouseout",evt=>{
+         //    evt.target.opacity(0.1)
+         // } )
+      })
+   }
+
+}
 
 // 
 //===== STATUS Dialog routines =====
 class statusDialog {
    constructor() {
       this.callback = null;
-      this.pos1=0;
-      this.pos2=0;
-      this.pos3=0;
-      this.pos4=0;
-      this.selection=null;
+      this.pos1 = 0;
+      this.pos2 = 0;
+      this.pos3 = 0;
+      this.pos4 = 0;
+      this.selection = null;
       this.me = document.getElementById("status")
-   
+
       document.getElementById("statusClose").addEventListener("click", e => {
-         this.open(null,null)
+         this.open(null, null)
       })
-      
+
       document.getElementById("statusApply").addEventListener("click", e => {
          this.selection.itemName.text(document.getElementById("item_name").value)
-         this.callback()
+         this.callback(this.selection)
       })
 
-    
+
    }
 
-   scale(pos){
+   scale(pos) {
       let name = document.getElementById("status_coords").value;
-      if (name==="") return pos;
+      if (name === "") return pos;
 
-      let scale = _layerSolution.find("."+name)[0].graphscale; // assumes group exists
+      let scale = _layerSolution.find("." + name)[0].graphscale; // assumes group exists
       return pixelToEngineering(pos, scale);
-   
+
    }
 
-  init() { 
-   // not rolled into the contructor because need to be called delayed from a promise
+   init(snaps) {
+      // not rolled into the contructor because need to be called delayed from a promise
       // load up the coordinates menu
       let dropdown = document.getElementById("status_coords");
-   
+
       var groups = _layerSolution.find(node => {
          return node.getType() == 'Group';
       });
-   
-// enable to hide/show coords in dialog
+
+      // enable to hide/show coords in dialog
       // if (groups.length >0){
       //    document.getElementById("showCoords").style.display="inline-block"
       //   // document.getElementById("showCoords").style.backgroundColor="red"
@@ -58,25 +102,33 @@ class statusDialog {
       //   // document.getElementById("showCoords").style.backgroundColor="blue"
       // }
 
-      // assume coords are tied to groups
-      groups.forEach(grp => {
-         let newOption = new Option(grp.name(), grp.name());
-         dropdown.add(newOption, undefined);
-      })
-   
+      if (groups.length === 0) {
+         document.getElementById("showCoords").style.display = "none"
+      } else { // assume coords are tied to groups
+         groups.forEach(grp => {
+            let newOption = new Option(grp.name(), grp.name());
+            dropdown.add(newOption, undefined);
+         })
+      }
+
+      // this is a hack for demo only, need to make a more generic class for handing different status boxes
+      document.getElementById("headLoc").appendChild(snaps.snapdropdown.cloneNode(true))
+      document.getElementById("dirStart").appendChild(snaps.snapdropdown.cloneNode(true))
+      document.getElementById("dirEnd").appendChild(snaps.snapdropdown.cloneNode(true))
+
    }
 
 
-   open(params,applyCallback) {
-     
+   open(params, applyCallback) {
+
       // state = null = closes the status box
       // else =  id of status style to open
-   
+
       if (params === null) {
          this.me.style.display = 'none';
          document.onmouseup = closeDragElement;
       } else {
-         this.callback=applyCallback;
+         this.callback = applyCallback;
          this.selection = params.selection;
 
          // hide all open status items
@@ -84,16 +136,16 @@ class statusDialog {
          statusTypes.forEach(item => {
             item.style.display = "none";
          })
-   
-         document.getElementById("statusTitle").innerHTML=params.title;
+
+         document.getElementById("statusTitle").innerHTML = params.title;
 
          document.getElementById(params.view).style.display = "block"
          this.me.style.display = 'block';
 
-         document.getElementById("item_name").value=params.selection.itemName.text()
+         document.getElementById("item_name").value = params.selection.itemName.text()
          document.getElementById("statusTitleBar").onmousedown = dragMouseDown;
       }
-   
+
    }
 
 }
@@ -109,7 +161,7 @@ function dragMouseDown(e) {
    document.onmouseup = closeDragElement;
    // call a function whenever the cursor moves:
    document.onmousemove = elementDrag;
- }
+}
 
 function elementDrag(e) {
    e.preventDefault();
@@ -121,13 +173,13 @@ function elementDrag(e) {
    // set the element's new position:
    _status.me.style.top = (_status.me.offsetTop - _status.pos2) + "px";
    _status.me.style.left = (_status.me.offsetLeft - _status.pos1) + "px";
- }
+}
 
- function closeDragElement() {
+function closeDragElement() {
    // stop moving when mouse button is released:
    document.onmouseup = null;
    document.onmousemove = null;
- }
+}
 
 // =================================
 
@@ -152,9 +204,9 @@ Konva.Vector = class myvect extends Konva.Group {
       });
 
       this.itemName = new Konva.Text({
-         text:"x",
-         x:x,
-         y:y
+         text: "x",
+         x: x,
+         y: y
       })
 
       this.head = new Konva.Circle({
@@ -199,21 +251,35 @@ Konva.Vector = class myvect extends Konva.Group {
       this.add(this.arrow, this.tail, this.head, this.itemName, this.dummy)
 
       this.tail.on("dragmove", () => {
-         var mousePos = this.tail.getStage().getPointerPosition();
-         var headPos = this.head.absolutePosition()
-         var dx = headPos.x - mousePos.x
-         var dy = headPos.y - mousePos.y
-         var theta = Math.atan2(dy, dx)
-         this.arrow.rotation(theta * 180 / Math.PI)
-         dx = 70 * Math.cos(-theta)
-         dy = 70 * Math.sin(-theta)
-         this.tail.absolutePosition({ x: headPos.x - dx, y: headPos.y + dy })
-         this.arrow.absolutePosition({ x: headPos.x - dx, y: headPos.y + dy })
-         this.dummy.absolutePosition({ x: headPos.x - dx, y: headPos.y + dy })
 
-         this.itemName.absolutePosition({ x: headPos.x - dx, y: headPos.y + dy })
+
+         var tailPos = this.tail.getStage().getPointerPosition();
+         var headPos = this.head.absolutePosition()
+         var dxy = this.calcdxy(headPos, tailPos)
+         this.arrow.rotation(dxy.theta)
+
+         this.tail.absolutePosition({ x: headPos.x - dxy.dx, y: headPos.y - dxy.dy })
+         this.arrow.absolutePosition({ x: headPos.x - dxy.dx, y: headPos.y - dxy.dy })
+         this.dummy.absolutePosition({ x: headPos.x - dxy.dx, y: headPos.y - dxy.dy })
+
+         // var mousePos = this.tail.getStage().getPointerPosition();
+         // var headPos = this.head.absolutePosition()
+         // var dx = headPos.x - mousePos.x
+         // var dy = headPos.y - mousePos.y
+         // var theta = Math.atan2(dy, dx)
+         // this.arrow.rotation(theta * 180 / Math.PI)
+         // dx = 70 * Math.cos(-theta)
+         // dy = 70 * Math.sin(-theta)
+         // this.tail.absolutePosition({ x: headPos.x - dx, y: headPos.y + dy })
+         // this.arrow.absolutePosition({ x: headPos.x - dx, y: headPos.y + dy })
+         // this.dummy.absolutePosition({ x: headPos.x - dx, y: headPos.y + dy })
+
+
+
+         this.itemName.absolutePosition({ x: headPos.x - dxy.dx, y: headPos.y - dxy.dy })
+         // this.itemName.absolutePosition({ x: headPos.x - dx, y: headPos.y + dy })
          //  console.log(dx,dy,theta*180/Math.PI)
-         updateGraphXY(mousePos);
+         updateGraphXY(tailPos);
       })
 
       this.tail.on("mouseenter", () => {
@@ -222,18 +288,27 @@ Konva.Vector = class myvect extends Konva.Group {
 
       // a bug in Konva or in my code prevents this from firing correctly
       this.head.on("dragmove", () => {
-         var mousePos = this.head.getStage().getPointerPosition();
+
+         var headPos = this.head.getStage().getPointerPosition();
          var tailPos = this.tail.absolutePosition()
-         var dx = mousePos.x - tailPos.x
-         var dy = mousePos.y - tailPos.y
-         var theta = Math.atan2(dy, dx)
-         this.arrow.rotation(theta * 180 / Math.PI)
-         dx = 70 * Math.cos(theta)
-         dy = 70 * Math.sin(theta)
-         this.head.absolutePosition({ x: tailPos.x + dx, y: tailPos.y + dy })
-         this.dummy.absolutePosition({ x: tailPos.x + dx, y: tailPos.y + dy })
+         var dxy = this.calcdxy(headPos, tailPos)
+         this.arrow.rotation(dxy.theta)
+
+         this.head.absolutePosition({ x: tailPos.x + dxy.dx, y: tailPos.y + dxy.dy })
+         this.dummy.absolutePosition({ x: tailPos.x + dxy.dx, y: tailPos.y + dxy.dy })
+
+         // var mousePos = this.head.getStage().getPointerPosition();
+         // var tailPos = this.tail.absolutePosition()
+         // var dx = mousePos.x - tailPos.x
+         // var dy = mousePos.y - tailPos.y
+         // var theta = Math.atan2(dy, dx)
+         // this.arrow.rotation(theta * 180 / Math.PI)
+         // dx = 70 * Math.cos(theta)
+         // dy = 70 * Math.sin(theta)
+         // this.head.absolutePosition({ x: tailPos.x + dx, y: tailPos.y + dy })
+         // this.dummy.absolutePosition({ x: tailPos.x + dx, y: tailPos.y + dy })
          //  console.log(dx,dy,theta*180/Math.PI)
-         updateGraphXY(mousePos);
+         updateGraphXY(headPos);
       })
 
       this.head.on("mouseenter", () => {
@@ -245,7 +320,7 @@ Konva.Vector = class myvect extends Konva.Group {
          var tail = this.tail.getAbsolutePosition();
 
          // var xy = _status.scale([head.x, head.y, tail.x, tail.y]);
-      
+
 
          // document.getElementById("arrow_head_x").value = xy[0]
          // document.getElementById("arrow_head_y").value = xy[1]
@@ -253,19 +328,102 @@ Konva.Vector = class myvect extends Konva.Group {
 
          // document.getElementById("arrow_tail_x").value = xy[2]
          // document.getElementById("arrow_tail_y").value = xy[3]
+         // update controls to match vector's position
+         // look for head in a snap box
 
-         _status.open({selection:this, view:"paramsVector", title:"Vector"}, this.handleStatusUpdate);
+         // brute force the point in rect calculation.  The alternate approach is to put all snap rectangle on their own layer and then
+         // use Konva to find the hit rect.  The down side is that the layer need to be be transformed with any transformation to the model image
+         // keeping the snaps on the problemlayer let's this happen automatically.
+         // However, the point in rect will be off if the snap rect ends up being rotated or is not rectangular (ex, rounded edges)
+         var n = _snaps.coords.length
+
+         // match the head position
+         document.getElementById("headLoc").lastChild.value = 0;
+         for (let i = 1; i < n; i++) {
+            if (_ptInRect(head, _snaps.coords[i].node.getClientRect())) {
+               // found a match
+               document.getElementById("headLoc").lastChild.value = i;
+               break
+            }
+         }
+
+         // match the orientation
+         // this is ugly.  An alternate approach is to precalculate all of the possible angles for every vector combination between points and
+         // look for matches
+         document.getElementById("dirStart").lastChild.value = 0;
+                     document.getElementById("dirEnd").lastChild.value = 0;
+         var xy;
+         for (let i = 0; i<n; i++){
+            for (let j=0; j<n; j++){
+               if (i!==j){
+                  xy=this.calcdxy(_snaps.coords[j],_snaps.coords[i])
+                  if (Math.abs(this.arrow.rotation() - xy.theta) < 2){
+                     // found a match so break
+
+                     document.getElementById("dirStart").lastChild.value = i;
+                     document.getElementById("dirEnd").lastChild.value = j;
+                     i = n+1; // ugly force out of outer loop
+                     break;
+                  }
+
+               }
+            }
+         }
+
+         _status.open({ selection: this, view: "paramsVector", title: "Vector" }, this.handleStatusApply);
       })
    }
 
-   handleStatusUpdate(){
-      console.log("update vector status")
+   calcdxy(headpos, tailpos) {
+
+      var dx = headpos.x - tailpos.x
+      var dy = headpos.y - tailpos.y
+      var theta = Math.atan2(dy, dx)
+    //  this.arrow.rotation(theta * 180 / Math.PI)
+      dx = 70 * Math.cos(theta)
+      dy = 70 * Math.sin(theta)
+
+      return { dx: dx, dy: dy, theta:theta*180/Math.PI }
+
+   }
+
+   handleStatusApply(me) {
+
+      // apply callback
+      let hidx = Number(document.getElementById("headLoc").lastChild.value)
+      let headPos = (hidx === 0 ? me.head.getAbsolutePosition() : _snaps.coords[hidx])
+
+      // calculate  vector direction
+      let sidx = Number(document.getElementById("dirStart").lastChild.value)
+      let eidx = Number(document.getElementById("dirEnd").lastChild.value)
+      let dxy;
+
+      if (sidx === 0 || eidx === 0) {
+         // free orientation
+         dxy = me.calcdxy(me.head.absolutePosition(), me.tail.absolutePosition())
+        
+      } else {
+         dxy = me.calcdxy(_snaps.coords[eidx], _snaps.coords[sidx])
+
+      }
+
+      me.head.absolutePosition({ x: headPos.x, y: headPos.y })
+      me.arrow.rotation(dxy.theta)
+      me.tail.absolutePosition({ x: headPos.x - dxy.dx, y: headPos.y - dxy.dy })
+      me.arrow.absolutePosition({ x: headPos.x - dxy.dx, y: headPos.y - dxy.dy })
+
+      me.itemName.absolutePosition({ x: headPos.x - dxy.dx, y: headPos.y - dxy.dy })
+      // console.log("update vector status")
    }
 
 
    showControls(state) {
       this.head.visible(state);
       this.tail.visible(state);
+
+
+
+
    }
    isDirectionTowards(point) {
       // is the head closer to the point
@@ -310,9 +468,9 @@ Konva.CurveLine = class mycurve extends Konva.Group {
       });
 
       this.itemName = new Konva.Text({
-         text:"A",
-         x:0,
-         y:5
+         text: "A",
+         x: 0,
+         y: 5
       })
 
       this.controls = [];
@@ -335,14 +493,14 @@ Konva.CurveLine = class mycurve extends Konva.Group {
          visibility: false
       });
 
-      this.add(this.curve,this.itemName, ...this.controls, this.dummy)
+      this.add(this.curve, this.itemName, ...this.controls, this.dummy)
 
       this.curve.on("pointerdblclick", (evt) => {
-         _status.open({selection:this, view:"paramsCurve", title:"Curve"}, this.handleStatusUpdate);
+         _status.open({ selection: this, view: "paramsCurve", title: "Curve" }, this.handleStatusUpdate);
       })
    }
 
-   handleStatusUpdate(){
+   handleStatusUpdate() {
       console.log("update curve status")
    }
 
@@ -434,7 +592,7 @@ Konva.CurveLine = class mycurve extends Konva.Group {
          this.curve.points(this.points);
          evt.target.absolutePosition(mousePos)
 
-         if (idx===0) this.itemName.absolutePosition({x:mousePos.x, y:mousePos.y+5})
+         if (idx === 0) this.itemName.absolutePosition({ x: mousePos.x, y: mousePos.y + 5 })
 
          updateGraphXY(mousePos)
 
@@ -568,9 +726,9 @@ Konva.UserImage = class myimage extends Konva.Group {
       })
 
       this.itemName = new Konva.Text({
-         text:"B",
-         x:-theimage.width / 2,
-         y:-theimage.height / 2
+         text: "B",
+         x: -theimage.width / 2,
+         y: -theimage.height / 2
       })
 
       this.add(this.image, this.itemName)
@@ -787,6 +945,25 @@ function parseObjects(xmlString, modelParams) {
          shape.getDirPoint = function () {
             return this.getAbsoluteTransform().getTranslation() // or should use the top center of the image?
          }
+
+      } else if (zyObject.getAttribute("objType") == "snap") {
+         shape = new Konva.Rect({
+            x: cleanAttr(zyObject.getAttribute("left")),
+            y: cleanAttr(zyObject.getAttribute("top")),
+            width: cleanAttr(zyObject.getAttribute("width"), 20),
+            height: cleanAttr(zyObject.getAttribute("height"), 20),
+            id: zyObject.getAttribute("objNum"),
+            name: zyObject.getAttribute("objName"),
+            fill: cleanAttr(zyObject.getAttribute("background-color"), 'red'),
+            cornerRadius: cleanAttr(zyObject.getAttribute("border-radius"), 0),
+            stroke: cleanAttr(zyObject.getAttribute("border-color"), "black"),
+            opacity: 0, // cleanAttr(zyObject.getAttribute("opacity"), 100) / 100,
+            listening: false,
+            snap: true
+            //  rotation: Number(cleanAttr(zyObject.getAttribute("transformDeg",0)))  // not reliable because Animator is use the same rotation method as Konva.  
+            // Needs mapping update - maybe set object center using offset and x,y value
+         })
+
       } else if (zyObject.getAttribute("objType") == "graph") {
          // graphs options
          //  use to scale mouse positions
@@ -852,6 +1029,7 @@ function parseObjects(xmlString, modelParams) {
          shape.description = zyObject.innerHTML;
          _layerSolution.add(shape);
       }
+
 
    }
 
@@ -966,8 +1144,11 @@ function parseObjects(xmlString, modelParams) {
 
       _layerProblem.cache({ drawBorder: false });   // cache to optimize drawing of the problem statement.
 
+      _snaps = new snaps();
 
-      _status.init();
+      _status.init(_snaps);
+
+
 
       return //initDone; // return an array of promises
    })
@@ -1332,6 +1513,7 @@ _layerSolution.draw();
 
 var _graphs = [];
 var _solnitemlist = [];
+var _snaps;
 
 var _status = new statusDialog();
 
