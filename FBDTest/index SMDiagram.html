@@ -9,12 +9,11 @@ G. Mason
 
 <head>
    <meta charset="utf-8">
-   <title>Phase Diagram</title>
+   <title>Shear/Bending Moment</title>
 
    <link rel="stylesheet" href="style.css">
    <script src="https://unpkg.com/konva@9/konva.js"></script>
    <script src="konvafbdBEZ.js" defer></script>
-
 </head>
 
 
@@ -22,7 +21,7 @@ G. Mason
 <body>
    <!-- hidden layer done another way div class="canvas"  id="calcs" style="position:absolute; top:0; left:0 ; width:500px; height:500px;"></div-->
    <div class="canvas" id="container" style="width:500px; height:500px;"></div>
-   <div id="xy">&nbsp;</div><br />
+ <div id="xy">&nbsp;</div><br />
 
 
    <div>
@@ -45,22 +44,22 @@ G. Mason
             target="_blank">Notes</a>)<button style="float:right;" id="updateModel">Update</button></span>
       </div>
       <textarea id="modelParams" rows="2"
-         cols="80">Soln_points=[0,890,0.37,772,0.76,710,2,1133,0.18,1492,0,1400,0,890]</textarea>
+         cols="80">PointLoad_x=5; Load_x=5; Load_text="10 kN"; simpleSupport_x=9; Vsoln_points=[0,5,5,5,5,-5,10,-5]; Msoln_points=[0,0,5,25,10,0]</textarea>
       <p>Model XML:</p>
       <textarea id="modelXML" cols="500" wrap="hard" rows="15">
-<!-- Last modified Fri Mar 15 2024 13:38:53 GMT-0700 (Pacific Daylight Time) with canvas animator version -->
-<zyAnimator id="9e020826-db72-4a9e-a6a5-3e15b8889166" caption="" height="527px" width="689px" made-with="2" selectedInstr="none" selectedObj="1 2 4" numObjsEverCreated="4" loadOnDemand="false" image-ids="1T9MigP5m8d8Ymp1gIeZBj1hqooiW7zEi,1_3QjJMKSyn6XC4AhRaz4Lsz9mGwV8hIe">
-   <zyObjects><zyObject objNum="1" objType="image" objName="FeCPhaseD@2x.png" top="50px" left="50px" useConstrainedProportions="true" constrainedProportionsHeight="774" constrainedProportionsWidth="1071" googleDriveFileID="Images/FeCPhaseD@2x.png" height="400px" width="553px" transformDeg="0"></zyObject><zyObject objNum="2" objType="graph" objName="FBDGrid" top="58px" left="113px" opacity="50" background-color="tan" useConstrainedProportions="false" height="343px" width="476px" border-color="transparent" transformDeg="0"   graphCursor="true" graphScale="[0,600,5,1600]"></zyObject><zyObject objNum="3" objType="polyline" objName="Soln" polyPoints="0,890,0.37,772,0.76,710,2,1133,0.18,1492,0,1400,0,890" top="0px" left="0px" useConstrainedProportions="true" constrainedProportionsHeight="150" constrainedProportionsWidth="111"  height="283px" width="209px" transformDeg="0" stroke="green" strokeWidth="20"  opacity="50" solnType="AllInsideFill" solnObj="curve">Austenite area</zyObject></zyObjects>
-   <zyGroups><zyGroup id="4" name="GDiagram" objectIds="1,2,3"></zyGroup></zyGroups>
+<zyAnimator id="c9ad31f6-1eb8-4da1-a3de-ad4c2474e0b2" caption="VM layout" height="500px" width="500px" made-with="2" selectedInstr="none" selectedObj="none" numObjsEverCreated="11" loadOnDemand="false" image-ids="1MOQrBcOvQoy4IbqTN-UlEQ7vhXstSuLi,1ETDaOEIvU-A65F0i1SeOJtTphgKgD9Kr,1MwUUP6Ymlg4p8bJO7bGgkwl445stWmS4,1FXXLRtFYy8pnHqmBy9jX_bc34LQ5Puii">
+   <zyObjects><zyObject objNum="2" objType="image" objName="simpleSupport" top="104px" left="347px" useConstrainedProportions="true" constrainedProportionsHeight="37" constrainedProportionsWidth="89" googleDriveFileID="Images/simpleSupport.png" height="19px" width="45px" transformDeg="0"></zyObject><zyObject objNum="3" objType="image" objName="PointLoad" top="58px" left="188px" useConstrainedProportions="true" constrainedProportionsHeight="75" constrainedProportionsWidth="14" googleDriveFileID="Images/PointLoad.png" height="36px" width="7px" transformDeg="0"></zyObject><zyObject objNum="12" objType="graph" objName="gBeam" top="53px" left="140px" opacity="20" background-color="blue" useConstrainedProportions="false" height="63px" width="255px" border-color="transparent" transformDeg="0"  graphCursor="false" graphScale="[0,0,10,20]"></zyObject><zyObject objNum="4" objType="image" objName="Beam" top="93px" left="120px" useConstrainedProportions="true" constrainedProportionsHeight="60" constrainedProportionsWidth="556" googleDriveFileID="Images/Beam.png" height="30px" width="278px" transformDeg="0"></zyObject><zyObject objNum="5" objType="graph" objName="gShear" top="172px" left="139px" opacity="30" background-color="blue" useConstrainedProportions="false" height="124px" width="255px" border-color="transparent" transformDeg="0" graphCursor="true" graphScale="[0,-10,10,10]"></zyObject><zyObject objNum="8" objType="polyline" objName="Vsoln" polyPoints="139,232,390,200" x="138" y="232.5" length="100" stroke="green" strokeWidth="9"  opacity="50" solnType="AllInsideFill" solnObj="curve">shear curve's shape</zyObject><zyObject objNum="6" objType="graph" objName="gMoment" top="321px" left="140px" opacity="30" background-color="blue" useConstrainedProportions="false" height="124px" width="255px" border-color="transparent" transformDeg="0"  graphCursor="true" graphScale="[0,-10,10,30]"></zyObject><zyObject objNum="9" objType="polyline" objName="Msoln" polyPoints="139,383,390,340" x="139" y="383.5" length="100" stroke="green" strokeWidth="9" opacity="50"  solnType="AllInsideFill" solnObj="curve">moment curve's shape</zyObject><zyObject objNum="1" objType="image" objName="VMGrid" top="127px" left="93px" useConstrainedProportions="true" constrainedProportionsHeight="640" constrainedProportionsWidth="632" googleDriveFileID="Images/VMGrid.png" height="320px" width="316px" transformDeg="0"></zyObject><zyObject objNum="14" objType="text" objName="Load" top="47px" left="185px" color="black" font-family="Arial" transformDeg="0"><text>10 kN</text></zyObject></zyObjects>
+   <zyGroups><zyGroup id="10" name="Shear" objectIds="5,8"></zyGroup><zyGroup id="11" name="Moment" objectIds="6,9"></zyGroup><zyGroup id="13" name="Beam" objectIds="2,3,12,14"></zyGroup></zyGroups>
    <zyInstructions><zyInstruction instrType="step1"><text></text></zyInstruction><zyInstruction instrType="startStep"><text></text></zyInstruction></zyInstructions>
-   <solnList>curve</solnList>
+   <solnList>curve,curve</solnList>
    <zyAltDescription></zyAltDescription>
    </zyAnimator>
             </textarea>
    </div>
 
-  <!-- Status dialog box -->
-  <div id="status" style="display:none">
+
+<!-- Status dialog box -->
+<div id="status" style="display:none">
    <div id="statusTitleBar"><span id="statusTitle"></span><button id="statusClose" style="float:right; padding:0; width:3ch;">x</button></div>
    <div>
       <span id="showCoords">Coordinates: <select name="coords" id="status_coords">
@@ -69,6 +68,8 @@ G. Mason
       <button id="statusApply" class="apply">Apply</button>
    </div>
    <div>Name: <input id="item_name" type=text value="x"/></div>
+
+ 
 
    <div id="paramsVector" class="status_params" style="display:none;">
       <span id="headLoc">Location: </span>&nbsp;&nbsp;

@@ -1,3 +1,10 @@
+// Shape in shape prototype
+//  used to demonstrate how a graphic tool might work using a shape in shape approach
+//  
+//  This is intended only as a tool to think about how a shape-in-shape approach might work
+//
+// Greg Mason
+
 // ---- error codes
 _resultsStatus = {
    'passes': ' is correct',
@@ -11,11 +18,14 @@ function _ptInRect(pt, rect) {
 }
 
 // snapping data
+// manages snap areas defined by the author
+// snaps are used by the status dialog and provides accessability for users
 class snaps {
 
    constructor() {
       // scan through the problem layer and get all snapping items
-      this.coords = [];
+      this.coords = [];  // {x: #, y: #, node: ptr, limit: 0,1 or 2}     limit is used to prevent selections like x-y
+      // x,y,z=2,  O,o=0,  other=1   then sum of limit for direction created by two snap points must have limit<=2>
       this.snapdropdown = document.createElement("select")
 
       var snaps = _layerProblem.find(node => {
@@ -23,20 +33,31 @@ class snaps {
          //  return node.listening();
       })
 
+      // create a drop down item for each snap
+      // the first item is "free" and corresponds to any location that doesn't match a snap
+      // used to indicate that the user dragged the item to a non snap location
       var myOption = document.createElement("option");
+      var xy;
       myOption.text = "free";
       myOption.value = 0;
       this.snapdropdown.add(myOption);
+      this.coords.push({ x: 0, y: 0, node: null, limit: 0 }) // filler
 
-      this.coords.push({ x: 0, y: 0, node: null }) // filler
+      // separate the x,y,z,O snaps.
+      // assumes that x,y,z,O are the first snaps in the XML
 
+
+      var limit = 0;
       snaps.forEach((node, i) => {
-         var xy = node.getAbsolutePosition();
+         xy = node.getAbsolutePosition();
 
-         var myOption = document.createElement("option");
+         myOption = document.createElement("option");
          myOption.text = node.name();
+         limit = 1;
+         if ('xyz'.includes(myOption.text)) { limit = 2 }
+         if ('oO'.includes(myOption.text)) { limit = 0 }
          myOption.value = i + 1; // since already put in dummy value for "free"
-         this.coords.push({ x: xy.x + node.width() / 2, y: xy.y + node.height() / 2, node: node });
+         this.coords.push({ x: xy.x + node.width() / 2, y: xy.y + node.height() / 2, node: node, limit: limit });
          this.snapdropdown.add(myOption);
 
          // item.on("mouseover",evt=>{
@@ -87,6 +108,7 @@ class statusDialog {
    init(snaps) {
       // not rolled into the contructor because need to be called delayed from a promise
       // load up the coordinates menu
+      // this would allow the user to select from the available coordinate systems on the graph
       let dropdown = document.getElementById("status_coords");
 
       var groups = _layerSolution.find(node => {
@@ -111,8 +133,17 @@ class statusDialog {
          })
       }
 
-      // this is a hack for demo only, need to make a more generic class for handing different status boxes
-      document.getElementById("headLoc").appendChild(snaps.snapdropdown.cloneNode(true))
+      // need to make a more generic for handing different status box layouts.  This is a shortcut for the prototype
+
+      // Load up the Location and Direction drop downs used with vectors
+      // strip x,y,z  (limit =2) from the point list
+      // this is not correctly synched with the apply callback for vectors, but will work.
+      var dropdownClipped = snaps.snapdropdown.cloneNode(true);
+      for (let opt of dropdownClipped.children) {
+         if (snaps.coords[opt.value].limit >1) opt.remove();
+      }
+
+      document.getElementById("headLoc").appendChild(dropdownClipped) 
       document.getElementById("dirStart").appendChild(snaps.snapdropdown.cloneNode(true))
       document.getElementById("dirEnd").appendChild(snaps.snapdropdown.cloneNode(true))
 
@@ -316,19 +347,10 @@ Konva.Vector = class myvect extends Konva.Group {
       })
 
       this.arrow.on("pointerdblclick", (evt) => {
+         // load up the status dialog box with appropriate items and show the box
          var head = this.head.getAbsolutePosition();
          var tail = this.tail.getAbsolutePosition();
 
-         // var xy = _status.scale([head.x, head.y, tail.x, tail.y]);
-
-
-         // document.getElementById("arrow_head_x").value = xy[0]
-         // document.getElementById("arrow_head_y").value = xy[1]
-
-
-         // document.getElementById("arrow_tail_x").value = xy[2]
-         // document.getElementById("arrow_tail_y").value = xy[3]
-         // update controls to match vector's position
          // look for head in a snap box
 
          // brute force the point in rect calculation.  The alternate approach is to put all snap rectangle on their own layer and then
@@ -340,29 +362,35 @@ Konva.Vector = class myvect extends Konva.Group {
          // match the head position
          document.getElementById("headLoc").lastChild.value = 0;
          for (let i = 1; i < n; i++) {
-            if (_ptInRect(head, _snaps.coords[i].node.getClientRect())) {
-               // found a match
-               document.getElementById("headLoc").lastChild.value = i;
-               break
+            // don't allow matches to x,y,z
+            if (_snaps.coords[i].limit < 2) {
+               if (_ptInRect(head, _snaps.coords[i].node.getClientRect())) {
+                  // found a match
+                  document.getElementById("headLoc").lastChild.value = i;
+                  break
+               }
             }
          }
 
          // match the orientation
-         // this is ugly.  An alternate approach is to precalculate all of the possible angles for every vector combination between points and
+         // this is ugly brute force approach that checks every possible direction.  
+         // An alternate approach is to precalculate all of the possible angles for every vector combination between points and
          // look for matches
          document.getElementById("dirStart").lastChild.value = 0;
-                     document.getElementById("dirEnd").lastChild.value = 0;
+         document.getElementById("dirEnd").lastChild.value = 0;
          var xy;
-         for (let i = 1; i<n; i++){
-            for (let j=1; j<n; j++){
-               if (i!==j){
-                  xy=this.calcdxy(_snaps.coords[j],_snaps.coords[i])
-                  if (Math.abs(this.arrow.rotation() - xy.theta) < 2){
+
+         for (let i = 1; i < n; i++) {
+            for (let j = 1; j < n; j++) {
+               // don't check for vectors or zero length, or excluded vectors like x-x, x-y,  A-x ...
+               if (i !== j && (_snaps.coords[i].limit +  _snaps.coords[j].limit)<3) {  
+                  xy = this.calcdxy(_snaps.coords[j], _snaps.coords[i])
+                  if (Math.abs(this.arrow.rotation() - xy.theta) < 2) {  // 2 deg tolerance,  adjust as needed
                      // found a match so break
 
                      document.getElementById("dirStart").lastChild.value = i;
                      document.getElementById("dirEnd").lastChild.value = j;
-                     i = n+1; // ugly force out of outer loop
+                     i = n + 1; // ugly force out of outer loop,  being lazy.
                      break;
                   }
 
@@ -379,17 +407,17 @@ Konva.Vector = class myvect extends Konva.Group {
       var dx = headpos.x - tailpos.x
       var dy = headpos.y - tailpos.y
       var theta = Math.atan2(dy, dx)
-    //  this.arrow.rotation(theta * 180 / Math.PI)
+      //  this.arrow.rotation(theta * 180 / Math.PI)
       dx = 70 * Math.cos(theta)
       dy = 70 * Math.sin(theta)
 
-      return { dx: dx, dy: dy, theta:theta*180/Math.PI }
+      return { dx: dx, dy: dy, theta: theta * 180 / Math.PI }
 
    }
 
    handleStatusApply(me) {
+      // the callback when Apply is clicked in the statup box
 
-      // apply callback
       let hidx = Number(document.getElementById("headLoc").lastChild.value)
       let headPos = (hidx === 0 ? me.head.getAbsolutePosition() : _snaps.coords[hidx])
 
@@ -401,7 +429,6 @@ Konva.Vector = class myvect extends Konva.Group {
       if (sidx === 0 || eidx === 0) {
          // free orientation
          dxy = me.calcdxy(me.head.absolutePosition(), me.tail.absolutePosition())
-        
       } else {
          dxy = me.calcdxy(_snaps.coords[eidx], _snaps.coords[sidx])
 
@@ -420,11 +447,8 @@ Konva.Vector = class myvect extends Konva.Group {
    showControls(state) {
       this.head.visible(state);
       this.tail.visible(state);
-
-
-
-
    }
+
    isDirectionTowards(point) {
       // is the head closer to the point
       var head = this.head.getAbsolutePosition();
