@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<!--
+ FBD
+G. Mason
+12/26/2023
+
+-->
+<html>
+
+<head>
+   <meta charset="utf-8">
+   <title>Rocker</title>
+
+   <link rel="stylesheet" href="style.css">
+   <script src="https://unpkg.com/konva@9/konva.js"></script>
+   <script src="konvafbdBEZ.js" defer></script>
+
+</head>
+
+
+
+<body>
+   <div class="canvas" id="container" style="width:500px; height:500px;"></div>
+   <div id="xy">&nbsp;</div><br />
+   <div>
+      <p><button id="addVector">Add vector</button></p>
+      <p><button id="addCurve">Add curve</button> &nbsp<span style="font-size: small">(double-click node: end to add, large to delete, small to linearize)</span></p>
+      <p><button id="addUser">Add custom</button> &nbsp<span style="font-size: small">(double-click shape to
+            rotate)</span></p>
+
+
+      <p><button id="checkSolution">Check solution</button><span style="margin-left:50px;"></span>Show solution<input
+            type="checkbox" id="showSoln"></span>
+      </p>
+   </div>
+
+
+
+   <div style="margin-top:20px;">
+      <div style="width:600px; margin-bottom:5px;"> Model params: (<a href="importOptions.html"
+            target="_blank">Notes</a>)<button style="float:right;" id="updateModel">Update</button></span>
+      </div>
+      <textarea id="modelParams" rows="2" cols="80"></textarea>
+      <p>Model XML:</p>
+      <textarea id="modelXML" cols="500" wrap="hard" rows="15">
+         <zyAnimator id="82c72a9d-6e4d-4909-8a5c-9b8540f240e7" caption="Rocker2" height="500px" width="500px" made-with="2" selectedInstr="none" selectedObj="5 1 2 3 6" numObjsEverCreated="8" loadOnDemand="false" image-ids="1IBGirF9l52vFUqIwzrEsWA8Scqc53LkY,1VNYkKFmPZR1CmmQfecOw6JW06h5v9UNx,1oAKp7GqnkfB3jSLogL19rcM59I9CenE7,1qhR7CpJF32IePp1hxr7gPVcQYe7VBTCd">
+            <zyObjects><zyObject objNum="7" objType="box" objName="BoxArea" top="31px" left="16px" useConstrainedProportions="false" height="460px" width="460px" background-color="transparent" border-color="transparent" transformDeg="0"></zyObject><zyObject objNum="5" objType="box" objName="Reaction1" top="174px" left="42px" opacity="91" background-color="tan" useConstrainedProportions="false" height="172px" width="27px" border-color="transparent" transformDeg="180" solnType="AllInsideDirUnique" solnObj="vector">Reaction 1 </zyObject>
+               <zyObject objNum="8" objType="box" objName="Reaction2" top="174px" left="42px" opacity="91" background-color="tan" useConstrainedProportions="false" height="172px" width="27px" border-color="transparent" transformDeg="180" solnType="AllInsideDirUnique" solnObj="vector">Reaction 2</zyObject>
+               <zyObject objNum="1" objType="image" objName="Arm1a" top="253px" left="23px" useConstrainedProportions="true" constrainedProportionsHeight="17" constrainedProportionsWidth="130" googleDriveFileID="Images/Arm1a.svg" height="18px" width="130px" transformDeg="0"></zyObject><zyObject objNum="2" objType="image" objName="Arm1b" top="45px" left="30px" useConstrainedProportions="true" constrainedProportionsHeight="438" constrainedProportionsWidth="438" googleDriveFileID="Images/Arm1b.svg" height="438px" width="438px" transformDeg="0"></zyObject><zyObject objNum="3" objType="image" objName="Force" top="175px" left="39px" useConstrainedProportions="true" constrainedProportionsHeight="176" constrainedProportionsWidth="34" googleDriveFileID="Images/Force.svg" height="176px" width="34px" transformDeg="0"></zyObject><zyObject objNum="4" objType="image" objName="Base" top="241px" left="224px" useConstrainedProportions="true" constrainedProportionsHeight="112" constrainedProportionsWidth="104" googleDriveFileID="Images/Base.svg" height="112px" width="104px" transformDeg="0"></zyObject></zyObjects>
+            <zyGroups><zyGroup id="6" name="Group1" objectIds="5,1,2,3,7,8"></zyGroup></zyGroups>
+            <zyInstructions><zyInstruction instrType="step1"><text></text></zyInstruction><zyInstruction instrType="startStep"><text></text></zyInstruction></zyInstructions>
+            <zyAltDescription></zyAltDescription>
+            <solnList>vector,vector,vector,vector</solnList>
+            </zyAnimator>
+            </textarea>
+   </div>
+  
+
+   <!-- Status dialog box -->
+  <div id="status" style="display:none">
+   <div id="statusTitleBar"><span id="statusTitle"></span><button id="statusClose" style="float:right; padding:0; width:3ch;">x</button></div>
+   <div>
+      <span id="showCoords">Coordinates: <select name="coords" id="status_coords">
+      </select>
+      </span>
+      <button id="statusApply" class="apply">Apply</button>
+   </div>
+   <div>Name: <input id="item_name" type=text value="x"/></div>
+
+   <div id="paramsVector" class="status_params" style="display:none;">
+      <span id="headLoc">Location: </span>&nbsp;&nbsp;
+      <span id="dirStart">Direction: </span>
+      <span id="dirEnd"> </span>
+     <!-- <button id="showHT">H</button> <button id="showLT">L</button>
+      <span id="headtail" style="display:inline;">Head: <input id="arrow_head_x" type="number" />, <input
+            id="arrow_head_y" type="number" /><span style="padding-left: 20px;">Tail: </span><input id="arrow_tail_x"
+            type="number" />, <input id="arrow_tail_y" type="number" /></span>
+      -->
+   </div>
+
+   <div id="paramsCurve" class="status_params" style="display:none;">
+      <div style="height:60px; overflow-y:auto">
+         <div>N0: <input id="curve_x0" type="number" />, <input id="curve_y0" type="number" /> <button>-</button>
+         </div>
+         <div>N1: <input id="curve_x1" type="number" />, <input id="curve_y1" type="number" /> <button>-</button>
+         </div>
+         <div>N2: <input id="curve_x2" type="number" />, <input id="curve_y2" type="number" /> <button>+</button>
+         </div>
+      </div>
+   </div>
+
+
+</div>
+
+</body>
+
+
+
+</html>
+
+<!--
+
+    <zyObjects><zyObject objNum="7" objType="box" objName="Reaction3" top="163px" left="158px" opacity="50" background-color="tan" useConstrainedProportions="false" height="232px" width="26px" border-color="transparent" transformDeg="180" solnType="AllInside" solnObj="vector">Reaction 3</zyObject><zyObject objNum="8" objType="box" objName="Reaction1" top="174px" left="326px" opacity="50" background-color="tan" useConstrainedProportions="false" height="232px" width="26px" border-color="transparent" transformDeg="0" solnType="AllInside" solnObj="vector">Reaction 1</zyObject><zyObject objNum="9" objType="box" objName="Reaction2" top="173px" left="326px" opacity="50" background-color="tan" useConstrainedProportions="false" height="232px" width="26px" border-color="transparent" transformDeg="90" solnType="AllInside" solnObj="vector">Reaction 2</zyObject><zyObject objNum="10" objType="box" objName="Reaction4" top="11px" left="317px" opacity="50" background-color="tan" useConstrainedProportions="false" height="232px" width="26px" border-color="transparent" transformDeg="90" solnType="AllInside" solnObj="vector">Reaction 4</zyObject><zyObject objNum="5" objType="image" objName="Web" top="224px" left="268px" useConstrainedProportions="false" googleDriveFileID="Images/Web.svg" height="146px" width="146px" transformDeg="0"></zyObject><zyObject objNum="4" objType="image" objName="Arm1b" top="73px" left="124px" useConstrainedProportions="true" constrainedProportionsHeight="434" constrainedProportionsWidth="434" googleDriveFileID="Images/Arm 1b.png" height="434px" width="434px" transformDeg="0"></zyObject><zyObject objNum="3" objType="image" objName="Arm1a" top="73px" left="124px" useConstrainedProportions="true" constrainedProportionsHeight="434" constrainedProportionsWidth="434" googleDriveFileID="Images/Arm 1a.svg" height="434px" width="434px" transformDeg="0"></zyObject><zyObject objNum="2" objType="image" objName="Arm2b" top="73px" left="124px" useConstrainedProportions="true" constrainedProportionsHeight="434" constrainedProportionsWidth="434" googleDriveFileID="Images/Arm 2b.svg" height="434px" width="434px" transformDeg="0"></zyObject><zyObject objNum="6" objType="image" objName="Arm2a" top="73px" left="124px" useConstrainedProportions="true" constrainedProportionsHeight="434" constrainedProportionsWidth="434" googleDriveFileID="Images/Arm 2a.svg" height="434px" width="434px" transformDeg="0"></zyObject><zyObject objNum="1" objType="image" objName="Base" top="272px" left="322px" useConstrainedProportions="true" constrainedProportionsHeight="75" constrainedProportionsWidth="73" googleDriveFileID="Images/Base.svg" height="75px" width="73px" transformDeg="0"></zyObject></zyObjects>
+-->
+
+
+<!-- RAW animator file Last modified Wed Jan 31 2024 16:12:33 GMT-0800 (Pacific Standard Time) with canvas animator version -->
+<!--
+<zyAnimator id="b73468a7-2e5b-4bfb-a3c3-4b4df1390b8e" caption="Rocker" height="600px" width="720px" made-with="2" selectedInstr="1" selectedObj="7" numObjsEverCreated="10" loadOnDemand="false" image-ids="1rCZ7HN5MZoJtmvLLtElCSEw2cjzRbybF,1iFKeVYwoghU3FaMnlLz9-emgUAJECuMq,18_y2H8rBjaDKWYgwiYtfbSg09czQcZZg,16cWI6YoLZWwmv71Vw59QdsbT-f-Rg9BL,1wu-3Y56t_eQJe_V4mg6s4QlW4_ztsUTP,13vLp2JuuNxtAl-UQAVS9P8qIU97_Ws-u">
+<zyObjects><zyObject objNum="7" objType="box" objName="Reaction3" top="163px" left="158px" opacity="50" background-color="tan" useConstrainedProportions="false" height="232px" width="26px" border-color="transparent" transformDeg="180"></zyObject><zyObject objNum="8" objType="box" objName="Reaction1" top="174px" left="326px" opacity="50" background-color="tan" useConstrainedProportions="false" height="232px" width="26px" border-color="transparent" transformDeg="0"></zyObject><zyObject objNum="9" objType="box" objName="Reaction2" top="173px" left="326px" opacity="50" background-color="tan" useConstrainedProportions="false" height="232px" width="26px" border-color="transparent" transformDeg="90"></zyObject><zyObject objNum="10" objType="box" objName="Reaction4" top="11px" left="317px" opacity="50" background-color="tan" useConstrainedProportions="false" height="232px" width="26px" border-color="transparent" transformDeg="90"></zyObject><zyObject objNum="5" objType="image" objName="Web" top="224px" left="268px" useConstrainedProportions="false" googleDriveFileID="1rCZ7HN5MZoJtmvLLtElCSEw2cjzRbybF" height="146px" width="146px" transformDeg="0"></zyObject><zyObject objNum="4" objType="image" objName="Arm1b" top="73px" left="124px" useConstrainedProportions="true" constrainedProportionsHeight="434" constrainedProportionsWidth="434" googleDriveFileID="1iFKeVYwoghU3FaMnlLz9-emgUAJECuMq" height="434px" width="434px" transformDeg="0"></zyObject><zyObject objNum="3" objType="image" objName="Arm1a" top="73px" left="124px" useConstrainedProportions="true" constrainedProportionsHeight="434" constrainedProportionsWidth="434" googleDriveFileID="18_y2H8rBjaDKWYgwiYtfbSg09czQcZZg" height="434px" width="434px" transformDeg="0"></zyObject><zyObject objNum="2" objType="image" objName="Arm2b" top="73px" left="124px" useConstrainedProportions="true" constrainedProportionsHeight="434" constrainedProportionsWidth="434" googleDriveFileID="16cWI6YoLZWwmv71Vw59QdsbT-f-Rg9BL" height="434px" width="434px" transformDeg="0"></zyObject><zyObject objNum="6" objType="image" objName="Arm2a" top="73px" left="124px" useConstrainedProportions="true" constrainedProportionsHeight="434" constrainedProportionsWidth="434" googleDriveFileID="1wu-3Y56t_eQJe_V4mg6s4QlW4_ztsUTP" height="434px" width="434px" transformDeg="0"></zyObject><zyObject objNum="1" objType="image" objName="Base" top="272px" left="322px" useConstrainedProportions="true" constrainedProportionsHeight="75" constrainedProportionsWidth="73" googleDriveFileID="13vLp2JuuNxtAl-UQAVS9P8qIU97_Ws-u" height="75px" width="73px" transformDeg="0"></zyObject></zyObjects>
+<zyGroups></zyGroups>
+<zyInstructions><zyInstruction instrType="step1"><text>Arm1 length</text></zyInstruction><zyInstruction instrType="startStep"><text></text></zyInstruction></zyInstructions>
+<zyAltDescription>undefined</zyAltDescription>
+</zyAnimator>
+
+
+
+
+
+
+<zyAnimator id="82c72a9d-6e4d-4909-8a5c-9b8540f240e7" caption="Rocker2" height="500px" width="500px" made-with="2" selectedInstr="none" selectedObj="none" numObjsEverCreated="8" loadOnDemand="false" image-ids="1IBGirF9l52vFUqIwzrEsWA8Scqc53LkY,1VNYkKFmPZR1CmmQfecOw6JW06h5v9UNx,1oAKp7GqnkfB3jSLogL19rcM59I9CenE7,1qhR7CpJF32IePp1hxr7gPVcQYe7VBTCd">
+   <zyObjects><zyObject objNum="7" objType="box" objName="BoxArea" isLocked="true" top="31px" left="16px" useConstrainedProportions="false" height="460px" width="460px" border-color="black" transformDeg="0"></zyObject><zyObject objNum="8" objType="box" objName="box: 4" top="94px" left="82px" background-color="yellow" useConstrainedProportions="false" height="321px" width="337px" border-color="black" transformDeg="0"></zyObject><zyObject objNum="5" objType="box" objName="Reaction1" isLocked="true" top="174px" left="42px" opacity="91" background-color="tan" useConstrainedProportions="false" height="172px" width="27px" border-color="transparent" transformDeg="0"></zyObject><zyObject objNum="1" objType="image" objName="Arm1a" isLocked="true" top="254px" left="23px" useConstrainedProportions="true" constrainedProportionsHeight="17" constrainedProportionsWidth="130" googleDriveFileID="1IBGirF9l52vFUqIwzrEsWA8Scqc53LkY" height="17px" width="130px" transformDeg="0"></zyObject><zyObject objNum="2" objType="image" objName="Arm1b" isLocked="true" top="45px" left="62px" useConstrainedProportions="true" constrainedProportionsHeight="438" constrainedProportionsWidth="438" googleDriveFileID="1VNYkKFmPZR1CmmQfecOw6JW06h5v9UNx" height="438px" width="438px" transformDeg="0"></zyObject><zyObject objNum="3" objType="image" objName="Force" isLocked="true" top="175px" left="39px" useConstrainedProportions="true" constrainedProportionsHeight="176" constrainedProportionsWidth="34" googleDriveFileID="1oAKp7GqnkfB3jSLogL19rcM59I9CenE7" height="176px" width="34px" transformDeg="0"></zyObject><zyObject objNum="4" objType="image" objName="Base" isLocked="true" top="241px" left="224px" useConstrainedProportions="true" constrainedProportionsHeight="112" constrainedProportionsWidth="104" googleDriveFileID="1qhR7CpJF32IePp1hxr7gPVcQYe7VBTCd" height="112px" width="104px" transformDeg="0"></zyObject></zyObjects>
+   <zyGroups><zyGroup id="6" name="Group1" objectIds="5,1,2,3"></zyGroup></zyGroups>
+   <zyInstructions><zyInstruction instrType="step1"><text></text></zyInstruction><zyInstruction instrType="startStep"><text></text></zyInstruction></zyInstructions>
+   <zyAltDescription></zyAltDescription>
+   </zyAnimator>
+-->
