@@ -1,0 +1,375 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Keyboards</title>
+  <script src="https://unpkg.com/mathlive"></script>
+  <style>
+    li {
+      margin:5px;
+    }
+  </style>
+</head>
+
+<body>
+  <math-field id="mf" style="width:600px;  font-size:1.3em"></math-field>
+
+  <p>
+    <a href="https://cortexjs.io/mathfield/guides/virtual-keyboard#defining-custom-layouts" target="_blank">Cortexjs
+      virtual keyboard documentation</a>
+  </p>
+  <p>
+    Notes: 
+    <ol>
+      <li>
+        The layouts below are for Nise and Groover. The additional Moran and LSaS layouts should be verified by their assigned authors.
+      </li>
+      <li>
+        Do we want the keyboard layouts to have the same key layout pattern for all books, or for all layouts within a book?
+      </li>
+      <li>
+        Use \bar  or  \overline?  I like the look of \overline better but \bar better matches the desired semantics.
+      </li>
+      <li>
+        Should we allow the default shift operators, Ex: '[1]' or use '1'.  The keyboards below use the default [*] for some key, 
+        like number keys, so have additional actions if you hold down the shift or long press the key.
+      </li>
+      <li>
+        The create matrix button, <b>M</b>, in Nise should open a dialog that lets you create a matrix of arbitrary size - up to a reasonable size. Options are:
+        <ol type="a">
+          <li>
+            Open the default mathfield matrix menu.
+          </li>
+          <li>
+            Use keyboard variants so the user press and holds the key for options.
+          </li>
+          <li>
+            Create a separate Matrix layout with keys for common matrix sizes.
+          </li>
+          <li>
+            Use the "Arrays" commands to let users build arrays in the edit field.
+          </li>
+
+        </ol> 
+
+      </li>
+  
+    </ol>
+
+  </p>
+  <script>
+
+
+    /* Notes:
+      1.  Do we want the keyboard layouts to have the same key pattern within a book
+      2.  Use \bar  or  \overline.  I like the look of \overline better but \bar better matches the desired semantics
+      3.  Should we allow the default shift operators, Ex: [1]. an alternate is to use 
+      4.  Create matrix opens dialog that lets you create matrix of arbitrary size up to 5x5, as in the default mathfield matrix menu
+          or we could create a common matrix keyboard with row, column and square matrices  2x2 to 4x4
+    
+    */
+
+  // ============= Signals ==============
+
+  lsas1 = {
+      label: 'LSaS: 123',
+      rows: [
+        [  // row 1
+          '\\pi', 'j', { label: '[separator]', width: 0.5 },
+          '[7]', '[8]', '[9]', '[/]', { label: '[separator]', width: 0.5 },
+          { latex: '\\ {#@}_{#0}' }, { latex: '\\ {#@}^{#0}' }, { class: 'small', latex: '\\frac{#@}{#0}' },
+        ],
+
+        [ // row 2
+          { latex: '^\\circ', aside: 'degree' }, '[separator]', { label: '[separator]', width: 0.5 },
+          '[4]', '[5]', '[6]', '[*]', { label: '[separator]', width: 0.5 },
+          { latex: '\\sqrt', insert: '\\sqrt{#0}' }, { latex: 'e^x', insert: 'e^{#0}', shift: { latex: '\\ln', insert: '\\ln{#0}' } },
+          { latex: '10^x', insert: '10^{#0}', shift: { latex: '\\log', insert: '\\log{#0}' } }
+        ],
+        [ // row 3
+        { latex: '\\angle', aside: 'angle' }, {latex:'|#0|', aside:'magnitude'}, { label: '[separator]', width: 0.5 },
+          '[1]', '[2]', '[3]', '[-]', { label: '[separator]', width: 0.5 },
+          { latex: '\\sin', insert: '\\sin{#0}', shift: { latex: '\\sin^{-1}', insert: '\\sin^{-1}{#0}' } },
+          { latex: '\\cos', insert: '\\cos{#0}', shift: { latex: '\\cos^{-1}', insert: '\\cos^{-1}{#0}' } },
+          { latex: '\\tan', insert: '\\tan{#0}', shift: { latex: '\\tan^{-1}', insert: '\\tan^{-1}{#0}' } }
+          // '\\bar{#@}', '\\dot{#@}', { latex: '10^{#0}', insert: '\\times 10^{#0}' }
+
+        ],
+        [ // row 4
+          { latex: '\\times 10^n}', insert: '\\times 10^{#0}' }, '[=]', { label: '[separator]', width: 0.5 },
+          '[0]', '[.]', ',', '[+]', { label: '[separator]', width: 0.5 },
+          '[left]', '[right]', { label: '[backspace]', width: 1 }
+        ],
+      ],
+    };
+
+    lsas2 = {
+      label: 'LSaS: <i>&int; dt</i>',
+      rows: [
+        [  // row 1
+          { latex: '\\frac{d^n}{dt^n}', insert: '\\frac{d^{#0}}{dt^{#0}}#0' }, { class: 'small', latex: '\\int_a^b', insert: '\\int_{#0}^{#0}#0' }, { label: '[separator]', width: 0.5 },
+          '\\mathbf{x}', '\\mathbf{y}',{ latex: '\\mathbf{M}^{-1}', insert: '(#0)^{-1}', aside: 'inverse' }, '\\mathbf{\\Phi}', { label: '[separator]', width: 0.5 },
+          '\\theta', '\\phi', '\\gamma'
+        ],
+
+        [ // row 2
+          { class: 'small', latex: '\\sum', insert: '\\sum{#0}' }, { class: 'small', latex: '\\prod', insert: '\\prod{#0}' }, { label: '[separator]', width: 0.5 },
+          '\\mathbf{A}', '\\mathbf{B}', '\\mathbf{C}', '\\mathbf{D}', { label: '[separator]', width: 0.5 },
+          '\\omega', '\\zeta', '\\lambda'
+        ],
+        [ // row 3
+          { latex: '\\mathscr{L~~~~}', insert: '\\mathscr{L}{#0}', shift: { latex: '\\mathscr{L}^{-1}', insert: '\\mathscr{L}^{-1}{#0}' } },
+          { latex: '\\mathcal{Z}~~~~', insert: '\\mathcal{Z}{#0}', shift: { latex: '\\mathcal{Z}^{-1}', insert: '\\mathcal{Z}^{-1}{#0}' } }, { label: '[separator]', width: 0.5 },
+          {latex:'\\mathbf{M}',aside:'create matrix', insert:'\\begin{pmatrix}#0 & #0 \\\\ #0 & #0 \\end{pmatrix}'}, '\\rightarrow', '\\infty', '\\%', { label: '[separator]', width: 0.5 },
+          '\\alpha', '\\beta', '\\Omega'
+          // '\\bar{#@}', '\\dot{#@}', { latex: '10^{#0}', insert: '\\times 10^{#0}' }
+
+        ],
+        [ // row 4
+          {latex:'\\delta'},'[separator]' , { label: '[separator]', width: 0.5 },
+          '[separator]', { latex: '\\ {#@}_{#0}' }, { latex: '\\ {#@}^{#0}' }, { class: 'small', latex: '\\frac{#@}{#0}' }, , { label: '[separator]', width: 0.5 },
+          '[left]', '[right]', { label: '[backspace]', width: 1 }
+          // '\\bar{#@}', '\\dot{#@}', { latex: '10^{#0}', insert: '\\times 10^{#0}' }
+
+        ]
+      ],
+    }
+
+    // ===============  Groover ==============
+    groover1 = {
+      label: 'Groover: 123',
+      rows: [
+        [  // row 1
+          '\\pi', { latex: '^\\circ', aside: 'degree' }, { label: '[separator]', width: 0.5 },
+          '[7]', '[8]', '[9]', '[/]', { label: '[separator]', width: 0.5 },
+          { latex: '\\ {#@}_{#0}' }, { latex: '\\ {#@}^{#0}' }, { class: 'small', latex: '\\frac{#@}{#0}' },
+        ],
+
+        [ // row 2
+          '\\overline{#@}', '#@^{\\prime}', { label: '[separator]', width: 0.5 },
+          '[4]', '[5]', '[6]', '[*]', { label: '[separator]', width: 0.5 },
+          { latex: '\\sqrt', insert: '\\sqrt{#0}' }, { latex: 'e^x', insert: 'e^{#0}' }, { latex: '\\ln', insert: '\\ln{#0}' },
+
+        ],
+        [ // row 3
+          '[(]', '[)]', { label: '[separator]', width: 0.5 },
+          '[1]', '[2]', '[3]', '[-]', { label: '[separator]', width: 0.5 },
+          { latex: '\\sin', insert: '\\sin{#0}' }, { latex: '\\cos', insert: '\\cos{#0}' }, { latex: '\\tan', insert: '\\tan{#0}' }
+
+        ],
+        [ // row 4
+          { latex: '\\times 10^n}', insert: '\\times 10^{#0}' }, '[=]', { label: '[separator]', width: 0.5 },
+          '[0]', '[.]', ',', '[+]', { label: '[separator]', width: 0.5 },
+          '[left]', '[right]', { label: '[backspace]', width: 1 }
+        ],
+      ],
+    };
+
+    groover2 = {
+      // Notes: the keyboard is not full.  Chose to use [separator]s so that groover1 and groover2 layout are the same key pattern
+      label: 'Groover: <i>&int; dt</i>',
+      rows: [
+        [  // row 1
+          { latex: '\\frac{d}{dt}', insert: '\\frac{d}{dt}#0' }, { latex: '\\dot{#@}' }, { label: '[separator]', width: 0.5 },
+          '\\sigma', '\\varepsilon', '\\tau', '\\gamma', { label: '[separator]', width: 0.5 },
+          '[separator]', '[separator]', '[separator]'
+        ],
+
+        [ // row 2
+          { class: 'small', latex: '\\sum', insert: '\\sum{#0}' }, { class: 'small', latex: '\\int_a^b', insert: '\\int_{#0}^{#0}#0' }, { label: '[separator]', width: 0.5 },
+          '\\eta', '\\phi', '\\theta', '\\rho', { label: '[separator]', width: 0.5 },
+          '[separator]', '[separator]', '[separator]'
+        ],
+        [ // row 3
+          '\\%', '\\$', { label: '[separator]', width: 0.5 },
+          '\\alpha', '\\beta', '\\delta', '\\mu', { label: '[separator]', width: 0.5 },
+          '[separator]', '[separator]', '[separator]'
+
+        ],
+        [ // row 4
+          '|#0|', '[separator]', { label: '[separator]', width: 0.5 },
+          '[separator]', { latex: '\\ {#@}_{#0}' }, { latex: '\\ {#@}^{#0}' }, { class: 'small', latex: '\\frac{#@}{#0}' }, , { label: '[separator]', width: 0.5 },
+          '[left]', '[right]', { label: '[backspace]', width: 1 }
+
+        ]
+      ],
+    }
+
+
+
+    // ===============  Nise ==============
+    nise1 = {
+      label: 'Nise: 123',
+      rows: [
+        [  // row 1
+          '\\pi', 'j', { label: '[separator]', width: 0.5 },
+          '[7]', '[8]', '[9]', '[/]', { label: '[separator]', width: 0.5 },
+          { latex: '\\ {#@}_{#0}' }, { latex: '\\ {#@}^{#0}' }, { class: 'small', latex: '\\frac{#@}{#0}' },
+        ],
+
+        [ // row 2
+        { latex: '\\angle', aside: 'angle' }, {latex:'|#0|', aside:'magnitude'}, { label: '[separator]', width: 0.5 },
+         // { latex: '^\\circ', aside: 'degree' }, '\\%', { label: '[separator]', width: 0.5 },
+          '[4]', '[5]', '[6]', '[*]', { label: '[separator]', width: 0.5 },
+          { latex: '\\sqrt', insert: '\\sqrt{#0}' }, { latex: 'e^x', insert: 'e^{#0}', shift: { latex: '\\ln', insert: '\\ln{#0}' } },
+          { latex: '10^x', insert: '10^{#0}', shift: { latex: '\\log', insert: '\\log{#0}' } }
+        ],
+        [ // row 3
+          '[(]', '[)]',  { label: '[separator]', width: 0.5 },
+          '[1]', '[2]', '[3]', '[-]', { label: '[separator]', width: 0.5 },
+          { latex: '\\sin', insert: '\\sin{#0}', shift: { latex: '\\sin^{-1}', insert: '\\sin^{-1}{#0}' } },
+          { latex: '\\cos', insert: '\\cos{#0}', shift: { latex: '\\cos^{-1}', insert: '\\cos^{-1}{#0}' } },
+          { latex: '\\tan', insert: '\\tan{#0}', shift: { latex: '\\tan^{-1}', insert: '\\tan^{-1}{#0}' } }
+          // '\\bar{#@}', '\\dot{#@}', { latex: '10^{#0}', insert: '\\times 10^{#0}' }
+
+        ],
+        [ // row 4
+          { latex: '\\times 10^n}', insert: '\\times 10^{#0}' }, '[=]', { label: '[separator]', width: 0.5 },
+          '[0]', '[.]', ',', '[+]', { label: '[separator]', width: 0.5 },
+          '[left]', '[right]', { label: '[backspace]', width: 1 }
+        ],
+      ],
+    };
+
+    nise2 = {
+      label: 'Nise: <i>&int; dt</i>',
+      rows: [
+        [  // row 1
+          { latex: '\\frac{d^n}{dt^n}', insert: '\\frac{d^{#0}}{dt^{#0}}#0' }, { class: 'small', latex: '\\int_a^b', insert: '\\int_{#0}^{#0}#0' }, { label: '[separator]', width: 0.5 },
+           {latex:'\\mathbf{M}',aside:'create matrix', insert:'\\begin{pmatrix}#0 & #0 \\\\ #0 & #0 \\end{pmatrix}'},{ latex: '\\mathrm{det}\\,\\mathbf{M}', insert: '\\mathrm{det}(#0)', aside:'determinate' }, 
+              { latex: '\\mathbf{M}^{-1}', insert: '(#0)^{-1}', aside: 'inverse' },'[separator]',{ label: '[separator]', width: 0.5 },
+          {latex:'\\theta', shift:'\\alpha'}, {latex:'\\phi', shift:'\\beta'}, '\\gamma'
+        ],
+
+        [ // row 2
+          { class: 'small', latex: '\\sum', insert: '\\sum{#0}' }, { class: 'small', latex: '\\prod', insert: '\\prod{#0}' }, { label: '[separator]', width: 0.5 },
+          '\\mathbf{A}', '\\mathbf{B}', '\\mathbf{C}', '\\mathbf{D}', { label: '[separator]', width: 0.5 },
+          '\\omega', '\\zeta', '\\lambda'
+        ],
+        [ // row 3
+          { latex: '\\mathscr{L~~~~}', insert: '\\mathscr{L}{#0}', shift: { latex: '\\mathscr{L}^{-1}', insert: '\\mathscr{L}^{-1}{#0}' } },
+             { latex: '\\mathcal{Z}~~~~', insert: '\\mathcal{Z}{#0}', shift: { latex: '\\mathcal{Z}^{-1}', insert: '\\mathcal{Z}^{-1}{#0}' } },
+             { label: '[separator]', width: 0.5 },
+          '\\mathbf{\\Phi}', '\\mathbf{I}', '\\mathbf{x}', '\\mathbf{y}',  {label: '[separator]', width: 0.5 },
+           { latex: '^\\circ', aside: 'degree' }, '\\%', {latex:'\\delta',shift:'\\Delta'} 
+          // '\\bar{#@}', '\\dot{#@}', { latex: '10^{#0}', insert: '\\times 10^{#0}' }
+
+        ],
+        [ // row 4
+        { latex: '\\lim', insert: '\\lim_{#0}'}, '\\rightarrow', {label: '[separator]', width: 0.5 },
+          '\\infty', { latex: '\\ {#@}_{#0}' }, { latex: '\\ {#@}^{#0}' }, { class: 'small', latex: '\\frac{#@}{#0}' }, , { label: '[separator]', width: 0.5 },
+          '[left]', '[right]', { label: '[backspace]', width: 1 }
+          // '\\bar{#@}', '\\dot{#@}', { latex: '10^{#0}', insert: '\\times 10^{#0}' }
+
+        ]
+      ],
+    }
+
+
+
+    // ===============  Moran ==============
+    moran1 = {
+      label: 'Moran: 123',
+      rows: [
+        [  // row 1
+          '<', '>', { label: '[separator]', width: 0.5 },
+          '[7]', '[8]', '[9]', '[/]', { label: '[separator]', width: 0.5 },
+          { class: 'small', latex: '\\frac{#@}{#0}' }, { class: 'small', latex: '|{\\frac{#@}{#0}}|' }, '[separator]'
+        ],
+
+        [ // row 2
+          '[(]', '[)]', { label: '[separator]', width: 0.5 },
+          '[4]', '[5]', '[6]', '[*]', { label: '[separator]', width: 0.5 },
+          { latex: '\\ {#@}_{#0}' }, { latex: '\\ {#@}^{#0}' }, '[separator]'
+        ],
+        [ // row 3
+          '\\approx', { latex: '\\cdot', aside: 'center dot' }, { label: '[separator]', width: 0.5 },
+          '[1]', '[2]', '[3]', '[-]', { label: '[separator]', width: 0.5 },
+          '\\bar{#@}', '\\dot{#@}', { latex: '10^{#0}', insert: '\\times 10^{#0}' }
+
+        ],
+        [ // row 4
+          '\\ne', '[=]', { label: '[separator]', width: 0.5 },
+          '[0]', '[.]', ',', '[+]', { label: '[separator]', width: 0.5 },
+          '[left]', '[right]', { label: '[backspace]', width: 1 }
+        ],
+      ],
+    };
+
+    // Moran's 2nd keyboard
+    // This keyboard allows use of custome styling.  The .xsmall 
+    moran2 = {
+      label: 'Moran: <i>&alpha;&beta;&eta;</i>',
+      rows: [
+        [  // row 1
+          { latex: '\\beta', aside: 'beta' }, { latex: '\\delta', aside: 'delta' }, '\\Delta', { latex: '\\eta', aside: 'eta' }, { label: '[separator]', width: 0.5 },
+          '\\pi', { latex: '^\\circ', aside: 'degree' }, '\\sqrt{#@}', '\\ln{#@}', '\\log{#@}'
+        ],
+        [  // row 2
+          { label: '[separator]', width: 0.5 }, { latex: '\\gamma', aside: 'gamma' }, { latex: '\\rho', aside: 'rho' }, { latex: '\\sigma', aside: 'sigma' }, { label: '[separator]', width: 1 },
+          '\\Sigma', '\\$', { class: 'small', latex: '\\int_{#0}^{#0}' }, { latex: 'e^{#@}' }, '[separator]'
+        ],
+        [ // row 3  // can't get the spacing correct, this is close
+          '[separator]', '[separator]', '[separator]', '[separator]', { label: '[separator]', width: 4.5 },  // width 4.5 doesn't work?  bug?
+          { class: 'action', latex: 'A\\rightarrow\\mathbf{A}', insert: '\\mathbf{#@}', aside: 'not working' },
+          '[left]', '[right]', { label: '[backspace]', width: 1 }
+        ],
+      ],
+
+    }
+
+    // ============================================
+    // ============= More examples ================
+
+    // other examples of keys that may be useful 
+  
+    example1 = {
+      label: 'Examples',
+      rows: [
+        [  // row 1
+          '[7]', '[8]', '[9]', '[+]',   // enclosing in [ ]  gives special properties with the shift.  See  https://cortexjs.io/mathfield/guides/virtual-keyboard#keycap-shortcuts
+          { label: '[separator]', width: 0.5 },
+          { latex: '\\frac{#@}{#0}' }, { latex: '\\ {#@}_{#0}' },  // fraction and substript examples  See https://cortexjs.io/mathfield/guides/virtual-keyboard#placeholder-tokens
+          '\\varnothing', '\\infty', '\\in',
+          '[separator]',
+        ],
+        [ // row 2
+          '[4]', '[5]', '[6]', '[-]',
+          { label: '[separator]', width: 0.5 },  // a 1/2 key width space
+          '[(]', '[)]', '\\lt', '\\le', { label: '[shift]', width: 2 },  // double width Shift key 
+        ],
+        [ // row 3
+          '[1]', '[2]', '[3]', '\\cdot',
+          { label: '[separator]', width: 0.5 },
+          '[', ']', '\\gt', '\\ge',
+          { label: '[backspace]', width: 2 },
+        ],
+        [ // row 4
+          { label: '[0]', width: 2 }, '[.]', '\\colon',
+          { label: '[separator]', width: 0.5 },
+          { latex: 'A', shift: '\\mathbf{A}' },   // shift key options
+          { latex: "a", variants: ["A", "\\mathbf{a}", "\\alpha", "\\Alpha"], aside: "A, α" },  // variants if you hold down the key
+          '=', '\\ne', '[left]', '[right]',  //  variants (press and hold)
+        ],
+      ],
+    };
+
+
+
+
+    // ======= Layouts used in the keyboard ====== 
+    mathVirtualKeyboard.layouts = [nise1, nise2, groover1, groover2, lsas1, lsas2,moran1, moran2,]  // layouts as tabs
+
+    mf.mathVirtualKeyboardPolicy = "manual";
+    mathVirtualKeyboard.show();
+
+    // mf.addEventListener('input', evt => {
+    //   document.getElementById("output").innerHTML = evt.target.value; // console.log('Value:', evt.target.value)
+    //   }
+    // );
+
+  </script>
+</body>
+
+</html>
