@@ -355,11 +355,67 @@
       ],
     };
 
+// ===============  Gerhart ==============
+Gerhart1 = {
+      label: 'Gerhart:123',
+      rows: [
+      [  // row 1
+          '[separator]', '[separator]', { label: '[separator]', width: 0.5 },
+          '[separator]', '[separator]', '[separator]', '[separator]', { label: '[separator]', width: 0.5 },
+          { class: 'small', latex: '|{\\frac{#@}{#0}}|' }, '\\bar{#@}', '\\dot{#@}'
+        ],
 
+        [  // row 2
+          '<', '>', { label: '[separator]', width: 0.5 },
+          '[7]', '[8]', '[9]', '[/]', { label: '[separator]', width: 0.5 },
+          { class: 'small', latex: '\\frac{#@}{#0}' }, '\\bar{#@}', {latex: '#@^\\prime'}
+        ],
 
+        [ // row 3
+          '[(]', '[)]', { label: '[separator]', width: 0.5 },
+          '[4]', '[5]', '[6]', '[*]', { label: '[separator]', width: 0.5 },
+          { latex: '\\ {#@}_{#0}' }, { latex: '\\ {#@}^{#0}' }, { latex: '10^{#0}', insert: '\\times 10^{#0}' }
+        ],
+        [ // row 4
+          '\\approx', { latex: '\\cdot', aside: 'center dot' }, { label: '[separator]', width: 0.5 },
+          '[1]', '[2]', '[3]', '[-]', { label: '[separator]', width: 0.5 },
+          { latex: '\\sin', insert: '\\sin{#0}' }, { latex: '\\cos', insert: '\\cos{#0}' }, { latex: '\\tan', insert: '\\tan{#0}' }
+          
+        ],
+        [ // row 5
+          '\\ne', '[=]', { label: '[separator]', width: 0.5 },
+          '[0]', '[.]', ',', '[+]', { label: '[separator]', width: 0.5 },
+          '[left]', '[right]', { label: '[backspace]', width: 1 }
+        ],
+      ],
+    };
+
+    // ===============  Gerhart ==============
+Gerhart2 = {
+      label: 'Gerhart:<i>&alpha;&beta;&eta;</i>',
+      rows: [
+        [  // row 1
+          { latex: '\\beta', aside: 'beta' }, { latex: '\\delta', aside: 'delta' }, '\\Delta', { latex: '\\eta', aside: 'eta' }, { latex: '\\alpha', aside: 'alpha' },
+          '\\pi', { latex: '^\\circ', aside: 'degree' }, '\\sqrt{#@}', '\\ln{#@}', '\\log{#@}'
+        ],
+        [  // row 2
+          { latex: '\\gamma', aside: 'gamma' }, { latex: '\\rho', aside: 'rho' },  {latex: '\\nabla', aside: 'nabla' }, { latex: '\\sigma', aside: 'sigma' }, { latex: '\\beta', aside: 'beta' }, { latex: '\\Kappa', aside: 'Kappa' },
+          { latex: '\\partial', aside: 'partial' }, { class: 'small', latex: '\\int_{#0}^{#0}' }, { latex: 'e^{#@}' }, '[separator]'
+        ],
+        [  // row 3
+        { latex: '\\nu', aside: 'nu' }, { latex: '\\mu', aside: 'mu' }, , { latex: '\\omega', aside: 'omega' },
+        { latex: '\\epsilon', aside: 'epsilon' }, { latex: '\\tau', aside: 'tau' },{ latex: '\\upsilon', aside: 'upsilon' },{ class: 'small', latex: '\\prod', insert: '\\prod{#0}' }, '[separator]'
+        ],
+        [ // row 4  
+          { latex: '\\mathcal D', aside: 'mathcal D' }, { latex: '\\mathcal L', aside: 'mathcal L' }, { latex: '\\mathcal R', aside: 'mathcal R' }, { class: 'action', latex: 'A\\rightarrow\\mathbf{A}', insert: '\\mathbf{#@}', aside: 'not working' },
+          '[left]', '[right]', { label: '[backspace]', width: 1 }, '[separator]'
+        ],
+      ],
+
+    }
 
     // ======= Layouts used in the keyboard ====== 
-    mathVirtualKeyboard.layouts = [nise1, nise2, groover1, groover2, lsas1, lsas2,moran1, moran2,]  // layouts as tabs
+    mathVirtualKeyboard.layouts = [Gerhart1, Gerhart2, nise1, nise2, groover1, groover2, lsas1, lsas2,moran1, moran2]  // layouts as tabs
 
     mf.mathVirtualKeyboardPolicy = "manual";
     mathVirtualKeyboard.show();
