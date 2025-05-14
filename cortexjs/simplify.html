@@ -1,1 +1,137 @@
+<!doctype html>
+<html>
 
+<head>
+    <meta charset="utf-8" />
+    <title>Keyboards</title>
+    <script src="https://unpkg.com/mathlive"></script>
+    <style>
+        li {
+            margin: 5px;
+        }
+        .output {
+            margin-top:10px;
+        }
+        .inline {
+            display:inline-block;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="main">
+        <math-field id="mf" style="width:600px;  font-size:1.3em"></math-field>
+        <button id="parse">Parse</button>
+        <div class="output">Raw: <div class="inline" id="raw"></div> &rarr; <div class="inline" id="rawLatex"></div> </div>
+        <!-- <div class="output">Canonical: <span id="canonical"> </span></div> -->
+        <div class="output">Simplified: <div class="inline"  id="simplified"> </div> &rarr; <div class="inline" id="simplifiedLatex"></div> </div>
+    </div>
+
+    <!-- Keyboard layout-->
+    <script>
+        // ===============  Nise ==============
+        nise1 = {
+            label: 'Nise: 123',
+            rows: [
+                [  // row 1
+                    '\\pi', 'j', { label: '[separator]', width: 0.5 },
+                    '[7]', '[8]', '[9]', '[/]', { label: '[separator]', width: 0.5 },
+                    { latex: '\\ {#@}_{#0}' }, { latex: '\\ {#@}^{#0}' }, { class: 'small', latex: '\\frac{#@}{#0}' },
+                ],
+
+                [ // row 2
+                    { latex: '\\angle', aside: 'angle' }, { latex: '|#0|', aside: 'magnitude' }, { label: '[separator]', width: 0.5 },
+                    // { latex: '^\\circ', aside: 'degree' }, '\\%', { label: '[separator]', width: 0.5 },
+                    '[4]', '[5]', '[6]', '[*]', { label: '[separator]', width: 0.5 },
+                    { latex: '\\sqrt', insert: '\\sqrt{#0}' }, { latex: 'e^{#0}', insert: 'e^{#0}', shift: { latex: '\\ln', insert: '\\ln{#0}' } },
+                    { latex: '10^x', insert: '10^{#0}', shift: { latex: '\\log', insert: '\\log{#0}' } }
+                ],
+                [ // row 3
+                    '[(]', '[)]', { label: '[separator]', width: 0.5 },
+                    '[1]', '[2]', '[3]', '[-]', { label: '[separator]', width: 0.5 },
+                    { latex: '\\sin', insert: '\\sin{#0}', shift: { latex: '\\sin^{-1}', insert: '\\sin^{-1}{#0}' } },
+                    { latex: '\\cos', insert: '\\cos{#0}', shift: { latex: '\\cos^{-1}', insert: '\\cos^{-1}{#0}' } },
+                    { latex: '\\tan', insert: '\\tan{#0}', shift: { latex: '\\tan^{-1}', insert: '\\tan^{-1}{#0}' } }
+                    // '\\bar{#@}', '\\dot{#@}', { latex: '10^{#0}', insert: '\\times 10^{#0}' }
+
+                ],
+                [ // row 4
+                    { latex: '\\times 10^n}', insert: '\\times 10^{#0}' }, '[=]', { label: '[separator]', width: 0.5 },
+                    '[0]', '[.]', ',', '[+]', { label: '[separator]', width: 0.5 },
+                    '[left]', '[right]', { label: '[backspace]', width: 1 }
+                ],
+            ],
+        };
+
+        nise2 = {
+            label: 'Nise: <i>&int; dt</i>',
+            rows: [
+                [  // row 1
+                    { latex: '\\frac{d^{#0}}{dt^{#0}}', insert: '\\frac{d^{#0}}{dt^{#0}}{#0}' }, { class: 'small', latex: '\\int_{#0}^{#0}', insert: '\\int_{#0}^{#0}{#0}' }, { class: 'small', latex: '\\int', insert: '\\int{#0}' }, { label: '[separator]', width: 0.5 },
+                    { latex: '\\mathbf{M}', aside: 'create matrix', insert: '\\begin{pmatrix}#0 & #0 \\\\ #0 & #0 \\end{pmatrix}' }, { latex: '\\mathrm{det}\\,\\mathbf{M}', insert: '\\mathrm{det}(#0)', aside: 'determinate' },
+                    { latex: '\\mathbf{M}^{-1}', insert: '#@^{-1}', aside: 'inverse' }, '[separator]', { label: '[separator]', width: 0.5 },
+                    { latex: '\\theta', shift: '\\alpha' }, { latex: '\\phi', shift: '\\beta' }, '\\gamma'
+                ],
+
+                [ // row 2
+                    { class: 'small', latex: '\\sum_{#0}^{#0}{#0}' }, { class: 'small', latex: '\\prod', insert: '\\prod{#0}' }, { label: '[separator]', width: 0.5 },
+                    '\\mathbf{A}', '\\mathbf{B}', '\\mathbf{C}', '\\mathbf{D}', { label: '[separator]', width: 0.5 },
+                    '\\omega', '\\zeta', '\\lambda'
+                ],
+                [ // row 3
+                    { latex: '\\mathscr{L~~~~}', insert: '\\mathscr{L}{#0}', shift: { latex: '\\mathscr{L}^{-1}', insert: '\\mathscr{L}^{-1}{#0}' } },
+                    { latex: '\\mathcal{Z}~~~~', insert: '\\mathcal{Z}{#0}', shift: { latex: '\\mathcal{Z}^{-1}', insert: '\\mathcal{Z}^{-1}{#0}' } },
+                    { label: '[separator]', width: 0.5 },
+                    '\\mathbf{\\Phi}', '\\mathbf{I}', '\\mathbf{x}', '\\mathbf{y}', { label: '[separator]', width: 0.5 },
+                    { latex: '^\\circ', aside: 'degree' }, '\\%', { latex: '\\delta', shift: '\\Delta' }
+                    // '\\bar{#@}', '\\dot{#@}', { latex: '10^{#0}', insert: '\\times 10^{#0}' }
+
+                ],
+                [ // row 4
+                    { latex: '\\lim_{#0}', insert: '\\lim_{#0}{#0}' }, '\\rightarrow', { label: '[separator]', width: 0.5 },
+                    '\\infty', { latex: '\\ {#@}_{#0}' }, { latex: '\\ {#@}^{#0}' }, { class: 'small', latex: '\\frac{#@}{#0}' }, , { label: '[separator]', width: 0.5 },
+                    '[left]', '[right]', { label: '[backspace]', width: 1 }
+                    // '\\bar{#@}', '\\dot{#@}', { latex: '10^{#0}', insert: '\\times 10^{#0}' }
+
+                ]
+            ],
+        }
+
+        // ======= Layouts used in the keyboard ====== 
+        mathVirtualKeyboard.layouts = [nise1, nise2]  // layouts as tabs
+        mf.mathVirtualKeyboardPolicy = "manual";
+        mathVirtualKeyboard.show();
+
+    </script>
+
+
+<!-- Cortexjs compute engine-->
+    <script type="module">
+        import { ComputeEngine } from "https://esm.run/@cortex-js/compute-engine";
+        import { renderMathInElement } from 'https://esm.run/mathlive';
+
+
+        const ce = new ComputeEngine();
+
+
+
+        document.getElementById("parse").addEventListener('click', evt => {
+            //console.log('value:', mf.value)
+            
+            const expr = mf.expression                  // raw expression
+            document.getElementById("raw").innerHTML = JSON.stringify(expr.toJSON())
+            document.getElementById("rawLatex").innerHTML= "$$"+expr.latex+"$$" 
+            renderMathInElement("rawLatex")
+
+            const exprS = expr.simplify().simplify()    // simplified version
+            document.getElementById("simplified").innerHTML = JSON.stringify(exprS.toJSON()) 
+            document.getElementById("simplifiedLatex").innerHTML= "$$"+exprS.latex+"$$" 
+            renderMathInElement("simplifiedLatex")
+        })
+
+        // ce.parse("e^{i\\pi}").evaluate().print();
+        // ➔ "-1"
+    </script>
+</body>
+
+</html>
