@@ -6,6 +6,7 @@
     <title>Keyboards</title>
     <script src="https://unpkg.com/mathlive"></script>
     <style>
+ 
         li {
             margin: 5px;
         }
@@ -55,16 +56,16 @@
         </div>
         <div style="margin-top:20px;">Weights:<br />
             <div class="weight"><input type="number" id="SYM" value="1"> Symbol </div>
-            <div class="weight"><input type="number" id="DEF" value="2"> Default </div>
             <div class="weight"><input type="number" id="ADD" value="3"> Add</div>
             <div class="weight"><input type="number" id="SUB" value="4"> Subtract, Negate </div>
             <div class="weight"><input type="number" id="SQR" value="3"> Square, Sqrt </div>
+            <div class="weight"><input type="number" id="PWR" value="0"> Power, Root  (if 0 ignore base) </div>
             <div class="weight"><input type="number" id="MUL" value="7"> Multiply </div>
             <div class="weight"><input type="number" id="DIV" value="8"> Divide </div>
             <div class="weight"><input type="number" id="LOG" value="9"> Ln, Exp, Log, Lb</div>
             <div class="weight"><input type="number" id="TRI" value="10"> Cos, Sin, Tan</div>
             <div class="weight"><input type="number" id="OTH" value="11"> Other</div>
-            <div>2  Floats,  n Integer with n digits</div>
+            <div>2:  Floats,  n: Integer with n digits</div>
         </div>
     </div>
 
@@ -155,9 +156,11 @@
         // cost function copied from computeEngine.  Modify as needed.
 
         function captureWeights(){
-            var weights = []
+            var weights = {}
            document.querySelectorAll(".weight").forEach(item => {
-                weights.push(Number(item.children[0].value))
+                //weights.push(Number(item.children[0].value))
+                const c = item.children[0] 
+                weights[c.id] = Number(c.value)
             })
 
             return  weights
@@ -190,7 +193,7 @@
             //
             // Symbols
             //
-            if (expr.symbol) return WTS[0] // 1;
+            if (expr.symbol) return WTS.SYM // 1;
 
             //
             //  Literal Numeric Values
@@ -201,18 +204,22 @@
             // Operators
             //
             const name = expr.operator;
-            let nameCost = WTS[1];
-            if (['Add'].includes(name)) nameCost = WTS[2] // 3;
-            else if (['Subtract', 'Negate'].includes(name)) nameCost = WTS[3] //4;
-            else if (['Square', 'Sqrt'].includes(name)) nameCost = WTS[4] //5;
-            else if (['Power', 'Root'].includes(name))
-                // We want 2q^2 to be less expensive than 2qq, so we ignore the exponent
-                return myCostFunction(expr.ops[1]);  // removed typescript null assertion (!)
-            else if (['Multiply'].includes(name)) nameCost = WTS[5] //7;
-            else if (['Divide'].includes(name)) nameCost = WTS[6] //8;
-            else if (['Ln', 'Exp', 'Log', 'Lb'].includes(name)) nameCost = WTS[7] //9;
-            else if (['Cos', 'Sin', 'Tan'].includes(name)) nameCost = WTS[8] //10;
-            else nameCost = WTS[9] //11;
+            let nameCost = 2 // initial value from cortexjs code, should never be used
+            if (['Add'].includes(name)) nameCost = WTS.ADD // 3;
+            else if (['Subtract', 'Negate'].includes(name)) nameCost = WTS.SUB //4;
+            else if (['Square', 'Sqrt'].includes(name)) nameCost = WTS.SQR //5;
+            else if (['Power', 'Root'].includes(name)) 
+                {
+                if (WTS.PWR === 0)
+                    // We want 2q^2 to be less expensive than 2qq, so we ignore the exponent
+                    return myCostFunction(expr.ops[1]);  // removed typescript null assertion (!)
+                else nameCost = WTS.PWR;
+                } 
+            else if (['Multiply'].includes(name)) nameCost = WTS.MUL //7;
+            else if (['Divide'].includes(name)) nameCost = WTS.DIV //8;
+            else if (['Ln', 'Exp', 'Log', 'Lb'].includes(name)) nameCost = WTS.LOG //9;
+            else if (['Cos', 'Sin', 'Tan'].includes(name)) nameCost = WTSTRI //10;
+            else nameCost = WTS.OTH //11;
 
             return (
                 nameCost + (expr.ops?.reduce((acc, x) => acc + myCostFunction(x), 0) ?? 0)
