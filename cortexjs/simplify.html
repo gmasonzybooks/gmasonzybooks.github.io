@@ -9,11 +9,23 @@
         li {
             margin: 5px;
         }
-        .output {
-            margin-top:10px;
+
+        input {
+            width: 30px;
         }
+
+        .weight {
+            margin-top: 0px;
+            margin-right: 20px;
+            
+        }
+
+        .output {
+            margin-top: 20px;
+        }
+
         .inline {
-            display:inline-block;
+            display: inline-block;
         }
     </style>
 </head>
@@ -22,15 +34,37 @@
     <div id="main">
         <math-field id="mf" style="width:600px;  font-size:1.3em"></math-field>
         <button id="parse">Parse</button>
-        <div class="output">Original-- 
-            <div>JSON: <div class="inline" id="raw"></div></div>
-            <div>LaTex: <div class="inline" id="rawLatex"></div> </div>
+        <div class="output">Original--
+            <div>JSON: <div class="inline" id="raw"></div>
+            </div>
+            <div>LaTex: <div class="inline" id="rawLatex"></div>
+            </div>
+            <div>Cost: <div class="inline" id="rawCost"></div>
+            </div>
         </div>
         <!-- <div class="output">Canonical: <span id="canonical"> </span></div> -->
-        <div class="output">Simplified-- 
-            <div>JSON: <div class="inline"  id="simplified"> </div> </div>
-            <div>Ascii: <div class="inline" id="simplifiedASCII"></div></div>
-            <div>LaTex: <div class="inline" id="simplifiedLatex"></div></div> 
+        <div class="output">Simplified--
+            <div>JSON: <div class="inline" id="simplified"> </div>
+            </div>
+            <div>Ascii: <div class="inline" id="simplifiedASCII"></div>
+            </div>
+            <div>LaTex: <div class="inline" id="simplifiedLatex"></div>
+            </div>
+            <div>Cost: <div class="inline" id="simplifiedCost"></div>
+            </div>
+        </div>
+        <div style="margin-top:20px;">Weights:<br />
+            <div class="weight"><input type="number" id="SYM" value="1"> Symbol </div>
+            <div class="weight"><input type="number" id="DEF" value="2"> Default </div>
+            <div class="weight"><input type="number" id="ADD" value="3"> Add</div>
+            <div class="weight"><input type="number" id="SUB" value="4"> Subtract, Negate </div>
+            <div class="weight"><input type="number" id="SQR" value="3"> Square, Sqrt </div>
+            <div class="weight"><input type="number" id="MUL" value="7"> Multiply </div>
+            <div class="weight"><input type="number" id="DIV" value="8"> Divide </div>
+            <div class="weight"><input type="number" id="LOG" value="9"> Ln, Exp, Log, Lb</div>
+            <div class="weight"><input type="number" id="TRI" value="10"> Cos, Sin, Tan</div>
+            <div class="weight"><input type="number" id="OTH" value="11"> Other</div>
+            <div>2  Floats,  n Integer with n digits</div>
         </div>
     </div>
 
@@ -112,29 +146,103 @@
     </script>
 
 
-<!-- Cortexjs compute engine-->
+    <!-- Cortexjs compute engine-->
     <script type="module">
         import { ComputeEngine } from "https://esm.run/@cortex-js/compute-engine";
         import { renderMathInElement } from 'https://esm.run/mathlive';
 
 
+        // cost function copied from computeEngine.  Modify as needed.
+
+        function captureWeights(){
+            var weights = []
+           document.querySelectorAll(".weight").forEach(item => {
+                weights.push(Number(item.children[0].value))
+            })
+
+            return  weights
+        }
+
+        // support cost function to evaluate numeric values
+        function numericCostFunction(n) {
+            if (typeof n === 'number') {
+                if (n === 0) return 1;
+                if (Number.isInteger(n))
+                    return (
+                        Math.floor(Math.log2(Math.abs(n)) / Math.log2(10)) + (n > 0 ? 1 : 2)
+                    );
+                return 2;
+            }
+
+            if (n.isZero) return 1;
+
+            // complex number case
+            if (n.im !== 0)
+                return numericCostFunction(n.re) + numericCostFunction(n.im) + 1;
+
+            return numericCostFunction(n.re);
+        }
+
+
+        function myCostFunction(expr) {
+
+            let WTS = captureWeights()
+            //
+            // Symbols
+            //
+            if (expr.symbol) return WTS[0] // 1;
+
+            //
+            //  Literal Numeric Values
+            //
+            if (expr.isNumberLiteral) return numericCostFunction(expr.numericValue);
+
+            //
+            // Operators
+            //
+            const name = expr.operator;
+            let nameCost = WTS[1];
+            if (['Add'].includes(name)) nameCost = WTS[2] // 3;
+            else if (['Subtract', 'Negate'].includes(name)) nameCost = WTS[3] //4;
+            else if (['Square', 'Sqrt'].includes(name)) nameCost = WTS[4] //5;
+            else if (['Power', 'Root'].includes(name))
+                // We want 2q^2 to be less expensive than 2qq, so we ignore the exponent
+                return myCostFunction(expr.ops[1]);  // removed typescript null assertion (!)
+            else if (['Multiply'].includes(name)) nameCost = WTS[5] //7;
+            else if (['Divide'].includes(name)) nameCost = WTS[6] //8;
+            else if (['Ln', 'Exp', 'Log', 'Lb'].includes(name)) nameCost = WTS[7] //9;
+            else if (['Cos', 'Sin', 'Tan'].includes(name)) nameCost = WTS[8] //10;
+            else nameCost = WTS[9] //11;
+
+            return (
+                nameCost + (expr.ops?.reduce((acc, x) => acc + myCostFunction(x), 0) ?? 0)
+            );
+        }
+
         const ce = new ComputeEngine();
 
 
+        const parse = document.getElementById("parse")
+        parse.cost = myCostFunction // ce.costFunction // attach to the object for later reference
 
-        document.getElementById("parse").addEventListener('click', evt => {
+        parse.addEventListener('click', evt => {
             //console.log('value:', mf.value)
 
             const expr = mf.expression                  // raw expression
             document.getElementById("raw").innerHTML = JSON.stringify(expr.toJSON())
-            document.getElementById("rawLatex").innerHTML= "$$"+expr.latex+"$$" 
+            document.getElementById("rawLatex").innerHTML = "$$" + expr.latex + "$$"
+            document.getElementById("rawCost").innerHTML = evt.currentTarget.cost(expr)
             renderMathInElement("rawLatex")
 
+
             const exprS = expr.simplify().simplify()    // simplified version
-            document.getElementById("simplified").innerHTML = JSON.stringify(exprS.toJSON()) 
-            document.getElementById("simplifiedASCII").innerHTML= exprS.toString()
-            document.getElementById("simplifiedLatex").innerHTML= "$$"+exprS.latex+"$$" 
+            document.getElementById("simplified").innerHTML = JSON.stringify(exprS.toJSON())
+            document.getElementById("simplifiedASCII").innerHTML = exprS.toString()
+            document.getElementById("simplifiedLatex").innerHTML = "$$" + exprS.latex + "$$"
+            document.getElementById("simplifiedCost").innerHTML = evt.currentTarget.cost(exprS)
             renderMathInElement("simplifiedLatex")
+
+
         })
 
         // ce.parse("e^{i\\pi}").evaluate().print();
