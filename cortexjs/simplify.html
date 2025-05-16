@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Simplify</title>
+    <title>Keyboards</title>
     <script src="https://unpkg.com/mathlive"></script>
     <style>
  
@@ -56,6 +56,8 @@
         </div>
         <div style="margin-top:20px;">Weights:<br />
             <div class="weight"><input type="number" id="SYM" value="1"> Symbol </div>
+            <div class="weight"><input type="number" id="NINT" value="0"> Integer (if 0  value = number of digits in integer)</div>
+            <div class="weight"><input type="number" id="NFLT" value="2"> Floats</div>
             <div class="weight"><input type="number" id="ADD" value="3"> Add</div>
             <div class="weight"><input type="number" id="SUB" value="4"> Subtract, Negate </div>
             <div class="weight"><input type="number" id="SQR" value="3"> Square, Sqrt </div>
@@ -65,7 +67,8 @@
             <div class="weight"><input type="number" id="LOG" value="9"> Ln, Exp, Log, Lb</div>
             <div class="weight"><input type="number" id="TRI" value="10"> Cos, Sin, Tan</div>
             <div class="weight"><input type="number" id="OTH" value="11"> Other</div>
-            <div>2:  Floats,  n: Integer with n digits</div>
+
+            
         </div>
     </div>
 
@@ -167,23 +170,25 @@
         }
 
         // support cost function to evaluate numeric values
-        function numericCostFunction(n) {
+        function numericCostFunction(n,NINT,NFLT) {
             if (typeof n === 'number') {
                 if (n === 0) return 1;
-                if (Number.isInteger(n))
-                    return (
-                        Math.floor(Math.log2(Math.abs(n)) / Math.log2(10)) + (n > 0 ? 1 : 2)
-                    );
-                return 2;
+                if (Number.isInteger(n)){
+                    if (NINT == 0) 
+                        return (Math.floor(Math.log2(Math.abs(n)) / Math.log2(10)) + (n > 0 ? 1 : 2));
+                    else
+                        return NINT
+                } // else a float
+                    return NFLT;
             }
 
             if (n.isZero) return 1;
 
             // complex number case
             if (n.im !== 0)
-                return numericCostFunction(n.re) + numericCostFunction(n.im) + 1;
+                return numericCostFunction(n.re,NINT,NFLT) + numericCostFunction(n.im,NINT,NFLT) + 1;
 
-            return numericCostFunction(n.re);
+            return numericCostFunction(n.re,NINT,NFLT);
         }
 
 
@@ -198,7 +203,7 @@
             //
             //  Literal Numeric Values
             //
-            if (expr.isNumberLiteral) return numericCostFunction(expr.numericValue);
+            if (expr.isNumberLiteral) return numericCostFunction(expr.numericValue,WTS.NINT,WTS.NFLT);
 
             //
             // Operators
