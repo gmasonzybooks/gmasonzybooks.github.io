@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+   <meta charset="utf-8">
+   <title>Curve data test</title>
+
+   <script src="https://unpkg.com/konva@9/konva.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/mathjs@14.6.0/lib/browser/math.min.js"></script>
+
+   <style>
+      input {
+         width: 80px;
+      }
+   </style>
+
+</head>
+
+<body>
+   <!-- hidden layer done another way div class="canvas"  id="calcs" style="position:absolute; top:0; left:0 ; width:500px; height:500px;"></div-->
+   <div class="canvas" id="container"></div>
+   <div>
+      <label>xmin:</label><input id="xmin" type="text" value="1.0">&nbsp;
+      <label>ymin:</label><input id="ymin" type="text" value="1.0">&nbsp;
+      <label>xmax:</label><input id="xmax" type="text" value="10.0">&nbsp;
+      <label>ymax:</label><input id="ymax" type="text" value="10.0">&nbsp;
+      <button id="setScale">Set scaling</button>
+   </div>
+   <div>
+      <label>x,y:</label><span id="xy">1,1</span>
+   </div>
+   <div><button id="addQuad">Add quadratic curve</button></div>
+</body>
+
+<script>
+
+// quadratic curve
+   class curve extends Konva.Group {
+
+      constructor(params) {
+
+         if (params == undefined) params = {}  // for params to exist
+         super({
+            x: 0,
+            y: 0,
+            draggable: true,
+         })
+
+       
+        
+         this.points = [0, 0, 10, 31, 30, 151]
+
+         this.updateCallback = () => { return; }  // do nothing by default
+
+
+         this.shape = new Konva.Line({
+            points: [0, 0, 10, 31, 30, 151],
+
+            stroke: "red",
+            strokeWidth: 3,
+            draggable: false,
+            rotation: 0,
+            hitStrokeWidth: 10,
+            name: "shapeCurve",
+            bezier: false,
+
+            tension: 0,
+            opacity: 0.5
+         });
+
+         this.text = new Konva.Text({
+            text: "123x2+ 234x+ 34",
+            align: "right",
+            fill: "black",
+            x: 10,
+            y: 0,
+            fontSize:16,
+            draggable: false,
+         })
+
+         this.background = new Konva.Rect({
+            x:10,
+            y:0,
+            fill:"white",
+            height:16,
+            width:200, // a guess, could be computed from this.text - being lazy
+            opacity:0.8,
+            draggable:false
+         })
+
+         this.controls = [];
+
+         for (var j = 0; j < this.points.length / 2; j++) { // dangerous if /2 is not a integer
+            this.addControl(j)
+         }
+
+         this.on('dragmove', evt => {
+            evt.cancelBubble = true;
+            this.updateeqn()
+            var mousePos = this.getStage().getPointerPosition();
+            this.updateCallback(mousePos)
+
+         })
+
+         this.add(this.shape, this.background, this.text, ...this.controls) // , this.dummy)
+
+
+         this.updatecurve()
+         this.updateeqn()
+
+
+
+      }
+
+
+
+      // add control corresponding to x,y starting at point[2*j]
+
+       // current implementation forces origin at 0,0 in the group by freezing the first control point 
+         // Done to simplify math/implementation, should be updated
+         // to allow free movement of first point
+      addControl(j) {
+         var i = j * 2;
+
+         this.controls[j] = new Konva.Circle({
+            x: this.points[i],
+            y: this.points[i + 1],
+            radius: 6,
+            stroke: '#666',
+            fill: j==0?'#999':'#ddd',
+            strokeWidth: 1,
+            draggable: j==0?false:true,
+            opacity: 0.5,
+            name: j.toString() // this array index
+         })
+
+         // this isn't quite right because tracks to pointer location and not the circle's center?
+         if (j > 0) {
+            this.controls[j].on("dragmove", (evt) => {
+               evt.cancelBubble = true;
+               var offsetP = this.absolutePosition();
+               var mousePos = this.getStage().getPointerPosition();
+               var idx = Number(evt.target.name());
+               // new x,y coords for the point
+               this.points[idx * 2] = mousePos.x - offsetP.x;
+               this.points[idx * 2 + 1] = mousePos.y - offsetP.y;
+
+               this.updatecurve()
+               this.updateeqn()
+               // this.shape.points(this.points);
+
+
+
+               evt.target.absolutePosition(mousePos)
+
+               this.updateCallback(mousePos)
+
+            })
+         }
+
+      }
+
+      updatecurve() {
+         // a xx  b x   c  = y
+         // solve Ax=B
+         const coef = math.lusolve([
+            [this.points[0] * this.points[0], this.points[0], 1],
+            [this.points[2] * this.points[2], this.points[2], 1],
+            [this.points[4] * this.points[4], this.points[4], 1]
+         ],
+            [this.points[1],
+            this.points[3],
+            this.points[5]]
+         )
+         let p = []
+         for (let x = this.points[0]; x <= this.points[4]; x += 5) {
+            p.push(x, coef[0][0] * x * x + coef[1][0] * x + coef[2][0])
+         }
+         this.shape.points(p)
+      }
+
+      updateeqn(){
+         // update the equation for scaled coordinates
+         // there is a direct mapping from coef to the scaled version, 
+         // but I'm too lazy to do the math right now, so brute force it
+         const p0 = pxToEng(this.controls[0].getAbsolutePosition())
+         const p1 = pxToEng(this.controls[1].getAbsolutePosition())
+         const p2 = pxToEng(this.controls[2].getAbsolutePosition())
+
+         const coef = math.lusolve([
+            [p0.x*p0.x, p0.x, 1],
+            [p1.x*p1.x, p1.x, 1],
+            [p2.x*p2.x, p2.x, 1]
+         ],
+            [p0.y,
+             p1.y,
+             p2.y]
+         )
+         this.text.text(coef[0][0].toPrecision(4)+" x² + "+coef[1][0].toPrecision(4) + " x + "+coef[2][0].toPrecision(4))
+      }
+   }
+
+
+   // scale pixel location to engineering units
+   var _scaling = { xs: 1, xo: 0, ys: 1, yo: 1 }
+   function pxToEng(pxy) {
+      return { x: pxy.x * _scaling.xs + _scaling.xo, y: pxy.y * _scaling.ys + _scaling.yo }
+   }
+
+
+   
+   // the canvas for drawing
+   var _stage = new Konva.Stage({
+      container: 'container',   // id of container <div>
+      width: 1000,
+      height: 500
+   });
+
+
+   //  create layer
+   var _layer = new Konva.Layer();
+   _stage.add(_layer);
+
+   // drag handles used for setting scaling
+   var transformer = new Konva.Transformer({
+      rotateEnabled: false,
+      opacity:0.3
+   })
+
+   // the scaling box
+   var scaler = new Konva.Rect({
+      stroke: "white",
+      strokeWidth: 0,
+      height: 100,
+      width: 100,
+      opacity: 0.1,
+      draggable: true,
+      fill: "gray",
+      listening: true
+   })
+
+   
+   // add things to the canvas
+   _layer.add(scaler)
+   _layer.add(transformer)
+
+   transformer.nodes([scaler])
+
+
+   // add the latex svg to the canvas
+   // should allow drag/drop to upload.  Use fixed image for testing
+   url = "image.png"
+   Konva.Image.fromURL(url, (image) => {
+      const ratio = image.width()/image.height()
+      image.height(500)
+      image.width(ratio*500.0)
+      _layer.add(image);
+      // image.y(0)
+      // image.x(0)
+      image.listening(false);
+      _layer.draw();
+      image.moveToBottom()
+   });
+
+   // event handlers
+
+   // update scaling 
+   document.getElementById("setScale").addEventListener("click", evt => {
+      const xmin = Number(document.getElementById("xmin").value)
+      const xmax = Number(document.getElementById("xmax").value)
+      const ymin = Number(document.getElementById("ymin").value)
+      const ymax = Number(document.getElementById("ymax").value)
+
+      _scaling.xs = (xmax - xmin) / (scaler.width() * scaler.scaleX())
+      _scaling.xo = xmin - _scaling.xs * scaler.x()
+
+      _scaling.ys = -(ymax - ymin) / (scaler.height() * scaler.scaleY())
+      _scaling.yo = ymax - _scaling.ys * scaler.y()
+
+   })
+
+   // add a quadratic curve
+   document.getElementById("addQuad").addEventListener("click", evt => {
+      _layer.add(new curve())
+   })
+
+   // track the mouse movement
+   _stage.on("pointermove", () => {
+      const pos = pxToEng(_stage.getPointerPosition());
+      document.getElementById("xy").innerHTML = pos.x.toPrecision(4) + ", " + pos.y.toPrecision(4)
+   })
+
+
+</script>
+
+
+
+
+
+</html>
