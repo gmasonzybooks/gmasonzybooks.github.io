@@ -36,23 +36,23 @@ var _graphmap = {
   70: 'eutectic point'
 }
 
-//Konva.pixelRatio = 1
+Konva.pixelRatio = 1
 
 // Create a stage (container for all layers)
 const stage = new Konva.Stage({
   container: 'container',
-  width: 500,
-  height: 400
+  width: 501,
+  height: 401
 });
 
 // Create layers
 
 const maplayer = new Konva.Layer();
-maplayer.toCanvas().getContext('2d').imageSmoothingEnabled=false
+//maplayer.toCanvas().getContext('2d').imageSmoothingEnabled=false
+maplayer.getNativeCanvasElement().getContext('2d').imageSmoothingEnabled = false
 
 stage.add(maplayer);
 
-//maplayer.getCanvas().setPixelRatio(1);
 
 const imagelayer = new Konva.Layer();
 stage.add(imagelayer);
@@ -69,8 +69,8 @@ imageObj.onload = function () {
     x: 0,
     y: 0,
     image: imageObj,
-    width: 500,
-    height: 400
+    width: 501,
+    height: 401
   });
 
   imagelayer.add(graph);
@@ -84,13 +84,13 @@ image2Obj.onload = function () {
     x: 0,
     y: 0,
     image: image2Obj,
-    width: 500,
-    height: 400
+    width: 501,
+    height: 401
   });
 
   maplayer.add(map);
 }
-image2Obj.src = 'map.png';
+image2Obj.src = 'mapSM.png';
 
 const hcursor = new Konva.Line({
   //points: [_xminmax[0], _yminmax[0], _xminmax[1], _yminmax[0]], 
