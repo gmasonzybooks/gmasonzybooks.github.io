@@ -1,0 +1,209 @@
+<zyTool name="ProgressionPlayerInteractiveAndAccessible" caption="Inverse Laplace transforms" id="a5194780-f46d-41f3-b561-a1ac862c56f2" challenge="true" parts="4" optional="false" edited-last="Wed Aug 19 2026 09:05:34 GMT-0700 (Pacific Daylight Time)" image-ids="">
+<zyInstructions></zyInstructions><zyOptions><progression type="dict">
+<code type="string">class PotentialQuestion:
+    def __init__(self, function, numer1, explanationNumbers = 0, numer2 = 0, numer2Sign = '', exp = 0, denom = 0):
+        self.function = function        
+        self.numer1 = numer1
+        self.explanationNumbers = explanationNumbers
+        self.numer2 = numer2
+        self.numer2Sign = numer2Sign
+        self.exp = exp
+        self.denom = denom</code>
+<elements type="list"><item type="dict"><id type="string">32</id><isInEditMode type="boolean">false</isInEditMode><isSelected type="boolean">false</isSelected><name type="string">33: Shortanswer</name><style type="dict"><opacity type="number">1</opacity><border-radius type="number">0</border-radius><transform type="string">rotate(0deg)</transform><font-size type="string">16px</font-size><width type="string">150px</width><top type="string">98px</top><left type="string">85px</left></style><type type="string">shortanswer</type><ariaLabel type="string">v(t) where the inverse Laplace transform of V(s) is v(t)u(t).</ariaLabel><assessmentMethod type="string">symbolic</assessmentMethod><assessmentProperties type="dict"><width type="number">150</width><accepted_substitute_variables type="string">[]</accepted_substitute_variables><expected_functions type="string">[]</expected_functions><expected_variables type="string">["t"]</expected_variables><notation type="string">symbolic equivalence</notation><tolerance type="string">0</tolerance><virtual_keyboard_layout_name type="string">Kitchen sink</virtual_keyboard_layout_name></assessmentProperties><correctAnswers type="list"><item type="string">${v_ANS}</item></correctAnswers><placeholder type="string"></placeholder></item><item type="dict"><id type="string">31</id><isInEditMode type="boolean">false</isInEditMode><isSelected type="boolean">false</isSelected><name type="string">32: Text</name><style type="dict"><opacity type="number">1</opacity><border-radius type="number">0</border-radius><transform type="string">rotate(0deg)</transform><font-size type="string">16px</font-size><padding type="string">0px</padding><border type="string">2px solid rgba(0, 0, 0, 0)</border><color type="string">zyante-black</color><top type="string">110px</top><left type="string">250px</left></style><type type="string">text</type><ariaHidden type="boolean">true</ariaHidden><enableResizing type="boolean">false</enableResizing><centerText type="boolean">false</centerText><text type="string">\(u(t)\)</text><useMarkdown type="boolean">false</useMarkdown></item><item type="dict"><id type="string">30</id><isInEditMode type="boolean">false</isInEditMode><isSelected type="boolean">false</isSelected><name type="string">31: Text</name><style type="dict"><opacity type="number">1</opacity><border-radius type="number">0</border-radius><transform type="string">rotate(0deg)</transform><font-size type="string">16px</font-size><padding type="string">0px</padding><border type="string">2px solid rgba(0, 0, 0, 0)</border><color type="string">zyante-black</color><top type="string">110px</top><left type="string">27px</left></style><type type="string">text</type><ariaHidden type="boolean">true</ariaHidden><enableResizing type="boolean">false</enableResizing><centerText type="boolean">false</centerText><text type="string">\(v(t)=\)</text><useMarkdown type="boolean">false</useMarkdown></item><item type="dict"><id type="string">29</id><isInEditMode type="boolean">false</isInEditMode><isSelected type="boolean">false</isSelected><name type="string">30: Text</name><style type="dict"><opacity type="number">1</opacity><border-radius type="number">0</border-radius><transform type="string">rotate(0deg)</transform><font-size type="string">16px</font-size><padding type="string">0px</padding><border type="string">2px solid rgba(0, 0, 0, 0)</border><color type="string">zyante-black</color><top type="string">49px</top><left type="string">20px</left></style><type type="string">text</type><ariaHidden type="boolean">false</ariaHidden><enableResizing type="boolean">false</enableResizing><centerText type="boolean">false</centerText><text type="string">\(V(s) =\) ${s_function}</text><useMarkdown type="boolean">false</useMarkdown></item><item type="dict"><id type="string">28</id><isInEditMode type="boolean">false</isInEditMode><isSelected type="boolean">true</isSelected><name type="string">29: Shortanswer</name><style type="dict"><opacity type="number">1</opacity><border-radius type="number">0</border-radius><transform type="string">rotate(0deg)</transform><font-size type="string">16px</font-size><width type="string">150px</width><top type="string">182px</top><left type="string">71px</left></style><type type="string">shortanswer</type><ariaLabel type="string">v(t) where the inverse Laplace transform of V(s) is v(t)u(t).</ariaLabel><assessmentMethod type="string">symbolic</assessmentMethod><assessmentProperties type="dict"><width type="number">150</width><accepted_substitute_variables type="string">[]</accepted_substitute_variables><expected_functions type="string">[]</expected_functions><expected_variables type="string">["t"]</expected_variables><notation type="string">symbolic equivalence</notation><tolerance type="string">0</tolerance><virtual_keyboard_layout_name type="string">Kitchen sink</virtual_keyboard_layout_name></assessmentProperties><correctAnswers type="list"><item type="string">${v_ANS}</item></correctAnswers><placeholder type="string"></placeholder></item><item type="dict"><id type="string">18</id><isInEditMode type="boolean">false</isInEditMode><isSelected type="boolean">false</isSelected><name type="string">19: Text</name><style type="dict"><opacity type="number">1</opacity><border-radius type="number">0</border-radius><transform type="string">rotate(0deg)</transform><font-size type="string">16px</font-size><padding type="string">0px</padding><border type="string">2px solid rgba(0, 0, 0, 0)</border><color type="string">zyante-black</color><top type="string">195px</top><left type="string">235px</left></style><type type="string">text</type><ariaHidden type="boolean">true</ariaHidden><enableResizing type="boolean">false</enableResizing><centerText type="boolean">false</centerText><text type="string">\(u(t)\)</text><useMarkdown type="boolean">false</useMarkdown></item><item type="dict"><id type="string">0</id><isInEditMode type="boolean">false</isInEditMode><isSelected type="boolean">false</isSelected><name type="string">1: Text</name><style type="dict"><opacity type="number">1</opacity><border-radius type="number">0</border-radius><transform type="string">rotate(0deg)</transform><font-size type="string">16px</font-size><padding type="string">0px</padding><border type="string">2px solid rgba(0, 0, 0, 0)</border><color type="string">zyante-black</color><top type="string">48px</top><left type="string">42px</left></style><type type="string">text</type><ariaHidden type="boolean">false</ariaHidden><enableResizing type="boolean">false</enableResizing><centerText type="boolean">false</centerText><text type="string">Phase shifted cosine:
+Fill in the blanks below to complete the transformed equation.</text><useMarkdown type="boolean">false</useMarkdown></item><item type="dict"><id type="string">19</id><isInEditMode type="boolean">false</isInEditMode><isSelected type="boolean">false</isSelected><name type="string">20: Text</name><style type="dict"><opacity type="number">1</opacity><border-radius type="number">0</border-radius><transform type="string">rotate(0deg)</transform><font-size type="string">16px</font-size><padding type="string">0px</padding><border type="string">2px solid rgba(0, 0, 0, 0)</border><color type="string">zyante-black</color><top type="string">196px</top><left type="string">16px</left></style><type type="string">text</type><ariaHidden type="boolean">true</ariaHidden><enableResizing type="boolean">false</enableResizing><centerText type="boolean">false</centerText><text type="string">\(v(t)\hspace{1px}=\)</text><useMarkdown type="boolean">false</useMarkdown></item><item type="dict"><id type="string">13</id><isInEditMode type="boolean">false</isInEditMode><isSelected type="boolean">false</isSelected><name type="string">14: Text</name><style type="dict"><opacity type="number">1</opacity><border-radius type="number">0</border-radius><transform type="string">rotate(0deg)</transform><font-size type="string">16px</font-size><padding type="string">0px</padding><border type="string">2px solid rgba(0, 0, 0, 0)</border><color type="string">zyante-black</color><top type="string">133px</top><left type="string">9px</left></style><type type="string">text</type><ariaHidden type="boolean">false</ariaHidden><enableResizing type="boolean">false</enableResizing><centerText type="boolean">false</centerText><text type="string">\({V(s)} =\) ${s_function}</text><useMarkdown type="boolean">false</useMarkdown></item><item type="dict"><id type="string">1</id><isInEditMode type="boolean">false</isInEditMode><isSelected type="boolean">false</isSelected><name type="string">2: Text</name><style type="dict"><opacity type="number">1</opacity><border-radius type="number">0</border-radius><transform type="string">rotate(0deg)</transform><font-size type="string">16px</font-size><padding type="string">0px</padding><border type="string">2px solid rgba(0, 0, 0, 0)</border><color type="string">zyante-black</color><top type="string">51px</top><left type="string">42px</left></style><type type="string">text</type><ariaHidden type="boolean">false</ariaHidden><enableResizing type="boolean">false</enableResizing><centerText type="boolean">false</centerText><text type="string">Phase shifted cosine:
+Fill in the blanks to complete the transformed equation.</text><useMarkdown type="boolean">false</useMarkdown></item><item type="dict"><id type="string">27</id><isInEditMode type="boolean">false</isInEditMode><isSelected type="boolean">false</isSelected><name type="string">28: Text</name><style type="dict"><opacity type="number">1</opacity><border-radius type="number">0</border-radius><transform type="string">rotate(0deg)</transform><font-size type="string">16px</font-size><padding type="string">0px</padding><border type="string">2px solid rgba(0, 0, 0, 0)</border><color type="string">zyante-black</color><top type="string">0px</top><left type="string">0px</left></style><type type="string">text</type><ariaHidden type="boolean">false</ariaHidden><enableResizing type="boolean">false</enableResizing><centerText type="boolean">false</centerText><text type="string">What is the inverse Laplace transform of \(V(s)\) below given the transform rule</text><useMarkdown type="boolean">false</useMarkdown></item></elements><levels type="list"><item type="dict">
+<code type="string"></code>
+<elementVariants type="list"></elementVariants><questions type="list"><item type="dict">
+<code type="string">## 03/22/23: MDA randomized values
+num = pick_from_range(2, 15)
+den = pick_from_range(2, 15,[num])
+
+questions = [
+ #   PotentialQuestion('\(\\dfrac{2}{s  \\,+\\, 3}\)', 2, [2, '+\\,3'], exp = -3),
+ #   PotentialQuestion('\(\\dfrac{3}{s  \\,+\\, 2}\)', 3, [3, '+\\,2'], exp = -2),
+ #   PotentialQuestion('\(\\dfrac{3}{s  \\,-\\, 4}\)', 3, [3, '-\\,4'], exp = 4),
+ #   PotentialQuestion('\(\\dfrac{5}{s  \\,-\\, 2}\)', 5, [5, '-\\,2'], exp = 2),
+ PotentialQuestion('\(\\dfrac{%d}{s  \\,+\\, %d}\)' % (num, den), num, [num, '+\\, %s' % (den)], exp = -den),
+ PotentialQuestion('\(\\dfrac{%d}{s  \\,-\\, %d}\)' % (num, den), num, [num, '-\\, %s' % (den)], exp = den)
+]
+
+question = pickFrom(questions)
+s_function = question.function
+numer = question.numer1
+exp = question.exp
+
+v_ANS = '%s e^{%s t}' % (numer, exp)
+
+explanation = (
+    'Expected: \(%de^{%dt}\,u(t)\)\n\n' % (numer, exp)
+    + 'Solution: \(\\quad\\mathscr{L}^{-1}\\left[\\dfrac{B}{s \\,+\\,a} = \\dfrac{%d}{s \\,%s}\\right] = Be^{-at}\\,u(t) = %de^{%dt}\,u(t)\).'
+    % (question.explanationNumbers[0], question.explanationNumbers[1], question.explanationNumbers[0], exp)
+)</code>
+<elementVariants type="list"><item type="dict"><id type="string">1</id><text type="string">\( B e^{-at}\, u(t) \Longleftrightarrow  \dfrac{B}{s+a}\) </text></item><item type="dict"><id type="string">27</id><text type="string">What is the inverse Laplace transform of \(V(s)\) below given the transform rule</text><useMarkdown type="boolean">false</useMarkdown></item><item type="dict"><id type="string">13</id><text type="string">\(V(s) =\) ${s_function}</text><useMarkdown type="boolean">false</useMarkdown></item></elementVariants>
+<explanation type="string"></explanation>
+<height type="string"></height><id type="string">6094e56c-b16e-431a-83a1-f4105bbb426c</id><isSelected type="boolean">false</isSelected><name type="string">Question a</name><usedElements type="list"></usedElements><width type="string"></width></item></questions>
+<explanation type="string">${explanation}</explanation>
+<height type="string">250px</height><id type="string">5a4f7658-4e99-4fd5-b6b1-1380a5316267</id><isCollapsed type="boolean">false</isCollapsed><isSelected type="boolean">false</isSelected><name type="string">Level 1</name><usedElements type="list"><item type="string">1</item><item type="string">13</item><item type="string">18</item><item type="string">19</item><item type="string">27</item><item type="string">28</item></usedElements><useMarkdownInExplanation type="boolean">false</useMarkdownInExplanation><width type="string"></width></item><item type="dict">
+<code type="string"></code>
+<elementVariants type="list"></elementVariants><questions type="list"><item type="dict">
+<code type="string">## 03/22/23: MDA randomized values
+num1 = pick_from_range(2, 15)
+num2 = pick_from_range(2, 15, [num1])
+den2 = num2 * num2
+
+questions = [
+ #   PotentialQuestion('\(\\dfrac{3\\,s }{s ^2 \\,+\\, 16}\)', 3, numer2 = 4),
+ #   PotentialQuestion('\(\\dfrac{8\\,s }{2s ^2 \\,+\\, 50}\)', 4, numer2 = 5),
+ #   PotentialQuestion('\(\\dfrac{8\\,s }{0.5s ^2 \\,+\\, 50}\)', 16, numer2 = 10),
+ #   PotentialQuestion('\(\\dfrac{1\\,s }{0.2s ^2 \\,+\\, 45}\)', 5, numer2 = 15)
+   PotentialQuestion('\(\\dfrac{%d\\,s }{s ^2 \\,+\\, %d}\)' % (num1, den2), num1, numer2 = num2)
+]
+
+question = pickFrom(questions)
+s_function = question.function
+numer1 = question.numer1
+numer2 = question.numer2
+optionalExplanation = '\( = \\dfrac{%ds }{s ^2 \\,+\\, %d}\)' % (numer1, numer2 ** 2) if question != questions[0] else ''
+
+v_ANS = '%s \\cos(%s t)' % (numer1, numer2)
+
+explanation = (
+    'Expected: \(%d\\,\\cos(%dt)\,u(t)\)\n' % (numer1, numer2)
+    + '\(\)\n'
+    + 'Solution: \(\\quad\)%s%s\(\\Longleftrightarrow %d\\cos(%dt)\,u(t)\).' % (s_function, optionalExplanation, numer1, numer2)
+)</code>
+<elementVariants type="list"><item type="dict"><id type="string">13</id><text type="string">\(V(s) =\) ${s_function}</text><useMarkdown type="boolean">false</useMarkdown></item><item type="dict"><id type="string">1</id><text type="string">\(A \cos (\omega t)\,u(t) \Longleftrightarrow  \dfrac{ A s} {s^2 + \omega^2} \)</text></item><item type="dict"><id type="string">27</id><text type="string">What is the inverse Laplace transform of \(V(s)\) below given the transform rule</text><useMarkdown type="boolean">false</useMarkdown></item></elementVariants>
+<explanation type="string"></explanation>
+<height type="string"></height><id type="string">5e87fc37-ffb4-4ffb-a7d7-3b5ced62ac27</id><isSelected type="boolean">false</isSelected><name type="string">Question a</name><usedElements type="list"></usedElements><width type="string"></width></item></questions>
+<explanation type="string">${explanation}</explanation>
+<height type="string">250px</height><id type="string">2023ecec-9376-42c5-bc51-dae87c814bd2</id><isCollapsed type="boolean">false</isCollapsed><isSelected type="boolean">false</isSelected><name type="string">Level 2</name><usedElements type="list"><item type="string">1</item><item type="string">13</item><item type="string">19</item><item type="string">27</item><item type="string">28</item><item type="string">18</item></usedElements><useMarkdownInExplanation type="boolean">false</useMarkdownInExplanation><width type="string"></width></item><item type="dict">
+<code type="string"></code>
+<elementVariants type="list"></elementVariants><questions type="list"><item type="dict">
+<code type="string">## 03/22/23: MDA randomized values
+num1 = pick_from_range(2, 9)
+num2 = pick_from_range(2, 9, [num1])
+den2 = num2 * num2
+
+questions = [
+##    PotentialQuestion('\(\\dfrac{9}{0.2s ^2\,+\,45}\)', 3, [9, 5], 15),
+##    PotentialQuestion('\(\\dfrac{14}{s ^2\,+\,49}\)', 2, numer2 = 7),
+##    PotentialQuestion('\(\\dfrac{14}{s ^2\,+\,100}\)', 1.4, numer2 = 10),
+##    PotentialQuestion('\(\\dfrac{10}{(s \,+\,j2)(s -j2)}\)', 5, numer2 = 2),
+  PotentialQuestion('\(\\dfrac{%d}{s ^2 + %d}\)' % (num1 * num2, den2), num1, numer2 = num2)
+]
+
+question = pickFrom(questions)
+s_function = question.function
+numer1 = question.numer1
+numer2 = question.numer2
+optionalExplanation = ''
+
+
+v_ANS = '%s \\sin(%s t)' % (numer1, numer2)
+
+explanation = (
+    'Expected: \(%d\,\sin(%dt)\,u(t)\)\n' % (numer1, numer2)
+    + '\(\)\n'
+    + 'Solution: %s\(\,= \)%s \(\\dfrac{%d \\,\\times\\, %d}{s ^2 \\,+\\, %d^2} \\Longleftrightarrow %d\\sin(%dt)\,u(t)\).'
+    % (s_function, optionalExplanation, numer1, numer2, numer2, numer1, numer2)
+)</code>
+<elementVariants type="list"><item type="dict"><id type="string">0</id><text type="string">\(A \sin (\omega t)\,u(t) \Longleftrightarrow  \dfrac{ A \omega} {s^2 + \omega^2} \)</text></item><item type="dict"><id type="string">27</id><text type="string">What is the inverse Laplace transform of \(V(s)\) below given the transform rule</text><useMarkdown type="boolean">false</useMarkdown></item><item type="dict"><id type="string">13</id><text type="string">\(V(s) =\) ${s_function}</text><useMarkdown type="boolean">false</useMarkdown></item></elementVariants>
+<explanation type="string"></explanation>
+<height type="string"></height><id type="string">8025c830-2b9d-4b51-9257-d61653431915</id><isSelected type="boolean">true</isSelected><name type="string">Question a</name><usedElements type="list"></usedElements><width type="string"></width></item></questions>
+<explanation type="string">${explanation}</explanation>
+<height type="string">250px</height><id type="string">720fca33-4132-4849-9845-184115d82fce</id><isCollapsed type="boolean">false</isCollapsed><isSelected type="boolean">true</isSelected><name type="string">Level 3</name><usedElements type="list"><item type="string">0</item><item type="string">13</item><item type="string">19</item><item type="string">27</item><item type="string">28</item><item type="string">18</item></usedElements><useMarkdownInExplanation type="boolean">false</useMarkdownInExplanation><width type="string"></width></item><item type="dict">
+<code type="string"></code>
+<elementVariants type="list"></elementVariants><questions type="list"><item type="dict">
+<code type="string">## 03/22/23: MDA randomized values
+num = pick_from_range(2, 15)
+den = pick_from_range(2, 15,[num])
+
+questions = [
+ #   PotentialQuestion('\(\\dfrac{2}{s  \\,+\\, 3}\)', 2, [2, '+\\,3'], exp = -3),
+ #   PotentialQuestion('\(\\dfrac{3}{s  \\,+\\, 2}\)', 3, [3, '+\\,2'], exp = -2),
+ #   PotentialQuestion('\(\\dfrac{3}{s  \\,-\\, 4}\)', 3, [3, '-\\,4'], exp = 4),
+ #   PotentialQuestion('\(\\dfrac{5}{s  \\,-\\, 2}\)', 5, [5, '-\\,2'], exp = 2),
+ PotentialQuestion('\(\\dfrac{%d}{s  \\,+\\, %d}\)' % (num, den), num, [num, '+\\, %s' % (den)], exp = -den),
+ PotentialQuestion('\(\\dfrac{%d}{s  \\,-\\, %d}\)' % (num, den), num, [num, '-\\, %s' % (den)], exp = den)
+]
+
+question = pickFrom(questions)
+s_function = question.function
+numer = question.numer1
+exp = question.exp
+
+v_ANS = '%s e^{%s t}' % (numer, exp)
+
+explanation = (
+    'Expected: \(%de^{%dt}\,u(t)\)\n\n' % (numer, exp)
+    + 'Solution: \(\\quad\\mathscr{L}^{-1}\\left[\\dfrac{B}{s \\,+\\,a} = \\dfrac{%d}{s \\,%s}\\right] = Be^{-at}\\,u(t) = %de^{%dt}\,u(t)\).'
+    % (question.explanationNumbers[0], question.explanationNumbers[1], question.explanationNumbers[0], exp)
+)</code>
+<elementVariants type="list"><item type="dict"><id type="string">27</id><text type="string">What is the inverse Laplace transform of \(V(s)\) below?</text><useMarkdown type="boolean">false</useMarkdown></item></elementVariants>
+<explanation type="string"></explanation>
+<height type="string"></height><id type="string">fa770a8b-5b38-4a06-9c00-0632f38766b7</id><isSelected type="boolean">false</isSelected><name type="string">Question a</name><usedElements type="list"></usedElements><width type="string"></width></item><item type="dict">
+<code type="string">## 03/22/23: MDA randomized values
+num1 = pick_from_range(2, 15)
+num2 = pick_from_range(2, 15, [num1])
+den2 = num2 * num2
+
+questions = [
+ #   PotentialQuestion('\(\\dfrac{3\\,s }{s ^2 \\,+\\, 16}\)', 3, numer2 = 4),
+ #   PotentialQuestion('\(\\dfrac{8\\,s }{2s ^2 \\,+\\, 50}\)', 4, numer2 = 5),
+ #   PotentialQuestion('\(\\dfrac{8\\,s }{0.5s ^2 \\,+\\, 50}\)', 16, numer2 = 10),
+ #   PotentialQuestion('\(\\dfrac{1\\,s }{0.2s ^2 \\,+\\, 45}\)', 5, numer2 = 15)
+   PotentialQuestion('\(\\dfrac{%d\\,s }{s ^2 \\,+\\, %d}\)' % (num1, den2), num1, numer2 = num2)
+]
+
+question = pickFrom(questions)
+s_function = question.function
+numer1 = question.numer1
+numer2 = question.numer2
+optionalExplanation = '\( = \\dfrac{%ds }{s ^2 \\,+\\, %d}\)' % (numer1, numer2 ** 2) if question != questions[0] else ''
+
+v_ANS = '%s \\cos(%s t)' % (numer1, numer2)
+
+explanation = (
+    'Expected: \(%d\\,\\cos(%dt)\,u(t)\)\n' % (numer1, numer2)
+    + '\(\)\n'
+    + 'Solution: \(\\quad\)%s%s\(\\Longleftrightarrow %d\\cos(%dt)\,u(t)\).' % (s_function, optionalExplanation, numer1, numer2)
+)</code>
+<elementVariants type="list"><item type="dict"><id type="string">27</id><text type="string">What is the inverse Laplace transform of \(V(s)\) below?</text><useMarkdown type="boolean">false</useMarkdown></item></elementVariants>
+<explanation type="string"></explanation>
+<height type="string"></height><id type="string">ea633d1f-ce64-460f-aa2e-44f61eb208f0</id><isSelected type="boolean">false</isSelected><name type="string">Question b</name><usedElements type="list"></usedElements><width type="string"></width></item><item type="dict">
+<code type="string">## 03/22/23: MDA randomized values
+num1 = pick_from_range(2, 9)
+num2 = pick_from_range(2, 9, [num1])
+den2 = num2 * num2
+
+questions = [
+##    PotentialQuestion('\(\\dfrac{9}{0.2s ^2\,+\,45}\)', 3, [9, 5], 15),
+##    PotentialQuestion('\(\\dfrac{14}{s ^2\,+\,49}\)', 2, numer2 = 7),
+##    PotentialQuestion('\(\\dfrac{14}{s ^2\,+\,100}\)', 1.4, numer2 = 10),
+##    PotentialQuestion('\(\\dfrac{10}{(s \,+\,j2)(s -j2)}\)', 5, numer2 = 2),
+  PotentialQuestion('\(\\dfrac{%d}{s ^2 + %d}\)' % (num1 * num2, den2), num1, numer2 = num2)
+]
+
+question = pickFrom(questions)
+s_function = question.function
+numer1 = question.numer1
+numer2 = question.numer2
+optionalExplanation = ''
+
+
+v_ANS = '%s \\sin(%s t)' % (numer1, numer2)
+
+explanation = (
+    'Expected: \(%d\,\sin(%dt)\,u(t)\)\n' % (numer1, numer2)
+    + '\(\)\n'
+    + 'Solution: %s\(\,= \)%s \(\\dfrac{%d \\,\\times\\, %d}{s ^2 \\,+\\, %d^2} \\Longleftrightarrow %d\\sin(%dt)\,u(t)\).'
+    % (s_function, optionalExplanation, numer1, numer2, numer2, numer1, numer2)
+)</code>
+<elementVariants type="list"><item type="dict"><id type="string">27</id><text type="string">What is the inverse Laplace transform of \(V(s)\) below?</text><useMarkdown type="boolean">false</useMarkdown></item></elementVariants>
+<explanation type="string"></explanation>
+<height type="string"></height><id type="string">06846135-510f-44d4-8ddc-a1ce3655f134</id><isSelected type="boolean">false</isSelected><name type="string">Question c</name><usedElements type="list"></usedElements><width type="string"></width></item></questions>
+<explanation type="string">${explanation}</explanation>
+<height type="string">170px</height><id type="string">28faa3a4-07bc-484d-a98e-9a506d691535</id><isCollapsed type="boolean">false</isCollapsed><isSelected type="boolean">false</isSelected><name type="string">Level 4</name><usedElements type="list"><item type="string">27</item><item type="string">29</item><item type="string">30</item><item type="string">31</item><item type="string">32</item></usedElements><useMarkdownInExplanation type="boolean">false</useMarkdownInExplanation><width type="string"></width></item></levels>
+<explanation type="string"></explanation>
+<height type="string">190px</height><mathjax2 type="boolean">false</mathjax2><useMarkdownInTextElements type="boolean">false</useMarkdownInTextElements><width type="string">500px</width><widthLocked type="boolean">true</widthLocked><isExam type="boolean">false</isExam></progression></zyOptions><zyAltDescription>
+</zyAltDescription></zyTool>
